@@ -1,0 +1,79 @@
+########################################################################
+#                                                                      #
+#   NK Korea    NFADC100 ROOT Libary                                    #
+#                                                                      #
+#   Created: Sept. 2006                                                #
+#                                                                      #
+#   Auth: H.J. Kim hongjoo@knu.ac.kr                                   #
+#                                                                      #
+########################################################################
+#   NKHOME should be defined
+
+FILENAME = NoticeNFADC400
+ROOTNAME = NKNFADC400
+
+ROOTCFLAGS   := $(shell root-config --cflags)
+ROOTLDFLAGS  := $(shell root-config --ldflags)
+ROOTLIBS     := $(shell root-config --libs)
+ROOTGLIBS    := $(shell root-config --glibs)
+
+LIB	=	lib$(FILENAME)_root.so
+
+CC	=	g++
+
+COPTS	=	-fPIC -O -Wall -DNKROOT $(ROOTCFLAGS)
+
+FLAGS	=	-shared 
+
+DEPLIBS	=
+
+LIBS	=	-L/$(NKHOME)/lib
+
+
+INCLUDEDIR =	-I/$(NKHOME)/include
+
+INSTALLDIR     =	$(NKHOME)/lib
+INSTALLINCLUDE =	$(NKHOME)/include
+
+OBJS	=	$(FILENAME).o $(ROOTNAME)Dict.o
+DICS    =       $(ROOTNAME)Dict.cxx
+
+INCLUDES =	$(FILENAME).h 
+
+INCLUDESS =	$(ROOTNAME).h 
+
+
+#########################################################################
+
+all	:	$(LIB)
+
+                
+clean	:
+		/bin/rm -f $(OBJS) $(LIB) $(ROOTNAME).* $(ROOTNAME)Dict.*
+
+install	:	$(LIB)
+		/bin/rm -f $(INSTALLDIR)/$(LIB)
+		/bin/rm -f $(INSTALLINCLUDE)/$(FILENAME).h
+		install $(LIB) $(INSTALLDIR)
+		install $(FILENAME).h $(INSTALLINCLUDE)
+ 
+
+$(LIB)	:	$(OBJS)
+		$(CC) $(FLAGS) -o $(LIB) $(OBJS) $(DEPLIBS)  $(ROOTLIBS) $(ROOTGLIBS)
+
+
+$(OBJS)	: $(INCLUDES) 
+$(DICS) : 
+
+	 @gcc -E -DNKROOT $(INCLUDEDIR) $(FILENAME).h > $(ROOTNAME).h
+
+	@echo "Generating dictionary $@..."
+
+	@rootcint -f $(DICS) -c $(INCLUDESS)
+
+%.o	:	%.c
+		$(CC) $(COPTS) $(INCLUDEDIR) -c -o $@ $<
+
+%.o	:	%.cxx
+		$(CC) $(COPTS) $(INCLUDEDIR) -c -o $@ $<
+

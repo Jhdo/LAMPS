@@ -1,0 +1,302 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "nkusb.h"
+#include "nk6uvme.h"
+
+#define NBURST (16)
+
+///////////////////////////////////////////////////////////////////////////////
+int VMEinit(libusb_context **ctx)
+{
+   return nkusb_init(ctx);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+void VMEprintOpenDevices(void)
+{
+   nkusb_print_open_devices();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+int VMEopen(int sid, libusb_context *ctx)
+{
+  int status;
+
+  status = nkusb_open_device(VME_VENDOR_ID, VME_PRODUCT_ID, sid, ctx);
+  nkusb_claim_interface(VME_VENDOR_ID, VME_PRODUCT_ID, sid, 0);
+
+  return status;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+void VMEclose(int sid)
+{
+  nkusb_release_interface(VME_VENDOR_ID, VME_PRODUCT_ID, sid, 0);
+  nkusb_close_device(VME_VENDOR_ID, VME_PRODUCT_ID, sid);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+void VMEexit(libusb_context *ctx)
+{
+   nkusb_exit(ctx);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+int VMEwrite(int sid, unsigned char am, unsigned char tout, unsigned long address, unsigned long data)
+{
+   int transferred = 0;  
+   const unsigned int timeout = 1000;
+   int length = 16;
+   unsigned char *buffer;
+   int stat = 0;
+   if (!(buffer = (unsigned char *)malloc(length))) {
+      fprintf(stderr, "Could not allocate memory (size = %d\n)", length);
+      return -1;
+   }
+
+   buffer[0] = 0x0;
+   buffer[1] = 0x0;
+   buffer[2] = 0x0;
+   buffer[3] = 0x0;
+   buffer[4] = am & 0xFF;
+   //if (lword) buffer[4] |= 1 << 6;
+   buffer[5] = tout & 0xFF;
+   buffer[6] = 0;
+   buffer[7] = 0;
+   buffer[8] = address & 0xFF;
+   buffer[9] = (address >> 8) & 0xFF;
+   buffer[10] = (address >> 16) & 0xFF;
+   buffer[11] = (address >> 24) & 0xFF;
+   buffer[12] = data & 0xFF;
+   buffer[13] = (data >> 8) & 0xFF;
+   buffer[14] = (data >> 16) & 0xFF;
+   buffer[15] = (data >> 24) & 0xFF;
+
+   libusb_device_handle *devh = nkusb_get_device_handle(VME_VENDOR_ID, VME_PRODUCT_ID, sid);
+   if (!devh) {
+      fprintf(stderr, "VMEWrite: Could not get device handle for the device.\n");
+      return -1;
+   }
+
+   if ((stat = libusb_bulk_transfer(devh, VME6U_SF_WRITE, buffer, length, &transferred, timeout)) < 0) {
+      fprintf(stderr, "VMEWrite: Could not make write request; error = %d\n", stat);
+      free(buffer);
+      return stat;
+   }
+
+   free(buffer);
+
+   return stat;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+unsigned long VMEread(int sid, unsigned char am, unsigned char tout, unsigned long address)
+{
+   unsigned char lword;
+   unsigned char vmemode;
+   unsigned long tmp;
+
+   const unsigned int timeout = 1000;
+   char *buffer;
+   int length;
+   int transferred;
+   unsigned long data;
+   int stat = 0;
+
+   length = 16;
+   if (!(buffer = (char *)malloc(length))) {
+      fprintf(stderr, "Could not allocate memory (size = %d\n)", length);
+      return 0;
+   }
+
+   vmemode = am | 0x80;
+
+   buffer[0] = 0x0;                                
+   buffer[1] = 0x0;                                
+   buffer[2] = 0x0;                                
+   buffer[3] = 0x0;                                
+   buffer[4] = vmemode;                      
+   //if (lword) buffer[4] |= 1 << 6;
+   //buffer[4] |= 1 << 7;                      
+   buffer[5] = tout & 0xFF;                         
+   buffer[6] = 0x0;                                
+   buffer[7] = 0x0;                                
+   buffer[8] = address & 0xFF;                      
+   buffer[9] = (address >> 8) & 0xFF;
+   buffer[10] = (address >> 16) & 0xFF;
+   buffer[11] = (address >> 24) & 0xFF;
+
+   lword = vmemode & 0x40;
+
+   if (lword) {
+      buffer[12] = 2;                     
+      buffer[13] = 0;
+      buffer[14] = 0;
+      buffer[15] = 0;
+   }
+   else {
+      buffer[12] = 4;                     
+      buffer[13] = 0;
+      buffer[14] = 0;
+      buffer[15] = 0;
+   }
+
+   libusb_device_handle *devh = nkusb_get_device_handle(VME_VENDOR_ID, VME_PRODUCT_ID, sid);
+   if (!devh) {
+      fprintf(stderr, "VMERead: Could not get device handle for the device.\n");
+      return -1;
+   }
+   if ((stat = libusb_bulk_transfer(devh, VME6U_SF_WRITE, buffer, length, &transferred, timeout)) < 0) {
+      fprintf(stderr, "VMERead: Could not make read request; error = %d\n", stat);
+      free(buffer);
+      return 0;
+   }
+
+   free(buffer);
+
+   length = 16384; // 1024 * 16 bursts
+   if (!(buffer = (char *)malloc(length))) {
+      fprintf(stderr, "Could not allocate memory (size = %d\n)", length);
+      return 0;
+   } 
+
+   if ((stat = libusb_bulk_transfer(devh, VME6U_SF_READ, buffer, length, &transferred, timeout)) < 0) {
+      fprintf(stderr, "VMERead: Could not make read request; error = %d\n", stat);
+      free(buffer);
+      return 0;
+   }
+
+   if (lword) {
+      data = buffer[0] & 0xFF;
+      tmp = buffer[1] & 0xFF;
+      tmp = tmp << 8;
+      data = data + tmp;
+   }
+   else {
+      data = buffer[0] & 0xFF;
+      tmp = buffer[1] & 0xFF;
+      tmp = tmp << 8;
+      data = data + tmp;
+      tmp = buffer[2] & 0xFF;
+      tmp = tmp << 16;
+      data = data + tmp;
+      tmp = buffer[3] & 0xFF;
+      tmp = tmp << 24;
+      data = data + tmp;
+
+   }
+   free(buffer);
+
+   return data;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+int VMEblockread(int sid, unsigned char am, unsigned char tout, unsigned long address, unsigned long nbytes, unsigned char *data)
+{
+   unsigned char vmemode;
+   const unsigned int timeout = 1000;
+   unsigned char *buffer;
+   int length;
+   int transferred;
+   int stat = 0;
+   int ret = 0;
+
+   length = 16;
+   if (!(buffer = (unsigned char *)malloc(length))) {
+      fprintf(stderr, "Could not allocate memory (size = %d\n)", length);
+      return -1;
+   }
+
+   vmemode = am | 0x80;
+
+
+   buffer[0] = 0x0;                                
+   buffer[1] = 0x0;                                
+   buffer[2] = 0x0;                                
+   buffer[3] = 0x0;                                
+   buffer[4] = vmemode;                      
+   //if (lword) buffer[4] |= 1 << 6;      //lword
+   //buffer[4] |= 1 << 7;                 //read = 1
+   buffer[5] = tout & 0xFF;             //timeout
+   buffer[6] = 0x0;                     //reserve0
+   buffer[7] = 0x0;                     //reserve1 
+   buffer[8] = address & 0xFF;          //address, LSB 
+   buffer[9] = (address >> 8) & 0xFF;   //address
+   buffer[10] = (address >> 16) & 0xFF; //address
+   buffer[11] = (address >> 24) & 0xFF; //address, MSB
+
+   //Just forward the number of bytes to read
+   buffer[12] = nbytes & 0xFF;          //nbytes, LSB 
+   buffer[13] = (nbytes >> 8 ) & 0xFF;  //nbytes
+   buffer[14] = (nbytes >> 16 ) & 0xFF; //nbytes
+   buffer[15] = (nbytes >> 24 ) & 0xFF; //nbytes, MSB
+
+   libusb_device_handle *devh = nkusb_get_device_handle(VME_VENDOR_ID, VME_PRODUCT_ID, sid);
+   if (!devh) {
+      fprintf(stderr, "VMEBlockRead: Could not get device handle for the device.\n");
+      return -1;
+   }
+   if ((stat = libusb_bulk_transfer(devh, VME6U_SF_WRITE, buffer, length, &transferred, timeout)) < 0) {
+      fprintf(stderr, "VMEBlockRead: Could not make read request; error = %d\n", stat);
+      free(buffer);
+      return stat;
+   }
+
+   free(buffer);
+
+   unsigned long nbulk;
+   int remains;
+   unsigned long i;
+
+   //const int nburst = 16; //maximum burst length for USB3
+   //const int nburst = 1; // no burst
+   const int size_packet = 1024; //1024 for USB3 bulk ep
+   length = NBURST * size_packet;
+   //length = size_packet;
+   nbulk = nbytes / length;
+   remains = nbytes % length;
+  
+   unsigned char lword;
+   lword = vmemode & 0x40;
+
+   if (lword) 
+      remains = remains & 0x3FFE;
+   else 
+      remains = remains & 0x3FFC;
+
+   if (!(buffer = (unsigned char *)malloc(length))) {
+      fprintf(stderr, "Could not allocate memory (size = %d\n)", length);
+      return -1;
+   } 
+ 
+   //read
+   for (i = 0; i < nbulk; i++) {
+      if ((ret = libusb_bulk_transfer(devh, VME6U_SF_READ, buffer, length, &transferred, timeout)) != 0) {
+         fprintf(stderr, "VMEBlockRead: bulk, Could not read data.\n");
+         free(buffer);
+         return ret;
+      } 
+      //fprintf(stdout, "VMEBlockRead: bulk, bytes transferred = %d\n", transferred);
+      memcpy(data + i * length, buffer, length);
+   }
+   free(buffer);
+
+   if (remains) {
+      //fprintf(stderr, "VMEBlockRead: remains, remains = %d\n", remains);
+      buffer = (unsigned char *)malloc(length);
+      if ((ret = libusb_bulk_transfer(devh, VME6U_SF_READ, buffer, length, &transferred, timeout)) != 0) {
+         fprintf(stderr, "VMEBlockRead: remains, Could not read data.\n");
+         free(buffer);
+         return ret;
+      }
+      //fprintf(stdout, "VMEBlockRead: bulk, bytes transferred = %d\n", transferred);
+      memcpy(data + nbulk * length, buffer, remains);
+      free(buffer);
+   }
+
+   return ret;
+}
+
