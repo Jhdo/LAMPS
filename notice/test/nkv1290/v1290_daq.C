@@ -1,5 +1,6 @@
 const unsigned short moduleID = 0x1000;
 
+//
 //#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
 //R__ADD_INCLUDE_PATH("/opt/notice/include")
 R__LOAD_LIBRARY(libNK6UVMEROOT.so)
