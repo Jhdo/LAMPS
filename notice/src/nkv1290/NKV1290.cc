@@ -22,6 +22,30 @@ NKV1290::~NKV1290()
 }
 
 
+void NKV1290::TDCSet_TM_Width(int devnum, unsinged long mid, unsigned long wd)
+{
+  unsigned short opcode[10];
+
+  opcode[0]=0x1000; opcode[1] = wd;
+
+  TDCWrite_Opcode(devnum, mid, 2, opcode);
+
+  return;
+}
+
+
+void NKV1290::TDCSet_TM_Offset(int devnum, unsinged long mid, signed short os)
+{
+  signed short opcode[10];
+
+  opcode[0]=0x1100; opcode[1]= os;
+  
+  TDCWrite_Opcode(devnum, mid, 2, opcode);
+
+  return;
+}
+
+
 void NKV1290::TDCInit(int devnum, unsigned long mid)
 {
   cout << "Initializing v1290.." << endl;
@@ -33,12 +57,16 @@ void NKV1290::TDCInit(int devnum, unsigned long mid)
   TDCWrite_Opcode(devnum, mid, 1, opcode);
 
   // Trigger matching Window width
-  opcode[0]=0x1000; opcode[1] = v1290_TM_WIDTH;
-  TDCWrite_Opcode(devnum, mid, 2, opcode);
+  TDCSet_TM_Width(devnum, mid, v1290_TM_WIDTH);
+  
+  //opcode[0]=0x1000; opcode[1] = v1290_TM_WIDTH;
+  //TDCWrite_Opcode(devnum, mid, 2, opcode);
 
   // Trigger matching Window offset
-  opcode[0]=0x1100; opcode[1]= v1290_TM_OFFSET;
-  TDCWrite_Opcode(devnum, mid, 2, opcode);
+  TDCSet_TM_Offset(devnum, mid, v1290_TM_OFFSET);
+
+  //opcode[0]=0x1100; opcode[1]= v1290_TM_OFFSET;
+  //TDCWrite_Opcode(devnum, mid, 2, opcode);
 
 // opcd[0]=0x3100; // Disable TDC Header/Trailer
 // TDCWrite_Opcode(devnum, mid, 1, opcode)
