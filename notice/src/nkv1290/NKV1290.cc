@@ -34,9 +34,9 @@ void NKV1290::TDCSet_TM_Width(int devnum, unsigned long mid, unsigned long wd)
 }
 
 
-void NKV1290::TDCSet_TM_Offset(int devnum, unsigned long mid, signed short os)
+void NKV1290::TDCSet_TM_Offset(int devnum, unsigned long mid, unsigned short os)
 {
-  signed short opcode[10];
+  unsigned short opcode[10];
 
   opcode[0]=0x1100; opcode[1]= os;
   
