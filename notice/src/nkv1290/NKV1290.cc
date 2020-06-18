@@ -22,7 +22,7 @@ NKV1290::~NKV1290()
 }
 
 
-void NKV1290::TDCSet_TM_Width(int devnum, unsinged long mid, unsigned long wd)
+void NKV1290::TDCSet_TM_Width(int devnum, unsigned long mid, unsigned long wd)
 {
   unsigned short opcode[10];
 
@@ -34,7 +34,7 @@ void NKV1290::TDCSet_TM_Width(int devnum, unsinged long mid, unsigned long wd)
 }
 
 
-void NKV1290::TDCSet_TM_Offset(int devnum, unsinged long mid, signed short os)
+void NKV1290::TDCSet_TM_Offset(int devnum, unsigned long mid, signed short os)
 {
   signed short opcode[10];
 
