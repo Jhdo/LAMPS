@@ -1,4 +1,4 @@
-export NKHOME=/usr/local/notice
+export NKHOME=/home/hj0521/LAMPS/LAMPS/notice
 
 export LIBUSB_INC=/usr/include/libusb-1.0
 export LIBUSB_LIB=/usr/lib64
