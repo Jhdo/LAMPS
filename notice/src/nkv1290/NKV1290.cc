@@ -26,7 +26,7 @@ void NKV1290::TDCSet_TM_Width(int devnum, unsigned long mid, unsigned long wd)
 {
   unsigned short opcode[10];
 
-  opcode[0]=0x1000; opcode[1] = wd;
+  opcode[0]=0x1000; opcode[1] = (wd & 0xFFFF);
 
   TDCWrite_Opcode(devnum, mid, 2, opcode);
 
@@ -34,11 +34,11 @@ void NKV1290::TDCSet_TM_Width(int devnum, unsigned long mid, unsigned long wd)
 }
 
 
-void NKV1290::TDCSet_TM_Offset(int devnum, unsigned long mid, unsigned short os)
+void NKV1290::TDCSet_TM_Offset(int devnum, unsigned long mid, signed short os)
 {
   unsigned short opcode[10];
 
-  opcode[0]=0x1100; opcode[1]= os;
+  opcode[0]=0x1100; opcode[1]= (os & 0xFFFF);
   
   TDCWrite_Opcode(devnum, mid, 2, opcode);
 
@@ -49,6 +49,14 @@ void NKV1290::TDCSet_TM_Offset(int devnum, unsigned long mid, unsigned short os)
 void NKV1290::TDCInit(int devnum, unsigned long mid)
 {
   cout << "Initializing v1290.." << endl;
+
+  unsigned short control = TDCRead_Control(devnum, mid);
+
+  control = control | (0x0001 << 8); // set 1 on 8th bit
+
+  cout << "Control bit : " << std::hex << control << endl;
+
+  TDCWrite_Control(devnum, mid, control);
 
   unsigned short opcode[10];
 
@@ -225,6 +233,33 @@ void NKV1290::TDCClear_Buffer(int devnum, unsigned long mid)
   VMEwrite(devnum, A32D16, 100, addr, data);
 }
 
+
+unsigned long NKV1290::TDCRead_Control(int devnum, unsigned long mid)
+{
+  unsigned long baseaddr;
+  
+  baseaddr = (mid & 0xFFFF) << 16;
+  
+  unsigned long addr = baseaddr + v1290_ADDR_CONTROL;
+
+  unsigned long word = VMEread(devnum, A32D16, 100, addr);
+
+  return word;
+}
+
+
+void NKV1290::TDCWrite_Control(int devnum, unsigned long mid, unsigned long word)
+{
+  unsigned long baseaddr;
+  
+  baseaddr = (mid & 0xFFFF) << 16;
+  
+  unsigned long addr = baseaddr + v1290_ADDR_CONTROL;
+
+  VMEwrite(devnum, A32D16, 100, addr, word);
+
+  return;
+}
 
 
 int NKV1290::TDCWrite_Opcode(int devnum, unsigned long mid, int nw, unsigned short *words)
