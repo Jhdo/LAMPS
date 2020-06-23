@@ -26,6 +26,7 @@
 #define v1290_ADDR_SW_CLEAR 0x1016
 #define v1290_ADDR_MICRO 0x102E
 #define v1290_ADDR_MICRO_HS 0x1030
+#define v1290_ADDR_CONTROL 0x1000
 
 // Parameters
 #define v1290_TM_WIDTH 0x0028 // 40 (0x0014 default) 25ns per 1
@@ -56,11 +57,13 @@ class NKV1290 : public NK6UVMEROOT
   void TDCEventBuild(unsigned long *words, int nw, int i, TDCEvent *data); // Decoding words into event object (try to search i_th event)
   void TDCClear_Buffer(int devnum, unsigned long mid);
   void TDCSet_TM_Width(int devnum, unsigned long mid, unsigned long wd);
-  void TDCSet_TM_Offset(int devnum, unsigned long mid, unsigned short os);
+  void TDCSet_TM_Offset(int devnum, unsigned long mid, short os);
+  void TDCWrite_Control(int devnum, unsigned long mid, unsigned long word); // Write Control Reg
   unsigned long TDCRead_Buffer(int devnum, unsigned long mid, unsigned long *words);
   unsigned long TDCRead_NW(int devnum, unsigned long mid); // Get Number of Words in Buffer
   unsigned long TDCRead_NEVT(int devnum, unsigned long mid); // Get Number of Events in Buffer
   unsigned long TDCRead_Status(int devnum, unsigned long mid); // Get Status bit (First bit is DATA_READY)
+  unsigned long TDCRead_Control(int devnum, unsigned long mid); // Read Control Reg
   int TDCWrite_Opcode(int devnum, unsigned long mid, int nw, unsigned short *words);
 
   int fDebug;
