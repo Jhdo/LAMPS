@@ -28,26 +28,26 @@ void v1290_daq(int nevt = 10)
     cout << "TDC Module Initialized" << endl;
     tdc_module->VMEopen(devnum);
     unsigned long stt = tdc_module->TDCRead_Status(devnum, moduleID);
-//    return;
-
     cout << "Stat : " << stt << endl;
     tdc_module->TDCInit(devnum, moduleID);
+    tdc_module->TDCClear_Buffer(devnum, moduleID);
+
 
     for (int ievt = 0; ievt < nevt; ievt++) {
         cout << "Event " << ievt << endl;
         int itry = 0;
-	while(true) {
+	    while(true) {
             unsigned long stat = tdc_module->TDCRead_Status(devnum, moduleID);
             itry++;
-	    if ((stat & 0x1) == 1) break;
-	    if (itry > 500000) return;
+	        if ((stat & 0x1) == 1) break;
+	        if (itry > 500000) return;
         }
 
         unsigned long nevt_buffer = tdc_module->TDCRead_NEVT(devnum, moduleID);
 
-	cout << "NWord Buffer : " << nevt_buffer << endl;
+	    cout << "NWord Buffer : " << nevt_buffer << endl;
 
-	unsigned long words[20000];
+	    unsigned long words[20000];
         unsigned long nw = tdc_module->TDCRead_Buffer(devnum, moduleID, words);
         cout << "NWord " << nw << endl;
         TDCEvent *tdc_evt = new TDCEvent();
