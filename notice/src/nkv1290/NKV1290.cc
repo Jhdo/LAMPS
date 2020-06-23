@@ -136,12 +136,12 @@ void NKV1290::TDCEventBuild(unsigned long *words, int nw, int i, TDCEvent *data)
     int type = -1; // type 0(data) 1(tdc header) 2(tdc trailer) 3(global header) 4(tdc error) 5(global trailer)
     unsigned long type_code = (words[i] >> 27) & 0x1F;
 //    unsigned long type_code = words[i] & 0xA98A58;
-    if (type_code == 0x00) type = 0;
-    else if (type_code == 0x01) type = 1;
-    else if (type_code == 0x03) type = 2;
-    else if (type_code == 0x08) type = 3;
-    else if (type_code == 0x04) type = 4;
-    else if (type_code == 0x10) type = 5;
+    if (type_code == 0) type = 0;
+    else if (type_code == 1) type = 1;
+    else if (type_code == 3) type = 2;
+    else if (type_code == 8) type = 3;
+    else if (type_code == 4) type = 4;
+    else if (type_code == 16) type = 5;
     if (fDebug) cout << "Word Type : " << type << endl;
 
     if (type_code == 1) {
@@ -155,7 +155,7 @@ void NKV1290::TDCEventBuild(unsigned long *words, int nw, int i, TDCEvent *data)
 
     if (type_code == 0) {
       unsigned long tdc_raw = words[i] & 0x1FFFFF;
-      unsigned long tdc_ch = (words[i] >> 21) & 0x1F;
+      unsigned long tdc_ch = (words[i] >> 21) & 0x0F;
       if (fDebug) cout << "TDC Ch " << tdc_ch << " TDC : " << tdc_raw << endl;
       if (nhit > 1) {
         cout << "Number of tdc hits are too many" << endl;
@@ -163,7 +163,7 @@ void NKV1290::TDCEventBuild(unsigned long *words, int nw, int i, TDCEvent *data)
       }
 
       data->tdc[nhit] = tdc_raw;
-      data->tdc_ch[nhit] = tdc_raw;
+      data->tdc_ch[nhit] = tdc_ch;
       nhit++;
     }
 
