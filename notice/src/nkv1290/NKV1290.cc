@@ -180,7 +180,7 @@ unsigned long NKV1290::TDCRead_NW(int devnum, unsigned long mid)
   
   unsigned long addr = baseaddr + v1290_ADDR_FIFO;
   
-  unsigned long word = VMEread(devnum, A32D32, 1000, addr);
+  unsigned long word = VMEread(devnum, A32D32, 100, addr);
 
   unsigned long nw = word & 0xFFFF;
   
@@ -228,7 +228,7 @@ void NKV1290::TDCClear_Buffer(int devnum, unsigned long mid)
   
   unsigned long addr = baseaddr + v1290_ADDR_SW_CLEAR;
   
-  unsigned long data = 0x1;
+  unsigned long data = 0;
 
   VMEwrite(devnum, A32D16, 100, addr, data);
 }
