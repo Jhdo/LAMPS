@@ -116,9 +116,12 @@ unsigned long NKV1290::TDCRead_Buffer(int devnum, unsigned long mid, unsigned lo
   
   // Decoding Words : 32bit
   for (i = 0; i < 4*nw - 3; i=i+4) {
-    rdat[i] = rdat[i] << 24;
-    rdat[i+1] = rdat[i+1] << 16;
-    rdat[i+2] = rdat[i+2] << 8;
+    //rdat[i] = rdat[i] << 24;
+    //rdat[i+1] = rdat[i+1] << 16;
+    //rdat[i+2] = rdat[i+2] << 8;
+    rdat[i+3] = rdat[i+3] << 24;
+    rdat[i+2] = rdat[i+2] << 16;
+    rdat[i+1] = rdat[i+1] << 8;
 
     words[i] = rdat[i] + rdat[i+1] + rdat[i+2] + rdat[i+3];
   }
