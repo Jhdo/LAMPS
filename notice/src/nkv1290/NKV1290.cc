@@ -116,12 +116,12 @@ unsigned long NKV1290::TDCRead_Buffer(int devnum, unsigned long mid, unsigned lo
   
   // Decoding Words : 32bit
   for (i = 0; i < 4*nw - 3; i=i+4) {
-    //rdat[i] = rdat[i] << 24;
-    //rdat[i+1] = rdat[i+1] << 16;
-    //rdat[i+2] = rdat[i+2] << 8;
-    rdat[i+3] = rdat[i+3] << 24;
-    rdat[i+2] = rdat[i+2] << 16;
-    rdat[i+1] = rdat[i+1] << 8;
+    rdat[i] = rdat[i] << 24;
+    rdat[i+1] = rdat[i+1] << 16;
+    rdat[i+2] = rdat[i+2] << 8;
+    //rdat[i+3] = rdat[i+3] << 24;
+    //rdat[i+2] = rdat[i+2] << 16;
+    //rdat[i+1] = rdat[i+1] << 8;
 
     words[i] = rdat[i] + rdat[i+1] + rdat[i+2] + rdat[i+3];
   }
@@ -140,12 +140,12 @@ void NKV1290::TDCEventBuild(unsigned long *words, int nw, int i, TDCEvent *data)
     unsigned long type_code = (words[i] >> 27) & 0x1F;
     if (fDebug) cout << "Type Code : " << type_code << endl;
 //    unsigned long type_code = words[i] & 0xA98A58;
-    if (type_code == 0) type = 0;
-    else if (type_code == 1) type = 1;
-    else if (type_code == 3) type = 2;
-    else if (type_code == 8) type = 3;
-    else if (type_code == 4) type = 4;
-    else if (type_code == 16) type = 5;
+    if (type_code == 0x0) type = 0;
+    else if (type_code == 0x1) type = 1;
+    else if (type_code == 0x3) type = 2;
+    else if (type_code == 0x8) type = 3;
+    else if (type_code == 0x4) type = 4;
+    else if (type_code == 0x10) type = 5;
     if (fDebug) cout << "Word Type : " << type << endl;
 
     if (type_code == 1) {
@@ -232,9 +232,9 @@ void NKV1290::TDCClear_Buffer(int devnum, unsigned long mid)
   
   unsigned long addr = baseaddr + v1290_ADDR_SW_CLEAR;
   
-  unsigned short data = 0;
+  //unsigned short data = 0;
 
-  VMEwrite(devnum, A32D16, 100, addr, data);
+  VMEwrite(devnum, A32D16, 100, addr, 0);
 }
 
 
