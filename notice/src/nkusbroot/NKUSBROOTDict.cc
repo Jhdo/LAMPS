@@ -150,9 +150,9 @@ namespace {
 0
     };
     static const char* includePaths[] = {
-"/usr/local/notice/include",
-"/home/hj0521/root/include",
-"/usr/local/notice/src/nkusbroot/",
+"/home/jhdo/LAMPS/notice/include",
+"/home/jhdo/root/include",
+"/home/jhdo/LAMPS/notice/src/nkusbroot/",
 0
     };
     static const char* fwdDeclCode = R"DICTFWDDCLS(
