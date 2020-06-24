@@ -53,7 +53,7 @@ install: $(NKUSBROOTSO) NKUSBROOT.h
 	#/bin/rm -f $(INSTALL_LIB)/$<
 	#/bin/rm -f $(INSTALL_INC)/NKUSBROOT.h
 	install $< $(INSTALL_LIB)
-#install *.pcm $(INSTALL_LIB)
+	install *.pcm $(INSTALL_LIB)
 	install NKUSBROOT.h $(INSTALL_INC)
 
 $(NKUSBROOTSO): $(NKUSBROOTO)
