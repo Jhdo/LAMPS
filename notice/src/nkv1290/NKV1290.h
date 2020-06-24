@@ -40,10 +40,10 @@ class TDCEvent
  public:
   unsigned long TriggerID;
   unsigned long EventNumber;
-  unsigned long tdc[2];
-  unsigned long tdc_ch[2];
+  unsigned long tdc[500];
+  unsigned long tdc_ch[500];
   unsigned long tdc_err;
-  unsigned long nword; // Number of data words (Expect 2)
+  unsigned long ntdc; // Number of data words (Expect 2)
 };
 
 

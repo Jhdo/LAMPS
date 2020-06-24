@@ -135,6 +135,7 @@ void NKV1290::TDCEventBuild(unsigned long *words, int nw, int i, TDCEvent *data)
   for (i = 0; i < nw; i++) {
     int type = -1; // type 0(data) 1(tdc header) 2(tdc trailer) 3(global header) 4(tdc error) 5(global trailer)
     unsigned long type_code = (words[i] >> 27) & 0x1F;
+    if (fDebug) cout << "Type Code : " << type_code << endl;
 //    unsigned long type_code = words[i] & 0xA98A58;
     if (type_code == 0) type = 0;
     else if (type_code == 1) type = 1;
@@ -157,7 +158,7 @@ void NKV1290::TDCEventBuild(unsigned long *words, int nw, int i, TDCEvent *data)
       unsigned long tdc_raw = words[i] & 0x1FFFFF;
       unsigned long tdc_ch = (words[i] >> 21) & 0x0F;
       if (fDebug) cout << "TDC Ch " << tdc_ch << " TDC : " << tdc_raw << endl;
-      if (nhit > 1) {
+      if (nhit >= 500) {
         cout << "Number of tdc hits are too many" << endl;
         return;
       }
@@ -165,8 +166,8 @@ void NKV1290::TDCEventBuild(unsigned long *words, int nw, int i, TDCEvent *data)
       data->tdc[nhit] = tdc_raw;
       data->tdc_ch[nhit] = tdc_ch;
       nhit++;
+      data->ntdc = nhit;
     }
-
   }
 }
 
