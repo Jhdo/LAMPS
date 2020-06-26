@@ -132,18 +132,18 @@ unsigned long NKV1290::TDCRead_Buffer(int devnum, unsigned long mid, unsigned lo
     rdat_32bit[i] = (rdat[i] & 0xFF);
     
     words[i] = rdat_32bit[i] + rdat_32bit[i+1] + rdat_32bit[i+2] + rdat_32bit[i+3];
-    cout << "rdat " << endl;
-    cout << bitset<32>(rdat[i+3]) << endl;
-    cout << bitset<32>(rdat[i+2]) << endl;
-    cout << bitset<32>(rdat[i+1]) << endl;
-    cout << bitset<32>(rdat[i]) << endl;
-    cout << "rdat_32" << endl;
-    cout << bitset<32>(rdat_32bit[i+3]) << endl;
-    cout << bitset<32>(rdat_32bit[i+2]) << endl;
-    cout << bitset<32>(rdat_32bit[i+1]) << endl;
-    cout << bitset<32>(rdat_32bit[i]) << endl;
-    cout << "Data word" << endl;
-    cout << bitset<32>(words[i]) << endl;
+    //cout << "rdat " << endl;
+    //cout << bitset<32>(rdat[i+3]) << endl;
+    //cout << bitset<32>(rdat[i+2]) << endl;
+    //cout << bitset<32>(rdat[i+1]) << endl;
+    //cout << bitset<32>(rdat[i]) << endl;
+    //cout << "rdat_32" << endl;
+    //cout << bitset<32>(rdat_32bit[i+3]) << endl;
+    //cout << bitset<32>(rdat_32bit[i+2]) << endl;
+    //cout << bitset<32>(rdat_32bit[i+1]) << endl;
+    //cout << bitset<32>(rdat_32bit[i]) << endl;
+    //cout << "Data word" << endl;
+    //cout << bitset<32>(words[i]) << endl;
   }
 
   return nw;
@@ -296,8 +296,8 @@ int NKV1290::TDCWrite_Opcode(int devnum, unsigned long mid, int nw, unsigned sho
   unsigned long addr_hs = baseaddr + v1290_ADDR_MICRO_HS;
   unsigned long addr = baseaddr + v1290_ADDR_MICRO;
  
-  cout << "base " << baseaddr << endl;
-  cout << "hs " << v1290_ADDR_MICRO_HS << endl;
+  //cout << "base " << baseaddr << endl;
+  //cout << "hs " << v1290_ADDR_MICRO_HS << endl;
   
   for(i=0; i<nw; i++) {
     do {
