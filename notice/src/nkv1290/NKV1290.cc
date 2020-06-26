@@ -130,8 +130,20 @@ unsigned long NKV1290::TDCRead_Buffer(int devnum, unsigned long mid, unsigned lo
     rdat_32bit[i+2] = (rdat[i+2] & 0xFF) << 16;
     rdat_32bit[i+1] = (rdat[i+1] & 0xFF) << 8;
     rdat_32bit[i] = (rdat[i] & 0xFF);
-
+    
     words[i] = rdat_32bit[i] + rdat_32bit[i+1] + rdat_32bit[i+2] + rdat_32bit[i+3];
+    cout << "rdat " << endl;
+    cout << setbit<32>(rdat[i+3]) << endl;
+    cout << setbit<32>(rdat[i+2]) << endl;
+    cout << setbit<32>(rdat[i+1]) << endl;
+    cout << setbit<32>(rdat[i]) << endl;
+    cout << "rdat_32" << endl;
+    cout << setbit<32>(rdat_32bit[i+3]) << endl;
+    cout << setbit<32>(rdat_32bit[i+2]) << endl;
+    cout << setbit<32>(rdat_32bit[i+1]) << endl;
+    cout << setbit<32>(rdat_32bit[i]) << endl;
+    cout << "Data word" << endl;
+    cout << setbit<32>(words[i]) << endl;
   }
 
   return nw;
