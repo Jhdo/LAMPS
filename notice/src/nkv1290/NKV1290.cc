@@ -93,6 +93,7 @@ unsigned long NKV1290::TDCRead_Buffer(int devnum, unsigned long mid, unsigned lo
   unsigned long addr;
   unsigned long nw = 0; // Number of words
   unsigned char rdat[0x100000];
+  unsigned long rdat_32bit[0x100000];
   
   baseaddr = (mid & 0xFFFF) << 16; //A32 mode
   
@@ -118,19 +119,19 @@ unsigned long NKV1290::TDCRead_Buffer(int devnum, unsigned long mid, unsigned lo
   
   // Decoding Words : 32bit
   for (i = 0; i < 4*nw - 3; i=i+4) {
-  // If v1290 encoded as big endian
-    rdat[i] = (rdat[i] & 0xFF) << 24;
-    rdat[i+1] = (rdat[i+1] & 0xFF) << 16;
-    rdat[i+2] = (rdat[i+2] & 0xFF) << 8;
-    rdat[i+3] = (rdat[i+3] & 0xFF);
+    // If v1290 encoded as big endian
+  //  rdat_32bit[i] = (rdat[i] & 0xFF) << 24;
+  //  rdat_32bit[i+1] = (rdat[i+1] & 0xFF) << 16;
+  //  rdat_32bit[i+2] = (rdat[i+2] & 0xFF) << 8;
+  //  rdat_32bit[i+3] = (rdat[i+3] & 0xFF);
 
     // If v1290 encoded as little endian
-//    rdat[i+3] = (rdat[i+3] & 0xFF) << 24;
-//    rdat[i+2] = (rdat[i+2] & 0xFF) << 16;
-//    rdat[i+1] = (rdat[i+1] & 0xFF) << 8;
-//    rdat[i] = (rdat[i] & 0xFF);
+    rdat_32bit[i+3] = (rdat[i+3] & 0xFF) << 24;
+    rdat_32bit[i+2] = (rdat[i+2] & 0xFF) << 16;
+    rdat_32bit[i+1] = (rdat[i+1] & 0xFF) << 8;
+    rdat_32bit[i] = (rdat[i] & 0xFF);
 
-    words[i] = rdat[i] + rdat[i+1] + rdat[i+2] + rdat[i+3];
+    words[i] = rdat_32bit[i] + rdat_32bit[i+1] + rdat_32bit[i+2] + rdat_32bit[i+3];
   }
 
   return nw;
