@@ -111,7 +111,7 @@ unsigned long NKV1290::TDCRead_Buffer(int devnum, unsigned long mid, unsigned lo
 
   if (nevt > 1) {
     cout << "Warning Multiple Events in buffer" << endl;
-    return 0;
+  //  return 0;
   }
 
   // Note : lower idex in rdat lower addr, lower parts of bits?
