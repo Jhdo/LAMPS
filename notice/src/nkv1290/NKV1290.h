@@ -16,8 +16,7 @@
 #define A24D32  (0x39)
 #define A32D16  (0x49)
 //#define A32D16  (0x09)
-//#define A32D32  (0x09)
-#define A32D32  (0x0D)
+#define A32D32  (0x09)
 
 // Registers
 #define v1290_ADDR_FIFO  0x1038 //(D32)
