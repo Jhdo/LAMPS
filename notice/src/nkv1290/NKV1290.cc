@@ -115,7 +115,7 @@ unsigned long NKV1290::TDCRead_Buffer(int devnum, unsigned long mid, unsigned lo
   }
 
   // Note : lower idex in rdat lower addr, lower parts of bits?
-  VMEblockread(devnum, A32D32, 100, addr, 4*nw, rdat);
+  VMEblockread(devnum, A32D16, 100, addr, 4*nw, rdat);
   
   // Decoding Words : 32bit
   for (i = 0; i < 4*nw - 3; i=i+4) {
