@@ -28,7 +28,7 @@ void v1290_daq(int nevt = 10)
     cout << "TDC Module Initialized" << endl;
     tdc_module->VMEopen(devnum);
     unsigned long stt = tdc_module->TDCRead_Status(devnum, moduleID);
-    cout << "Stat : " << stt << endl;
+//    cout << "Stat : " << stt << endl;
     tdc_module->TDCInit(devnum, moduleID);
     tdc_module->TDCClear_Buffer(devnum, moduleID);
 
@@ -52,10 +52,10 @@ void v1290_daq(int nevt = 10)
         cout << "Evt Number : " << tdc_evt->EventNumber << endl;
         cout << "TDC1 : " << tdc_evt->tdc_ch[0] << " " << tdc_evt->tdc[0] << endl;
         cout << "TDC2 : " << tdc_evt->tdc_ch[1] << " " << tdc_evt->tdc[1] << endl;
-        cout << "TDC3 : " << tdc_evt->tdc_ch[2] << " " << tdc_evt->tdc[2] << endl;
-        cout << "TDC4 : " << tdc_evt->tdc_ch[3] << " " << tdc_evt->tdc[3] << endl;
-        cout << "TDC5 : " << tdc_evt->tdc_ch[4] << " " << tdc_evt->tdc[4] << endl;
-        cout << "TDC6 : " << tdc_evt->tdc_ch[5] << " " << tdc_evt->tdc[5] << endl;
+//        cout << "TDC3 : " << tdc_evt->tdc_ch[2] << " " << tdc_evt->tdc[2] << endl;
+//        cout << "TDC4 : " << tdc_evt->tdc_ch[3] << " " << tdc_evt->tdc[3] << endl;
+//        cout << "TDC5 : " << tdc_evt->tdc_ch[4] << " " << tdc_evt->tdc[4] << endl;
+//        cout << "TDC6 : " << tdc_evt->tdc_ch[5] << " " << tdc_evt->tdc[5] << endl;
 
         tdc_module->TDCClear_Buffer(devnum, moduleID);
 
