@@ -68,15 +68,9 @@ void NKV1290::TDCInit(int devnum, unsigned long mid, int ReadOutMode)
 
   // Trigger matching Window width
   TDCSet_TM_Width(devnum, mid, v1290_TM_WIDTH);
-  
-  //opcode[0]=0x1000; opcode[1] = v1290_TM_WIDTH;
-  //TDCWrite_Opcode(devnum, mid, 2, opcode);
 
   // Trigger matching Window offset
   TDCSet_TM_Offset(devnum, mid, v1290_TM_OFFSET);
-
-  //opcode[0]=0x1100; opcode[1]= v1290_TM_OFFSET;
-  //TDCWrite_Opcode(devnum, mid, 2, opcode);
 
 // opcd[0]=0x3100; // Disable TDC Header/Trailer
 // TDCWrite_Opcode(devnum, mid, 1, opcode)
