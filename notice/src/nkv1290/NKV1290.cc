@@ -50,6 +50,7 @@ void NKV1290::TDCSet_TM_Offset(int devnum, unsigned long mid, signed short os)
 void NKV1290::TDCInit(int devnum, unsigned long mid, int ReadOutMode)
 {
   cout << "Initializing v1290.." << endl;
+  fReadOutMode = ReadOutMode;
 
   unsigned short control = TDCRead_Control(devnum, mid);
 
@@ -100,11 +101,7 @@ unsigned long NKV1290::TDCRead_Buffer(int devnum, unsigned long mid, unsigned lo
     nw_read = nw_read + nw;
   }
 
-  unsigned long control_bit = TDCRead_Control(devnum, mid);
-  cout << "Control Bit " << bitset<32>(control_bit) << endl;
-  unsigned long ReadOutMode = (control_bit >> 8) & 0x1;
-
-  if (ReadOutMode) cout << "Trigger Matching Mode" << endl;
+  if (fReadOutMode) cout << "Trigger Matching Mode" << endl;
   else {
     cout << "Continueous Storing Mode Testing.." << endl;
     nw_read = 50;
