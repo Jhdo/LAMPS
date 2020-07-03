@@ -56,7 +56,7 @@ class NKV1290 : public NK6UVMEROOT
   void TDCInit(int devnum, unsigned long mid, int ReadOutMode = 1);
   void TDCEventBuild(unsigned long *words, int nw, int i, TDCEvent *data); // Decoding words into event object (try to search i_th event)
   void TDCClear_Buffer(int devnum, unsigned long mid);
-  void TDCSet_TM_Width(int devnum, unsigned long mid, unsigned long wd);
+  void TDCSet_TM_Width(int devnum, unsigned long mid, unsigned short wd);
   void TDCSet_TM_Offset(int devnum, unsigned long mid, short os);
   void TDCWrite_Control(int devnum, unsigned long mid, unsigned long word); // Write Control Reg
   unsigned long TDCRead_Buffer(int devnum, unsigned long mid, unsigned long *words);
