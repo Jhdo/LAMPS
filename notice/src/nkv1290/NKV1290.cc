@@ -114,10 +114,16 @@ unsigned long NKV1290::TDCRead_Buffer(int devnum, unsigned long mid, unsigned lo
     nw_read = 50;
   }
 
-  if (nw_read <= 0) {
+  if (nw_read <= 0 ) {
     cout << "Empty Buffer" << endl;
     return 0;
   }
+
+  if (nw_read >= 10000 ) {
+    cout << "Too many words" << endl;
+    return 0;
+  }
+
 
   if (fDebug) cout << "NW : " << nw_read << " NEVT " << nevt << endl;
 
