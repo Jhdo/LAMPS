@@ -43,10 +43,6 @@ void v1290_daq(int nevt = 10)
 	        if (itry > 500000) return;
         }
 
-        unsigned long nevt_buffer = tdc_module->TDCRead_NEVT(devnum, moduleID);
-
-	    cout << "NWord Buffer : " << nevt_buffer << endl;
-
 	    unsigned long words[20000];
         unsigned long nw = tdc_module->TDCRead_Buffer(devnum, moduleID, words);
         cout << "NWord " << nw << endl;
