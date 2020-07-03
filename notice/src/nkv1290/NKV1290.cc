@@ -91,7 +91,7 @@ unsigned long NKV1290::TDCRead_Buffer(int devnum, unsigned long mid, unsigned lo
   unsigned long baseaddr;
   unsigned long i;
   unsigned long addr;
-  unsigned long nw = 0; // Number of words
+  unsigned long nw_read = 0; // Number of words
   unsigned char rdat[10000];
   unsigned long rdat_32bit[10000];
   
@@ -99,15 +99,27 @@ unsigned long NKV1290::TDCRead_Buffer(int devnum, unsigned long mid, unsigned lo
   
   addr = baseaddr + v1290_ADDR_DATA;
 
-  nw = TDCRead_NW(devnum, mid);
-  int nevt = TDCRead_NEVT(devnum, mid);
+  int nevt = TDCRead_FIFO_Stored(devnum, mid);
+  for (int ie = 0; ie < nevt; ie++) {    
+    unsigned long nw = TDCRead_NW(devnum, mid);
+    nw_read = nw_read + nw;
+  }
 
-  if (nw <= 0) {
+  unsigned long control_bit = TDCRead_Control(devnum, mid);
+  unsigned long ReadOutMode = control_bit >> 8 & 0x1;
+
+  if (ReadOutMode) cout << "Trigger Matching Mode" << endl;
+  else {
+    cout << "Continueous Storing Mode Testing.." << endl;
+    nw_read = 50;
+  }
+
+  if (nw_read <= 0) {
     cout << "Empty Buffer" << endl;
     return 0;
   }
 
-  if (fDebug) cout << "NW : " << nw << " NEVT " << nevt << endl;
+  if (fDebug) cout << "NW : " << nw_read << " NEVT " << nevt << endl;
 
   if (nevt > 1) {
     cout << "Warning Multiple Events in buffer" << endl;
@@ -115,10 +127,10 @@ unsigned long NKV1290::TDCRead_Buffer(int devnum, unsigned long mid, unsigned lo
   }
 
   // Note : lower idex in rdat lower addr, lower parts of bits?
-  VMEblockread(devnum, A32D32, 100, addr, 4*nw, rdat);
+  VMEblockread(devnum, A32D32, 100, addr, 4*nw_read, rdat);
   
   // Decoding Words : 32bit
-  for (i = 0; i < 4*nw - 3; i=i+4) {
+  for (i = 0; i < 4*nw_read - 3; i=i+4) {
     // If v1290 encoded as big endian
   //  rdat_32bit[i] = (rdat[i] & 0xFF) << 24;
   //  rdat_32bit[i+1] = (rdat[i+1] & 0xFF) << 16;
@@ -146,7 +158,7 @@ unsigned long NKV1290::TDCRead_Buffer(int devnum, unsigned long mid, unsigned lo
     cout << bitset<32>(words[i]) << endl;
   }
 
-  return nw;
+  return nw_read;
 }
 
 
@@ -154,6 +166,7 @@ unsigned long NKV1290::TDCRead_Buffer(int devnum, unsigned long mid, unsigned lo
 void NKV1290::TDCEventBuild(unsigned long *words, int nw, int i, TDCEvent *data)
 {
   int nhit = 0;
+  string type_name[6] = {"Data", "TDC Header", "TDC Trailer", "Global Header",  "TDC Error", "Global Trailer"};
 //  unsigned long nevt = 0;
   for (i = 0; i < nw; i++) {
     int type = -1; // type 0(data) 1(tdc header) 2(tdc trailer) 3(global header) 4(tdc error) 5(global trailer)
@@ -167,16 +180,7 @@ void NKV1290::TDCEventBuild(unsigned long *words, int nw, int i, TDCEvent *data)
     else if (type_code == 0x8) type = 3;
     else if (type_code == 0x4) type = 4;
     else if (type_code == 0x10) type = 5;
-    if (fDebug) cout << "Word Type : " << type << endl;
-
-    if (type_code == 1) {
-      unsigned long BunchID = words[i] & 0xFFF;
-      unsigned long EventID = words[i] & 0xFFF000;
-      EventID = EventID >> 12;
-      if (fDebug) cout << "BunchID : " << BunchID << " EventID : " << EventID << endl;
-      data->TriggerID = BunchID;
-      data->EventNumber = 0;
-    }
+    if (fDebug) cout << "Word Type : " << type_name[type].c_str() << endl;
 
     if (type_code == 0) {
       unsigned long tdc_raw = words[i] & 0x1FFFFF;
@@ -192,7 +196,36 @@ void NKV1290::TDCEventBuild(unsigned long *words, int nw, int i, TDCEvent *data)
       nhit++;
       data->ntdc = nhit;
     }
-  }
+
+    if (type_code == 1) {
+      unsigned long BunchID = words[i] & 0xFFF;
+      unsigned long EventID = (words[i] >> 12) & 0xFFF;
+      if (fDebug) cout << "BunchID : " << BunchID << " EventID : " << EventID << endl;
+      data->TriggerID = BunchID;
+      data->EventNumber = 0;
+    }
+
+    if (type_code == 2) {
+      unsigned long WordCount = words[i] & 0xFFF;
+      unsigned long EventID = (words[i] >> 12) & 0xFFF;
+      if (fDebug) cout << "WordCount : " << WordCount << " EventID : " << EventID << endl;
+    }
+
+    if (type_code == 3) {
+      unsigned long EventCount = (words[i] >> 5) & 0x3FFFFF;
+      if (fDebug) cout << "EventCount : " << EventCount << endl;
+    }
+
+    if (type_code == 4) {
+      cout << "Warning TDC Error Word found" << endl;
+    }
+
+    if (type_code == 5) {
+      cout << "Met Global Trailer Word" << endl;
+    }
+  } // nw loop
+
+  return;
 }
 
 
@@ -214,7 +247,7 @@ unsigned long NKV1290::TDCRead_NW(int devnum, unsigned long mid)
 
 
 // Number of Events in buffer
-unsigned long NKV1290::TDCRead_NEVT(int devnum, unsigned long mid)
+unsigned long NKV1290::TDCRead_EVTID(int devnum, unsigned long mid)
 {
   unsigned long baseaddr;
   
@@ -226,6 +259,22 @@ unsigned long NKV1290::TDCRead_NEVT(int devnum, unsigned long mid)
 
   unsigned long ne = (word >> 16) & 0xFFFF;
  
+  return ne;
+}
+
+
+unsigned long NKV1290::TDCRead_FIFO_Stored(int devnum, unsigned long mid)
+{
+  unsigned long baseaddr;
+  
+  baseaddr = (mid & 0xFFFF) << 16;
+  
+  unsigned long addr = baseaddr + v1290_ADDR_FIFO_STORED;
+  
+  unsigned long word = VMEread(devnum, A32D32, 100, addr);
+
+  unsigned long ne = word & 0x07FF;
+  
   return ne;
 }
 
