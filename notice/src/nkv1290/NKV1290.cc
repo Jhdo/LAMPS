@@ -114,6 +114,8 @@ unsigned long NKV1290::TDCRead_Buffer(int devnum, unsigned long mid, unsigned lo
     nw_read = 50;
   }
 
+  if (fDebug) cout << "NW : " << nw_read << " NEVT " << nevt << endl;
+
   if (nw_read <= 0 ) {
     cout << "Empty Buffer" << endl;
     return 0;
@@ -123,9 +125,6 @@ unsigned long NKV1290::TDCRead_Buffer(int devnum, unsigned long mid, unsigned lo
     cout << "Too many words" << endl;
     return 0;
   }
-
-
-  if (fDebug) cout << "NW : " << nw_read << " NEVT " << nevt << endl;
 
   if (nevt > 1) {
     cout << "Warning Multiple Events in buffer" << endl;
@@ -276,7 +275,7 @@ unsigned long NKV1290::TDCRead_FIFO_Stored(int devnum, unsigned long mid)
   
   unsigned long addr = baseaddr + v1290_ADDR_FIFO_STORED;
   
-  unsigned long word = VMEread(devnum, A32D32, 100, addr);
+  unsigned long word = VMEread(devnum, A32D16, 100, addr);
 
   unsigned long ne = word & 0x07FF;
   
