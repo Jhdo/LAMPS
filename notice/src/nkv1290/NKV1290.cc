@@ -53,17 +53,17 @@ void NKV1290::TDCInit(int devnum, unsigned long mid, int ReadOutMode)
 
   unsigned short control = TDCRead_Control(devnum, mid);
 
-  if (ReadOutMode) control = control | (0x0001 << 8); // set 1 on 8th bit
-  else if (!ReadOutMode) control = control & 0xFEFF; // set 1 on 8th bit
+  control = control | (0x0001 << 8); // set 1 on 8th bit
 
-  cout << "Control bit : " << std::hex << control << endl;
+  //cout << "Control bit : " << std::hex << control << endl;
 
   TDCWrite_Control(devnum, mid, control);
 
   unsigned short opcode[10];
 
   // Enable Trigger matching mode
-  opcode[0]=0x0000;
+  if (ReadOutMode) opcode[0]=0x0000;
+  else opcode[0] = 0x0100;
   TDCWrite_Opcode(devnum, mid, 1, opcode);
 
   // Trigger matching Window width
