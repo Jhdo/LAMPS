@@ -47,13 +47,14 @@ void NKV1290::TDCSet_TM_Offset(int devnum, unsigned long mid, signed short os)
 }
 
 
-void NKV1290::TDCInit(int devnum, unsigned long mid)
+void NKV1290::TDCInit(int devnum, unsigned long mid, int ReadOutMode)
 {
   cout << "Initializing v1290.." << endl;
 
   unsigned short control = TDCRead_Control(devnum, mid);
 
-  control = control | (0x0001 << 8); // set 1 on 8th bit
+  if (ReadOutMode) control = control | (0x0001 << 8); // set 1 on 8th bit
+  else if (!ReadOutMode) control = control & 0xFEFF; // set 1 on 8th bit
 
   cout << "Control bit : " << std::hex << control << endl;
 
