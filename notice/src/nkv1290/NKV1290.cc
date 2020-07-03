@@ -106,6 +106,7 @@ unsigned long NKV1290::TDCRead_Buffer(int devnum, unsigned long mid, unsigned lo
   }
 
   unsigned long control_bit = TDCRead_Control(devnum, mid);
+  cout << "Control Bit " << bitset<32>(control_bit) << endl;
   unsigned long ReadOutMode = (control_bit >> 8) & 0x1;
 
   if (ReadOutMode) cout << "Trigger Matching Mode" << endl;
