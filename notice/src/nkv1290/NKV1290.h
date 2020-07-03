@@ -15,11 +15,11 @@
 #define A24D16  (0x79)
 #define A24D32  (0x39)
 #define A32D16  (0x49)
-//#define A32D16  (0x09)
 #define A32D32  (0x09)
 
 // Registers
 #define v1290_ADDR_FIFO  0x1038 //(D32)
+#define v1290_ADDR_FIFO_STORED 0x103C
 #define v1290_ADDR_EVTCOUNTER 0x101C //(D32)
 #define v1290_ADDR_DATA 0x0000 //(D32)
 #define v1290_ADDR_STATUS 0x1002
@@ -61,9 +61,11 @@ class NKV1290 : public NK6UVMEROOT
   void TDCWrite_Control(int devnum, unsigned long mid, unsigned long word); // Write Control Reg
   unsigned long TDCRead_Buffer(int devnum, unsigned long mid, unsigned long *words);
   unsigned long TDCRead_NW(int devnum, unsigned long mid); // Get Number of Words in Buffer
-  unsigned long TDCRead_NEVT(int devnum, unsigned long mid); // Get Number of Events in Buffer
+  unsigned long TDCRead_EVTID(int devnum, unsigned long mid); // Get Number of Events in Buffer
   unsigned long TDCRead_Status(int devnum, unsigned long mid); // Get Status bit (First bit is DATA_READY)
   unsigned long TDCRead_Control(int devnum, unsigned long mid); // Read Control Reg
+  unsigned long TDCRead_FIFO_Stored(int devnum, unsigned long mid); // Get Number of Events in FIFO
+
   int TDCWrite_Opcode(int devnum, unsigned long mid, int nw, unsigned short *words);
 
   int fDebug;
