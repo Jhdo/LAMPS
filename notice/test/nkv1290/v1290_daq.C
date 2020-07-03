@@ -29,7 +29,7 @@ void v1290_daq(int nevt = 10)
     tdc_module->VMEopen(devnum);
     unsigned long stt = tdc_module->TDCRead_Status(devnum, moduleID);
 //    cout << "Stat : " << stt << endl;
-    //tdc_module->TDCInit(devnum, moduleID);
+    tdc_module->TDCInit(devnum, moduleID, 0);
     tdc_module->TDCClear_Buffer(devnum, moduleID);
 
 
