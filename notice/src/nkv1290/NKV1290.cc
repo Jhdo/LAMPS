@@ -101,8 +101,8 @@ unsigned long NKV1290::TDCRead_Buffer(int devnum, unsigned long mid, unsigned lo
     nw_read = nw_read + nw;
   }
 
-  // Testing...
-  nw_read = 25;
+  // Testing
+  nw_read = nw_read+5;
 
   if (fReadOutMode) cout << "Trigger Matching Mode" << endl;
   else {
