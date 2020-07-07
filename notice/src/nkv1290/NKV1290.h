@@ -60,6 +60,7 @@ class NKV1290 : public NK6UVMEROOT
   void TDCSet_TM_Offset(int devnum, unsigned long mid, short os);
   void TDCWrite_Control(int devnum, unsigned long mid, unsigned long word); // Write Control Reg
   unsigned long TDCRead_Buffer(int devnum, unsigned long mid, unsigned long *words);
+  unsigned long TDCRead_Buffer_Test(int devnum, unsigned long mid, unsigned long *words);
   unsigned long TDCRead_NW(int devnum, unsigned long mid); // Get Number of Words in Buffer
   unsigned long TDCRead_EVTID(int devnum, unsigned long mid); // Get Number of Events in Buffer
   unsigned long TDCRead_Status(int devnum, unsigned long mid); // Get Status bit (First bit is DATA_READY)

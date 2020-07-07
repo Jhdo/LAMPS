@@ -162,6 +162,56 @@ unsigned long NKV1290::TDCRead_Buffer(int devnum, unsigned long mid, unsigned lo
 }
 
 
+// Testing data buffer addr approaching 
+unsigned long NKV1290::TDCRead_Buffer_Test(int devnum, unsigned long mid, unsigned long *words)
+{
+  if (fDebug) cout << "Reading TDC Data" << endl;
+  unsigned long baseaddr;
+  unsigned long addr;
+  unsigned long nw_read = 0; // Number of words
+  
+  baseaddr = (mid & 0xFFFF) << 16; //A32 mode
+  
+  addr = baseaddr + v1290_ADDR_DATA;
+
+  int nevt = TDCRead_FIFO_Stored(devnum, mid);
+  for (int ie = 0; ie < nevt; ie++) {    
+    unsigned long nw = TDCRead_NW(devnum, mid);
+    nw_read = nw_read + nw;
+  }
+
+  if (fReadOutMode) cout << "Trigger Matching Mode" << endl;
+  else {
+    cout << "Continueous Storing Mode Testing.." << endl;
+    nw_read = 15;
+  }
+
+  if (fDebug) cout << "NW : " << nw_read << " NEVT " << nevt << endl;
+
+  if (nw_read <= 0 ) {
+    cout << "Empty Buffer" << endl;
+    return 0;
+  }
+
+  if (nw_read >= 10000 ) {
+    cout << "Too many words" << endl;
+    return 0;
+  }
+
+  if (nevt > 1) {
+    cout << "Warning Multiple Events in buffer" << endl;
+  //  return 0;
+  }
+
+  for (int ir = 0; ir < (int) nw_read; ir++) {
+    addr = baseaddr + v1290_ADDR_DATA + ir*4;
+    words[ir] = VMEread(devnum, A32D32, 100, addr);
+  }
+
+  return nw_read;
+}
+
+
 // Decoding Words : 32bit
 void NKV1290::TDCEventBuild(unsigned long *words, int nw, int i, TDCEvent *data)
 {
