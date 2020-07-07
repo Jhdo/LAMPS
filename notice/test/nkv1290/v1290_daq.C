@@ -44,7 +44,8 @@ void v1290_daq(int nevt = 10)
         }
 
 	    unsigned long words[20000];
-        unsigned long nw = tdc_module->TDCRead_Buffer(devnum, moduleID, words);
+        //unsigned long nw = tdc_module->TDCRead_Buffer(devnum, moduleID, words);
+        unsigned long nw = tdc_module->TDCRead_Buffer_Test(devnum, moduleID, words);
         cout << "NWord " << nw << endl;
         TDCEvent *tdc_evt = new TDCEvent();
         tdc_module->TDCEventBuild(words, nw, 0, tdc_evt);
