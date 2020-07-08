@@ -213,12 +213,12 @@ unsigned long NKV1290::TDCRead_Buffer_Test(int devnum, unsigned long mid, unsign
 
 
 // Decoding Words : 32bit
-void NKV1290::TDCEventBuild(unsigned long *words, int nw, int i, TDCEvent *data)
+void NKV1290::TDCEventBuild(unsigned long *words, int nw, int iw, TDCEvent *data)
 {
   int nhit = 0;
   string type_name[6] = {"Data", "TDC Header", "TDC Trailer", "Global Header",  "TDC Error", "Global Trailer"};
 //  unsigned long nevt = 0;
-  for (i = 0; i < nw; i++) {
+  for (int i = iw; i < nw; i++) {
     int type = -1; // type 0(data) 1(tdc header) 2(tdc trailer) 3(global header) 4(tdc error) 5(global trailer)
     cout << "DataWord " << std::bitset<32>(words[i]) << endl;
     unsigned long type_code = (words[i] >> 27) & 0x1F;
