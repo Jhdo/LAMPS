@@ -1,6 +1,4 @@
 const unsigned short moduleID = 0x1000;
-
-//
 //#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
 //R__ADD_INCLUDE_PATH("/opt/notice/include")
 R__LOAD_LIBRARY(libNK6UVMEROOT.so)
@@ -10,19 +8,36 @@ R__LOAD_LIBRARY(libNKV1290.so)
 using namespace std;
 void v1290_daq(int nevt = 10)
 {
+    // Tree Branches
+    long tdc0 = -999;
+    int tdc_ch0 = -999;
+    long tdc1 = -999;
+    int tdc_ch1 = -999;
+    int triggerID = -999;
+    int eventID = -999;
+
     int devnum = 0; // Dev. Mount number in linux
 
     // get NKHOME enviernment
     TString mypath = gSystem->Getenv("NKHOME");
     cout<<"NKHOME pass : "<<mypath<<endl;
-    TString myvme  = mypath + TString("/lib/libNK6UVMEROOT.so");  
+    TString myvme  = mypath + TString("/lib/libNK6UVMEROOT.so");
     TString mytdc = mypath + TString("/lib/libNKV1290.so");
-  
+
+    TFile *file_out = new TFile("AnaResult.root", "Recreate");
+    TTree *tree_out = new TTree("tree_out", "tdc_tree");
+    tree_out->SetAutoFlush(10000);
+    tree_out->SetBranchAddress("tdc0", &tdc0);
+    tree_out->SetBranchAddress("tdc_ch0", &tdc_ch0);
+    tree_out->SetBranchAddress("tdc1", &tdc1);
+    tree_out->SetBranchAddress("tdc_ch1", &tdc_ch1);
+    tree_out->SetBranchAddress("triggerID", &triggerID);
+    tree_out->SetBranchAddress("eventID", &eventID);
+
     // Loading VME & FADC lib.
     // gSystem->Load("/usr/local/notice/lib/libNK6UVMEROOT.so");
     // gSystem->Load("/usr/local/notice/lib/libNKV1290.so");
      
-  
     NKV1290 *tdc_module = new NKV1290();
     cout << "Starting v1290..." << endl;
     cout << "TDC Module Initialized" << endl;
@@ -31,7 +46,6 @@ void v1290_daq(int nevt = 10)
 //    cout << "Stat : " << stt << endl;
     tdc_module->TDCInit(devnum, moduleID, 1);
     tdc_module->TDCClear_Buffer(devnum, moduleID);
-
 
     for (int ievt = 0; ievt < nevt; ievt++) {
         cout << "Event " << ievt << endl;
@@ -58,10 +72,29 @@ void v1290_daq(int nevt = 10)
 //        cout << "TDC5 : " << tdc_evt->tdc_ch[4] << " " << tdc_evt->tdc[4] << endl;
 //        cout << "TDC6 : " << tdc_evt->tdc_ch[5] << " " << tdc_evt->tdc[5] << endl;
 
+        int ntdc = tdc_evt->ntdc;
+        if (ntdc <= 2) {
+            tdc0 = -999;
+            tdc_ch0 = -999;
+            tdc1 = -999;
+            tdc_ch1 = -999;
+            triggerID = -999;
+            eventID = -999;
+            tdc0 = (long) tdc_evt->tdc[0];
+            tdc_ch0 = (int) tdc_evt->tdc_ch[0];
+            tdc1 = (long) tdc_evt->tdc[1];
+            tdc_ch1 = (int) tdc_evt->tdc_ch[1];
+            triggerID = (int) tdc_evt->TriggerID;
+            eventID = (int) tdc_evt->EventNumber;
+            tree_out->Fill();
+        }
+
         tdc_module->TDCClear_Buffer(devnum, moduleID);
 
         delete tdc_evt;
     }
 
+    tree_out->Write();
+    file_out->Close();
     cout << "Nice work! All Done" << endl;
 }
