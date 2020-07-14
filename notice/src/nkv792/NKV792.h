@@ -1,9 +1,3 @@
-// Derived Class from NK6UVME
-
-// Let's read whole buffer and search EOB word
-// How to match sync with ADC
-// Check if is CLBT mode
-
 #define v792_ADDR_DATA 0x0000 //(D32)
 #define v792_ADDR_STATUS1 0x100E // fitst bit : DATA_READY, 3rd bit : BUSY
 #define v792_ADDR_CONTROL1 0x1010
@@ -15,8 +9,7 @@
 #define v792_ADDR_EVENTCOUNTER_RESET 0x1040
 #define v792_ADDR_THRESHOLD  0x1080 // ch is set by 0x1080 + ?  (+0x4 per 1 channel : 792N, defaut 16x)
 
-//#include "Notice6UVME.h" // nk6uvme packed in class
-#include "nk6uvme.h"
+#include "NK6UVMEROOT.h"
 
 class ADCEvent{
  public:
@@ -28,32 +21,25 @@ class ADCEvent{
 };
 
 
-#ifndef NKC
-class NKV792 // : public NK6UVME {
+class NKV792 : public NK6UVMEROOT
 {
  public:
            NKV792();
   virtual ~NKV792();
-#endif
 
-void ADCInit(int devnum, unsigned long mid);
-void ADCEventBuild(unsigned long *words, int nw, int i, ADCEvent *data); // Decoding words into event object (try to search i_th event)
-void ADCClear_Buffer(int devnum, unsigned long mid);
-unsigned long ADCRead_Buffer(int devnum, unsigned long mid, unsigned long *words);
-unsigned long ADCRead_NW(int devnum, unsigned long mid); // Get Number of Words in Buffer
-unsigned long ADCRead_NEVT(int devnum, unsigned long mid); // Get Number of Events in Buffer
-unsigned long ADCRead_Status(int devnum, unsigned long mid); // Get Status bit (First bit is DATA_READY)
+  void ADCInit(int devnum, unsigned long mid);
+  void ADCEventBuild(unsigned long *words, int nw, int i, ADCEvent *data); // Decoding words into event object (try to search i_th event)
+  void ADCClear_Buffer(int devnum, unsigned long mid);
+  unsigned long ADCRead_Buffer(int devnum, unsigned long mid, unsigned long *words);
+  unsigned long ADCRead_NW(int devnum, unsigned long mid); // Get Number of Words in Buffer
+  unsigned long ADCRead_NEVT(int devnum, unsigned long mid); // Get Number of Events in Buffer
+  unsigned long ADCRead_Status(int devnum, unsigned long mid); // Get Status bit (First bit is DATA_READY)
 
-const int fDebug = 1;
-const unsigned short v792_TM_WIDTH = 20; //20(default) // Trigger matching window width (each step is 25ns)
-const signed short v792_TM_OFFSET = -40; //-40(default) // Trigger matching window offset
+  const int fDebug = 1;
 
-#ifdef NKROOT
   ClassDef(NKV792, 1)
-#endif
-#ifndef NKC
-     };
-#endif
+
+};
 
 
 
