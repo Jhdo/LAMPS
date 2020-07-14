@@ -2,26 +2,20 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <TROOT.h>
 
-#ifdef NKROOT
-  #include <TROOT.h>
-#endif
+#include "NKV792.h"
 
-#include "NKV1290.h"
+ClassImp(NKV792)
 
-#ifdef NKROOT
-  ClassImp(NKV1290)
-#endif
-
-#ifndef NKC
-NKV1290::NKV1290()
+NKV792::NKV792()
 {
-   printf("NKV1290 Initialization \n");
+   printf("NKV792 Initialization \n");
 }
 
-NKV1290::~NKV1290()
+NKV792::~NKV792()
 {
-   printf("Leaving NKV1290 now \n");
+   printf("Leaving NKV792 now \n");
 }
 #endif
 
@@ -29,7 +23,7 @@ NKV1290::~NKV1290()
 #ifdef NKC
 void TDCInit(int devnum, unsigned long mid)
 #else
-void NKV1290::TDCInit(int devnum, unsigned long mid)
+void NKV792::TDCInit(int devnum, unsigned long mid)
 #endif
 {
   cout << "Initializing v1290.." << endl;
@@ -55,7 +49,7 @@ void NKV1290::TDCInit(int devnum, unsigned long mid)
 #ifdef NKC
 unsigned long TDCRead_Buffer(int devnum, unsigned long mid, unsigned long *words)
 #else
-unsigned long NKV1290::TDCRead_Buffer(int devnum, unsigned long mid, unsigned long *words)
+unsigned long NKV792::TDCRead_Buffer(int devnum, unsigned long mid, unsigned long *words)
 #endif
 {
   if (fDebug) cout << "Reading TDC Data" << endl;
@@ -103,7 +97,7 @@ unsigned long NKV1290::TDCRead_Buffer(int devnum, unsigned long mid, unsigned lo
 #ifdef NKC
 void TDCEventBuild(unsigned long *words, int nw, int i, TDCEvent *data)
 #else
-void NKV1290::TDCEventBuild(unsigned long *words, int nw, int i, TDCEvent *data)
+void NKV792::TDCEventBuild(unsigned long *words, int nw, int i, TDCEvent *data)
 #endif
 {
   int nhit = 0;
@@ -150,7 +144,7 @@ void NKV1290::TDCEventBuild(unsigned long *words, int nw, int i, TDCEvent *data)
 #ifdef NKC
 int TDCRead_NW(int devnum, unsigned long mid)
 #else
-int NKV1290::TDCRead_NW(int devnum, unsigned long mid)
+int NKV792::TDCRead_NW(int devnum, unsigned long mid)
 #endif
 {
   unsigned long baseaddr;
@@ -171,7 +165,7 @@ int NKV1290::TDCRead_NW(int devnum, unsigned long mid)
 #ifdef NKC
 int TDCRead_NEVT(int devnum, unsigned long mid)
 #else
-int NKV1290::TDCRead_NEVT(int devnum, unsigned long mid)
+int NKV792::TDCRead_NEVT(int devnum, unsigned long mid)
 #endif
 {
   unsigned long baseaddr;
@@ -192,7 +186,7 @@ int NKV1290::TDCRead_NEVT(int devnum, unsigned long mid)
 #ifdef NKC
 unsigned long TDCRead_Status(int devnum, unsigned long mid)
 #else
-unsigned long NKV1290::TDCRead_Status(int devnum, unsigned long mid)
+unsigned long NKV792::TDCRead_Status(int devnum, unsigned long mid)
 #endif
 {
   unsigned long baseaddr;
@@ -210,7 +204,7 @@ unsigned long NKV1290::TDCRead_Status(int devnum, unsigned long mid)
 #ifdef NKC
 void TDCClear_Buffer(int devnum, unsigned long mid)
 #else
-void NKV1290::TDCClear_Buffer(int devnum, unsigned long mid)
+void NKV792::TDCClear_Buffer(int devnum, unsigned long mid)
 #endif
 {
   unsigned long baseaddr;
@@ -229,7 +223,7 @@ void NKV1290::TDCClear_Buffer(int devnum, unsigned long mid)
 #ifdef NKC
 int TDCWrite_Opcode(int devnum, unsigned long mid, int nw, unsigned short *words)
 #else
-int NKV1290::TDCWrite_Opcode(int devnum, unsigned long mid, int nw, unsigned short *words)
+int NKV792::TDCWrite_Opcode(int devnum, unsigned long mid, int nw, unsigned short *words)
 #endif
 {
   int i, timeout=0;
