@@ -27,12 +27,12 @@ void v1290_daq(int nevt = 10)
     TFile *file_out = new TFile("AnaResult.root", "Recreate");
     TTree *tree_out = new TTree("tree_out", "tdc_tree");
     tree_out->SetAutoFlush(10000);
-    tree_out->SetBranchAddress("tdc0", &tdc0);
-    tree_out->SetBranchAddress("tdc_ch0", &tdc_ch0);
-    tree_out->SetBranchAddress("tdc1", &tdc1);
-    tree_out->SetBranchAddress("tdc_ch1", &tdc_ch1);
-    tree_out->SetBranchAddress("triggerID", &triggerID);
-    tree_out->SetBranchAddress("eventID", &eventID);
+    tree_out->Branch("tdc0", &tdc0);
+    tree_out->Branch("tdc_ch0", &tdc_ch0);
+    tree_out->Branch("tdc1", &tdc1);
+    tree_out->Branch("tdc_ch1", &tdc_ch1);
+    tree_out->Branch("triggerID", &triggerID);
+    tree_out->Branch("eventID", &eventID);
 
     // Loading VME & FADC lib.
     // gSystem->Load("/usr/local/notice/lib/libNK6UVMEROOT.so");
