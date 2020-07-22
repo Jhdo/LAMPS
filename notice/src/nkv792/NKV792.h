@@ -12,6 +12,7 @@
 
 #define v792_THRESHOLD 0x0002 // 32, Mutiplied by 16, See manual p20
 #define v792_PED 0x0040 // Must be bigger than 60
+#define v792_READOUT_SIZE 128 // Read data buffer (doesn't matter with its contents) and check if it  contains EOB word if not, repeat readout
 
 #include "NK6UVMEROOT.h"
 
@@ -35,13 +36,16 @@ class NKV792 : public NK6UVMEROOT
   void ADCEventBuild(unsigned long *words, int nw, int i, ADCEvent *data); // Decoding words into event object (try to search i_th event)
   void ADCClear_Buffer(int devnum, unsigned long mid);
   void ADCSet_ZeroSup(int devnum, unsigned long mid, int v);
+  void ADCSet_Threshold(int devnum, unsigned long mid, unsigned short t);
+  void ADCSet_Pedestal(int devnum, unsigned long mid, unsigned char pd);
   unsigned long ADCRead_Buffer(int devnum, unsigned long mid, unsigned long *words);
   unsigned long ADCRead_Status(int devnum, unsigned long mid); // Get Status bit (First bit is DATA_READY)
 
-  unsigned long ADCRead_Pedestal(int devnum, unsigned long mid); // Get Number of Words in Buffer
   unsigned long ADCRead_NW(int devnum, unsigned long mid); // Get Number of Words in Buffer
   unsigned long ADCRead_NEVT(int devnum, unsigned long mid); // Get Number of Events in Buffer
   unsigned long ADC_IsBusy(int devnum, unsigned long mid);
+
+  int IsEOB(unsigned long word);
 
   const int fDebug = 1;
 
