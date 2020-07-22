@@ -8,16 +8,20 @@
 #define v792_ADDR_EVENTCOUNTER_HIGH 0x1026
 #define v792_ADDR_EVENTCOUNTER_RESET 0x1040
 #define v792_ADDR_THRESHOLD  0x1080 // ch is set by 0x1080 + ?  (+0x4 per 1 channel : 792N, defaut 16x)
+#define v792_ADDR_PED 0x1060 // 8bit
+
+#define v792_THRESHOLD 0x0002 // 32, Mutiplied by 16, See manual p20
+#define v792_PED 0x0040 // Must be bigger than 60
 
 #include "NK6UVMEROOT.h"
 
 class ADCEvent{
  public:
-  unsigned long EventNumber;
-  unsigned long ADC[2];
-  unsigned long ADC_ch[2];
-  unsigned long ADC_err;
-  unsigned long nword; // Number of data words (Expect 2)
+  unsigned long TriggerID;
+  unsigned long adc[500];
+  unsigned long adc_ch[500];
+  unsigned long adc_err;
+  unsigned long nadc; // Number of data words (Expect 2)
 };
 
 
@@ -30,10 +34,14 @@ class NKV792 : public NK6UVMEROOT
   void ADCInit(int devnum, unsigned long mid);
   void ADCEventBuild(unsigned long *words, int nw, int i, ADCEvent *data); // Decoding words into event object (try to search i_th event)
   void ADCClear_Buffer(int devnum, unsigned long mid);
+  void ADCSet_ZeroSup(int devnum, unsigned long mid, int v);
   unsigned long ADCRead_Buffer(int devnum, unsigned long mid, unsigned long *words);
+  unsigned long ADCRead_Status(int devnum, unsigned long mid); // Get Status bit (First bit is DATA_READY)
+
+  unsigned long ADCRead_Pedestal(int devnum, unsigned long mid); // Get Number of Words in Buffer
   unsigned long ADCRead_NW(int devnum, unsigned long mid); // Get Number of Words in Buffer
   unsigned long ADCRead_NEVT(int devnum, unsigned long mid); // Get Number of Events in Buffer
-  unsigned long ADCRead_Status(int devnum, unsigned long mid); // Get Status bit (First bit is DATA_READY)
+  unsigned long ADC_IsBusy(int devnum, unsigned long mid);
 
   const int fDebug = 1;
 
