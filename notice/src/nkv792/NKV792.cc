@@ -42,7 +42,8 @@ unsigned long NKV792::ADCRead_Buffer(int devnum, unsigned long mid, unsigned lon
   unsigned long baseaddr;
   unsigned long i;
   unsigned long addr;
-  unsigned long nw_read = 0; // Number of words
+  unsigned long nw_read = v792_READOUT_SIZE;
+  unsigned long nw_data = 0;
   unsigned char rdat[10000];
   unsigned long rdat_32bit[10000];
   
@@ -50,39 +51,6 @@ unsigned long NKV792::ADCRead_Buffer(int devnum, unsigned long mid, unsigned lon
   
   addr = baseaddr + v792_ADDR_DATA;
 
-  int nevt = ADCRead_FIFO_Stored(devnum, mid);
-  for (int ie = 0; ie < nevt; ie++) {    
-    unsigned long nw = TDCRead_NW(devnum, mid);
-    nw_read = nw_read + nw;
-  }
-
-  // Testing
-  nw_read = nw_read+5;
-
-  if (fReadOutMode) cout << "Trigger Matching Mode" << endl;
-  else {
-    cout << "Continueous Storing Mode Testing.." << endl;
-    nw_read = 15;
-  }
-
-  if (fDebug) cout << "NW : " << nw_read << " NEVT " << nevt << endl;
-
-  if (nw_read <= 0 ) {
-    cout << "Empty Buffer" << endl;
-    return 0;
-  }
-
-  if (nw_read >= 10000 ) {
-    cout << "Too many words" << endl;
-    return 0;
-  }
-
-  if (nevt > 1) {
-    cout << "Warning Multiple Events in buffer" << endl;
-  //  return 0;
-  }
-
-  // Note : lower idex in rdat lower addr, lower parts of bits?
   VMEblockread(devnum, A32D32, 100, addr, 4*nw_read, rdat);
   
   // Decoding Words : 32bit
@@ -100,6 +68,13 @@ unsigned long NKV792::ADCRead_Buffer(int devnum, unsigned long mid, unsigned lon
     rdat_32bit[i] = (rdat[i] & 0xFF);
     
     words[i/4] = rdat_32bit[i] + rdat_32bit[i+1] + rdat_32bit[i+2] + rdat_32bit[i+3];
+    if (IsEOB(words[i/4])) {
+      cout << "v792 Met EOB word" << endl;
+      nw_data++;
+      return nw_data;
+    }
+
+    else nw_data;
 //    cout << "rdat " << endl;
 //    cout << bitset<32>(rdat[i+3]) << endl;
 //    cout << bitset<32>(rdat[i+2]) << endl;
@@ -113,7 +88,9 @@ unsigned long NKV792::ADCRead_Buffer(int devnum, unsigned long mid, unsigned lon
 //    cout << "Data word " << bitset<32>(words[i]) << endl;
   }
 
-  return nw_read;
+  if (fDebug) cout << "NW : " << nw_data << endl;
+
+  return nw_data;
 }
 
 
