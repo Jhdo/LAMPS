@@ -275,28 +275,40 @@ void NKV792::ADCEventBuild(unsigned long *words, int nw, int i, ADCEvent *data)
 
     /////////////////////////////////////////////////@@@@@@@@@@@@@
     if (type_code == 1) {
-      unsigned long BunchID = words[i] & 0xFFF;
-      unsigned long EventID = words[i] & 0xFFF000;
-      EventID = EventID >> 12;
-      if (fDebug) cout << "BunchID : " << BunchID << " EventID : " << EventID << endl;
-      data->EventNumber = BunchID;
+      unsigned long nch = (words[i] >> 8) & 0x003F;
+      if (fDebug) cout << "ADC NCH  : " << nch << endl;
+    }
+
+    if (type_code == 2) {
+      unsigned long EventCounter = words[i] & 0xFFFFFF;
+      if (fDebug) cout << "ADC EventCounter  : " << EventCounter << endl;
+      nevt++;
+    }
+
+    if (type_code == 3) {
+      cout << "Warning : ADC Invalid Data is in word" << endl;
+      return;
     }
 
     if (type_code == 0) {
-      unsigned long ADC_raw = words[i] & 0x1FFFFF;
-      unsigned long ADC_ch = (words[i] >> 21) & 0x1F;
-      if (fDebug) cout << "ADC Ch " << ADC_ch << " ADC : " << ADC_raw << endl;
-      if (nhit > 1) {
-        cout << "Number of ADC hits are too many" << endl;
+      unsigned long adc_raw = words[i] & 0xFFF;
+      unsigned long adc_ch = (words[i] >> 17) & 0xF;
+      if (fDebug) cout << "ADC Ch " << adc_ch << " ADC : " << adc_raw << endl;
+      if (nhit >= 500) {
+        cout << "Number of tdc hits are too many" << endl;
         return;
       }
 
-      data->ADC[nhit] = ADC_raw;
-      data->ADC_ch[nhit] = ADC_raw;
+      data->adc[nhit] = adc_raw;
+      data->adc_ch[nhit] = adc_ch;
       nhit++;
+      data->nadc = nhit;
     }
-
   }
+
+  if (fDebug)  cout << "NEvent : " << nevt << endl;
+  
+  return;
 }
 
 
