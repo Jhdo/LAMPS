@@ -25,14 +25,54 @@ void NKV792::ADCInit(int devnum, unsigned long mid)
   cout << "Initializing v792.." << endl;
   // Enable Zero suppresion
   ADCSet_ZeroSup(devnum, mid, 1);
-  // Zero suppression threshold
-  ADCSet_Threshold(devnum, mid, v792_THRESHOLD);
+  // Zero suppression threshold : Need to make ch by ch value
+  for (int ch = 0; ch < 16; ch++) {
+    ADCSet_Threshold(devnum, mid, ch, v792_THRESHOLD);
+  }
   // Pedestal is recommended to set larger than 60, see manual p16
   ADCSet_Pedestal(devnum, mid, v792_PED);
   
   ADCClear_Buffer(devnum, mid);
   
+  ADCReset_TriggerCounter(devnum, mid);
+  
   return;
+}
+
+
+void NKV792::ADCReset_TriggerCounter(int devnum, unsigned long mid);
+{
+  unsigned long baseaddr;
+  
+  baseaddr = (mid & 0xFFFF) << 16;
+
+  unsigned long addr = baseaddr + v792_ADDR_EVENTCOUNTER_RESET;
+
+  VMEwrite(devnum, A32D16, 100, addr, 0x0);
+
+  return;
+}
+
+
+unsigned long NKV792::ADCRead_TriggerCounter(int devnum, unsigned long mid)
+{
+  unsigned long baseaddr;
+  
+  baseaddr = (mid & 0xFFFF) << 16;
+
+  unsigned long addr_low = baseaddr + v792_ADDR_EVENTCOUNTER_LOW;
+
+  unsigned long addr_high = baseaddr + v792_ADDR_EVENTCOUNTER_HIGH;
+
+  unsigned short v_low = VMEread(devnum, A32D16, 100, addr_low);
+  
+  unsigned short v_high = VMEread(devnum, A32D16, 100, addr_high);
+
+  v_high = v_high & 0xF; // 8 bits are vailid
+
+  unsigned long v = (v_high << 16) + v_low;
+
+  return v;
 }
 
 
@@ -40,15 +80,124 @@ void NKV792::ADCSet_ZeroSup(int devnum, unsigned long mid, int v)
 {
   unsigned long baseaddr;
   
-  baseaddr = (mid & 0xFF) << 24;
-  //bitset2, number 4 bit
-  unsigned long addr = baseaddr + v792_ADDR_STATUS;
-  
-  unsigned long word = VMEread(devnum, A32D16, 100, addr);
- 
-  return word;
+  baseaddr = (mid & 0xFFFF) << 16;
+
+  unsigned long addr = baseaddr + v792_ADDR_BITSET2;
+
+  unsigned short bitset2_v = VMEread(devnum, A32D16, 100, addr);
+
+  if (v == 0) {
+    bitset2_v = bitset2_v | (0x0001 << 4); // Disable zero_sup
+    cout << "ZeroSuppresion Disabled" << endl;
+  }
+
+  else if (v == 1) {
+    bitset2_v = ~(bitset2_v) & ~(0x0001 << 4); // Enable zero_sup
+    cout << "ZeroSuppresion Enabled" << endl;
+  }
+
+  VMEwrite(devnum, A32D16, 100, addr, bitset2_v);
+
+  return;
 }
 
+
+void NKV792::ADCSet_Threshold(int devnum, unsigned long mid, int ch, unsigned short v)
+{
+  unsigned long baseaddr;
+  
+  baseaddr = (mid & 0xFFFF) << 16;
+
+  unsigned long addr = baseaddr + v792_ADDR_THRESHOLD + 4*ch; // v792N (+4*ch), v792 (+2*ch)
+
+  v = v & 0xFF; // only 8 bits are valid
+
+  VMEwrite(devnum, A32D16, 100, addr, v);
+
+  return;
+}
+
+
+unsigned long NKV792::ADCRead_Threshold(int devnum, unsigned long mid, int ch)
+{
+  unsigned long baseaddr;
+  
+  baseaddr = (mid & 0xFFFF) << 16;
+
+  unsigned long addr = baseaddr + v792_ADDR_THRESHOLD + 4*ch; // v792N (+4*ch), v792 (+2*ch)
+
+  unsigned long v = VMEread(devnum, A32D16, 100, addr);
+
+  return v;
+}
+
+
+void NKV792::ADCSet_Pedestal(int devnum, unsigned long mid, unsigned short pd);
+{
+  unsigned long baseaddr;
+  
+  baseaddr = (mid & 0xFFFF) << 16;
+
+  unsigned long addr = baseaddr + v792_ADDR_PED;
+
+  pd = pd & 0xFF; // only 8 bits are valid
+
+  VMEwrite(devnum, A32D16, 100, addr, pd);
+
+  return;
+}
+
+
+unsigned long NKV792::ADCRead_Status1(int devnum, unsigned long mid)
+{
+  unsigned long baseaddr;
+  
+  baseaddr = (mid & 0xFFFF) << 16;
+
+  unsigned long addr = baseaddr + v792_ADDR_STATUS1;
+
+  unsigned long v = VMEread(devnum, A32D16, 100, addr);
+
+  v = v & 0xF;
+
+  return v;
+}
+
+
+int NKV792::ADC_IsBusy(int devnum, unsigned long mid)
+{
+  int ret = 0;
+
+  unsigned long st1 = ADCRead_Status1(devnum, mid);
+
+  if (st1 & 0x4) ret = 1;
+
+  return ret; 
+}
+
+
+int NKV792::ADC_IsDataReady(int devnum, unsigned long mid)
+{
+  int ret = 0;
+
+  unsigned long st1 = ADCRead_Status1(devnum, mid);
+
+  if (st1 & 0x1) ret = 1;
+
+  return ret; 
+}
+
+
+int NKV792::ADC_IsValidData(unsigned long word)
+{
+  int ret = 1;
+
+  word = (word >> 24) & 0x7;
+
+  if (word == 0x6) ret = 0; 
+
+  return ret;
+}
 
 
 unsigned long NKV792::ADCRead_Buffer(int devnum, unsigned long mid, unsigned long *words)
@@ -62,7 +211,7 @@ unsigned long NKV792::ADCRead_Buffer(int devnum, unsigned long mid, unsigned lon
   unsigned char rdat[10000];
   unsigned long rdat_32bit[10000];
   
-  baseaddr = (mid & 0xFFFF) << 16; //A32 mode
+  baseaddr = (mid & 0xFFFF) << 16;
   
   addr = baseaddr + v792_ADDR_DATA;
 
@@ -83,13 +232,14 @@ unsigned long NKV792::ADCRead_Buffer(int devnum, unsigned long mid, unsigned lon
     rdat_32bit[i] = (rdat[i] & 0xFF);
     
     words[i/4] = rdat_32bit[i] + rdat_32bit[i+1] + rdat_32bit[i+2] + rdat_32bit[i+3];
-    if (IsEOB(words[i/4])) {
-      cout << "v792 Met EOB word" << endl;
-      nw_data++;
+
+    if (!ADC_IsValidData(words[i/4])) {
+      if (fDebug) cout << "v792 Met End of data block" << endl;
+      if (fDebug) cout << "NW : " << nw_data << endl;
       return nw_data;
     }
 
-    else nw_data;
+    nw_data++;
 //    cout << "rdat " << endl;
 //    cout << bitset<32>(rdat[i+3]) << endl;
 //    cout << bitset<32>(rdat[i+2]) << endl;
@@ -103,7 +253,6 @@ unsigned long NKV792::ADCRead_Buffer(int devnum, unsigned long mid, unsigned lon
 //    cout << "Data word " << bitset<32>(words[i]) << endl;
   }
 
-  if (fDebug) cout << "NW : " << nw_data << endl;
 
   return nw_data;
 }
@@ -113,18 +262,18 @@ void NKV792::ADCEventBuild(unsigned long *words, int nw, int i, ADCEvent *data)
 {
   int nhit = 0;
   unsigned long nevt = 0;
+  string type_name[4] = {"ADC Data", "ADC Header", "ADC Trailer", "ADC Invalid Data"};
+
   for (i = 0; i < nw; i++) {
     int type = -1; // type 0(data) 1(ADC header) 2(ADC trailer) 3(global header) 4(ADC error) 5(global trailer)
-    unsigned long type_code = (words[i] >> 27) & 0x1F;
-//    unsigned long type_code = words[i] & 0xA98A58;
+    unsigned long type_code = (words[i] >> 24) & 0x7;
     if (type_code == 0x00) type = 0;
-    else if (type_code == 0x01) type = 1;
-    else if (type_code == 0x03) type = 2;
-    else if (type_code == 0x08) type = 3;
-    else if (type_code == 0x04) type = 4;
-    else if (type_code == 0x10) type = 5;
-    if (fDebug) cout << "Word Type : " << type << endl;
+    else if (type_code == 0x02) type = 1;
+    else if (type_code == 0x04) type = 2;
+    else if (type_code == 0x06) type = 3;
+    if (fDebug) cout << "Word Type : " << type_name[type].c_str() << endl;
 
+    /////////////////////////////////////////////////@@@@@@@@@@@@@
     if (type_code == 1) {
       unsigned long BunchID = words[i] & 0xFFF;
       unsigned long EventID = words[i] & 0xFFF000;
@@ -155,7 +304,7 @@ unsigned long NKV792::ADCRead_Status(int devnum, unsigned long mid)
 {
   unsigned long baseaddr;
   
-  baseaddr = (mid & 0xFF) << 24;
+  baseaddr = (mid & 0xFFFF) << 16;
   
   unsigned long addr = baseaddr + v792_ADDR_STATUS;
   
@@ -169,11 +318,19 @@ void NKV792::ADCClear_Buffer(int devnum, unsigned long mid)
 {
   unsigned long baseaddr;
   
-  baseaddr = (mid & 0xFF) << 24;
+  baseaddr = (mid & 0xFFFF) << 16;
   
-  unsigned long addr = baseaddr + v792_ADDR_SW_CLEAR;
+  unsigned long addr = baseaddr + v792_ADDR_BITSET2;
   
-  unsigned long data = 0x1;
+  unsigned long addr_clear = baseaddr + v792_ADDR_BITSET2_CLEAR;
 
-  VMEwrite(devnum, A32D16, 100, addr, data);
+  unsigned short bitset2_v = VMEread(devnum, A32D16, 100, addr);
+
+  bitset2_v = bitset2_v | (0x0001 << 2);
+
+  VMEwrite(devnum, A32D16, 100, addr, bitset2_v);
+
+  unsigned short v = 0x4;
+
+  VMEwrite(devnum, A32D16, 100, addr_clear, v);
 }
