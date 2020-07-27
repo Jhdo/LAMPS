@@ -6,7 +6,7 @@ R__LOAD_LIBRARY(libNKV1290.so)
 //#endif
 
 using namespace std;
-void v1290_daq(int nevt = 10)
+void v1290_daq(int nevt = 1000)
 {
     // Tree Branches
     int ntdc = -999;
