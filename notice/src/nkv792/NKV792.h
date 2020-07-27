@@ -1,3 +1,15 @@
+#define VME_VENDOR_ID (0x04b4)
+#define VME_PRODUCT_ID (0x00f0)
+#define VME6U_SF_READ (0x82)
+#define VME6U_SF_WRITE (0x06)
+// VME mode definition
+#define A16D16  (0x69)
+#define A16D32  (0x29)
+#define A24D16  (0x79)
+#define A24D32  (0x39)
+#define A32D16  (0x49)
+#define A32D32  (0x09)
+
 #define v792_ADDR_DATA 0x0000 //(D32)
 #define v792_ADDR_STATUS1 0x100E // fitst bit : DATA_READY, 3rd bit : BUSY
 #define v792_ADDR_CONTROL1 0x1010
