@@ -36,6 +36,21 @@ void NKV792::ADCInit(int devnum, unsigned long mid)
 }
 
 
+void NKV792::ADCSet_ZeroSup(int devnum, unsigned long mid, int v)
+{
+  unsigned long baseaddr;
+  
+  baseaddr = (mid & 0xFF) << 24;
+  //bitset2, number 4 bit
+  unsigned long addr = baseaddr + v792_ADDR_STATUS;
+  
+  unsigned long word = VMEread(devnum, A32D16, 100, addr);
+ 
+  return word;
+}
+
+
+
 unsigned long NKV792::ADCRead_Buffer(int devnum, unsigned long mid, unsigned long *words)
 {
   if (fDebug) cout << "Reading ADC Data" << endl;
@@ -136,54 +151,7 @@ void NKV792::ADCEventBuild(unsigned long *words, int nw, int i, ADCEvent *data)
 }
 
 
-// Number of words in buffer
-#ifdef NKC
-int ADCRead_NW(int devnum, unsigned long mid)
-#else
-int NKV792::ADCRead_NW(int devnum, unsigned long mid)
-#endif
-{
-  unsigned long baseaddr;
-  
-  baseaddr = (mid & 0xFF) << 24;
-  
-  unsigned long addr = baseaddr + v792_ADDR_FIFO;
-  
-  unsigned long word = VMEread(devnum, A32D32, 100, addr);
-
-  unsigned long nw = word & 0xFFFF;
-  
-  return nw;
-}
-
-
-// Number of Events in buffer
-#ifdef NKC
-int ADCRead_NEVT(int devnum, unsigned long mid)
-#else
-int NKV792::ADCRead_NEVT(int devnum, unsigned long mid)
-#endif
-{
-  unsigned long baseaddr;
-  
-  baseaddr = (mid & 0xFF) << 24;
-  
-  unsigned long addr = baseaddr + v792_ADDR_FIFO;
-  
-  unsigned long word = VMEread(devnum, A32D32, 100, addr);
-
-  unsigned long ne = (word >> 16) & 0xFFFF;
- 
-  return ne;
-}
-
-
-// Note : First bit of Status bit is DATA_READY
-#ifdef NKC
-unsigned long ADCRead_Status(int devnum, unsigned long mid)
-#else
 unsigned long NKV792::ADCRead_Status(int devnum, unsigned long mid)
-#endif
 {
   unsigned long baseaddr;
   
@@ -197,11 +165,7 @@ unsigned long NKV792::ADCRead_Status(int devnum, unsigned long mid)
 }
 
 
-#ifdef NKC
-void ADCClear_Buffer(int devnum, unsigned long mid)
-#else
 void NKV792::ADCClear_Buffer(int devnum, unsigned long mid)
-#endif
 {
   unsigned long baseaddr;
   
@@ -212,34 +176,4 @@ void NKV792::ADCClear_Buffer(int devnum, unsigned long mid)
   unsigned long data = 0x1;
 
   VMEwrite(devnum, A32D16, 100, addr, data);
-}
-
-
-
-#ifdef NKC
-int ADCWrite_Opcode(int devnum, unsigned long mid, int nw, unsigned short *words)
-#else
-int NKV792::ADCWrite_Opcode(int devnum, unsigned long mid, int nw, unsigned short *words)
-#endif
-{
-  int i, timeout=0;
-	unsigned short hs;
-  unsigned long baseaddr;
-  baseaddr = (mid & 0xFF) << 24;
-  unsigned long addr_hs = baseaddr + v792_ADDR_MICRO_HS;
-  unsigned long addr = baseaddr + v792_ADDR_MICRO;
- 
-  for(i=0; i<nw; i++) {        
-    do {
-        hs = VMEread(devnum, A32D16, 100, addr_hs);
-        timeout++;
-        Sleep(1);
-        if (timeout == 3000) return 1;
-    }
-    while (((hs & 0x01)==0) && (timeout < 3000)); /* wait to write */
-
-    VMEwrite(devnum, A32D16, 100, addr, words[i]);
-  }
-
-	return 0;
 }
