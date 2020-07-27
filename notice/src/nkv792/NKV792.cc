@@ -2,9 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <iostream>
 #include <TROOT.h>
 
 #include "NKV792.h"
+
+using namespace std;
 
 ClassImp(NKV792)
 
@@ -17,7 +20,6 @@ NKV792::~NKV792()
 {
    printf("Leaving NKV792 now \n");
 }
-#endif
 
 
 void NKV792::ADCInit(int devnum, unsigned long mid)
@@ -40,7 +42,7 @@ void NKV792::ADCInit(int devnum, unsigned long mid)
 }
 
 
-void NKV792::ADCReset_TriggerCounter(int devnum, unsigned long mid);
+void NKV792::ADCReset_TriggerCounter(int devnum, unsigned long mid)
 {
   unsigned long baseaddr;
   
@@ -132,7 +134,7 @@ unsigned long NKV792::ADCRead_Threshold(int devnum, unsigned long mid, int ch)
 }
 
 
-void NKV792::ADCSet_Pedestal(int devnum, unsigned long mid, unsigned short pd);
+void NKV792::ADCSet_Pedestal(int devnum, unsigned long mid, unsigned short pd)
 {
   unsigned long baseaddr;
   
@@ -308,20 +310,6 @@ void NKV792::ADCEventBuild(unsigned long *words, int nw, int i, ADCEvent *data)
   if (fDebug)  cout << "NEvent : " << nevt << endl;
   
   return;
-}
-
-
-unsigned long NKV792::ADCRead_Status(int devnum, unsigned long mid)
-{
-  unsigned long baseaddr;
-  
-  baseaddr = (mid & 0xFFFF) << 16;
-  
-  unsigned long addr = baseaddr + v792_ADDR_STATUS;
-  
-  unsigned long word = VMEread(devnum, A32D16, 100, addr);
- 
-  return word;
 }
 
 
