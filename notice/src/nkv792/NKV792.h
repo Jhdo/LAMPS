@@ -36,18 +36,15 @@ class NKV792 : public NK6UVMEROOT
   void ADCEventBuild(unsigned long *words, int nw, int i, ADCEvent *data); // Decoding words into event object (try to search i_th event)
   void ADCClear_Buffer(int devnum, unsigned long mid);
   void ADCSet_ZeroSup(int devnum, unsigned long mid, int v);
+  void ADCReset_TriggerCounter(int devnum, unsigned long mid);
   void ADCSet_Threshold(int devnum, unsigned long mid, int ch, unsigned short v);
   void ADCSet_Pedestal(int devnum, unsigned long mid, unsigned short pd);
-  void ADCReset_TriggerCounter(int devnum, unsigned long mid);
   unsigned long ADCRead_TriggerCounter(int devnum, unsigned long mid);
   unsigned long ADCRead_Threshold(int devnum, unsigned long mid, int ch);
   unsigned long ADCRead_Status1(int devnum, unsigned long mid); // Get Status bit1 (First bit is DATA_READY)
+  unsigned long ADCRead_Buffer(int devnum, unsigned long mid, unsigned long *words);
   int ADC_IsBusy(int devnum, unsigned long mid);
   int ADC_IsDataReady(int devnum, unsigned long mid);
-
-  unsigned long ADCRead_Buffer(int devnum, unsigned long mid, unsigned long *words);
-
-
   int ADC_IsValidData(unsigned long word);
 
   const int fDebug = 1;
