@@ -273,7 +273,6 @@ void NKV792::ADCEventBuild(unsigned long *words, int nw, int i, ADCEvent *data)
     else if (type_code == 0x06) type = 3;
     if (fDebug) cout << "Word Type : " << type_name[type].c_str() << endl;
 
-    /////////////////////////////////////////////////@@@@@@@@@@@@@
     if (type_code == 1) {
       unsigned long nch = (words[i] >> 8) & 0x003F;
       if (fDebug) cout << "ADC NCH  : " << nch << endl;
