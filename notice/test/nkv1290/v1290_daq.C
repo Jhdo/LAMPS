@@ -9,6 +9,7 @@ using namespace std;
 void v1290_daq(int nevt = 10)
 {
     // Tree Branches
+    int ntdc = -999;
     long tdc0 = -999;
     int tdc_ch0 = -999;
     long tdc1 = -999;
@@ -27,6 +28,7 @@ void v1290_daq(int nevt = 10)
     TFile *file_out = new TFile("AnaResult.root", "Recreate");
     TTree *tree_out = new TTree("tree_out", "tdc_tree");
     tree_out->SetAutoFlush(10000);
+    tree_out->Branch("ntdc", &ntdc);
     tree_out->Branch("tdc0", &tdc0, "tdc0/L");
     tree_out->Branch("tdc_ch0", &tdc_ch0);
     tree_out->Branch("tdc1", &tdc1, "tdc1/L");
@@ -72,14 +74,15 @@ void v1290_daq(int nevt = 10)
 //        cout << "TDC5 : " << tdc_evt->tdc_ch[4] << " " << tdc_evt->tdc[4] << endl;
 //        cout << "TDC6 : " << tdc_evt->tdc_ch[5] << " " << tdc_evt->tdc[5] << endl;
 
-        int ntdc = tdc_evt->ntdc;
-        if (ntdc <= 2) {
+        ntdc = tdc_evt->ntdc;
+        if (ntdc == 2) {
             tdc0 = -999;
             tdc_ch0 = -999;
             tdc1 = -999;
             tdc_ch1 = -999;
             triggerID = -999;
             eventID = -999;
+            ntdc = tdc_evt->ntdc;
             tdc0 = (long) tdc_evt->tdc[0];
             tdc_ch0 = (int) tdc_evt->tdc_ch[0];
             tdc1 = (long) tdc_evt->tdc[1];
