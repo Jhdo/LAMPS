@@ -216,7 +216,7 @@ unsigned long NKV1290::TDCRead_Buffer_Test(int devnum, unsigned long mid, unsign
 void NKV1290::TDCEventBuild(unsigned long *words, int nw, int iw, TDCEvent *data)
 {
   int nhit = 0;
-  string type_name[6] = {"Data", "TDC Header", "TDC Trailer", "Global Header",  "TDC Error", "Global Trailer"};
+  string type_name[6] = {"TDC Data", "TDC Header", "TDC Trailer", "TDC Global Header",  "TDC Error", "TDC Global Trailer"};
 //  unsigned long nevt = 0;
   for (int i = iw; i < nw; i++) {
     int type = -1; // type 0(data) 1(tdc header) 2(tdc trailer) 3(global header) 4(tdc error) 5(global trailer)
