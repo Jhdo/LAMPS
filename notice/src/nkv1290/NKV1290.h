@@ -29,8 +29,8 @@
 #define v1290_ADDR_CONTROL 0x1000
 
 // Parameters
-#define v1290_TM_WIDTH 0x0028 // 40 (0x0014 default) 25ns per 1
-#define v1290_TM_OFFSET 0xFFD8 // -40 (signed short) 25ns per 1
+#define v1290_TM_WIDTH 0x0006 // 6 (0x0014 default) 25ns per 1
+#define v1290_TM_OFFSET 0xFFF7 // -8 (signed short) 25ns per 1
 
 //#include "Notice6UVME.h"
 #include "NK6UVMEROOT.h"
