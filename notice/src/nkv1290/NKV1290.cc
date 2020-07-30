@@ -13,7 +13,7 @@ using namespace std;
 
 NKV1290::NKV1290()
 {
-  fDebug = 1;
+  fDebug = 0;
   printf("NKV1290 Initialization \n");
 }
 
