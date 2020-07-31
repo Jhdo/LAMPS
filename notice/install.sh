@@ -24,3 +24,7 @@ cd src/nkv1290
 make clean
 make install
 cd $NKHOME
+cd src/nkv792
+make clean
+make install
+cd $NKHOME
