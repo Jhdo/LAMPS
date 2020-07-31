@@ -92,7 +92,7 @@ void NKV1290::TDCSet_Subtract_TriggerTime(int devnum, unsigned long mid, int v)
   
   else if (v == 0) opcode[0] = 0x1500; // Disable
 
-  TDCWrite_Opcode(devnum, mid, 1, opcode)
+  TDCWrite_Opcode(devnum, mid, 1, opcode);
 
   return;
 }
