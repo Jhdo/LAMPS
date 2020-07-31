@@ -73,9 +73,26 @@ void NKV1290::TDCInit(int devnum, unsigned long mid, int ReadOutMode)
   // Trigger matching Window offset
   TDCSet_TM_Offset(devnum, mid, v1290_TM_OFFSET);
 
+
+  TDCSet_Subtract_TriggerTime(devnum, mid, 1);
+
 // opcd[0]=0x3100; // Disable TDC Header/Trailer
 // TDCWrite_Opcode(devnum, mid, 1, opcode)
   cout << "Done" << endl;
+
+  return;
+}
+
+
+void NKV1290::TDCSet_Subtract_TriggerTime(int devnum, unsigned long mid, int v)
+{
+  unsigned short opcode[10];
+
+  if (v == 1) opcode[0] = 0x1400; // Enable Subtraction
+  
+  else if (v == 0) opcode[0] = 0x1500; // Disable
+
+  TDCWrite_Opcode(devnum, mid, 1, opcode)
 
   return;
 }

@@ -59,6 +59,7 @@ class NKV1290 : public NK6UVMEROOT
   void TDCSet_TM_Width(int devnum, unsigned long mid, unsigned short wd);
   void TDCSet_TM_Offset(int devnum, unsigned long mid, short os);
   void TDCWrite_Control(int devnum, unsigned long mid, unsigned long word); // Write Control Reg
+  void TDCSet_Subtract_TriggerTime(int devnum, unsigned long mid, int v); // Write Control Reg
   unsigned long TDCRead_Buffer(int devnum, unsigned long mid, unsigned long *words);
   unsigned long TDCRead_Buffer_Test(int devnum, unsigned long mid, unsigned long *words);
   unsigned long TDCRead_NW(int devnum, unsigned long mid); // Get Number of Words in Buffer
