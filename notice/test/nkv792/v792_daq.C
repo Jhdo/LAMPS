@@ -6,7 +6,7 @@ R__LOAD_LIBRARY(libNKV792.so)
 //#endif
 
 using namespace std;
-void vv792_daq(int nevt = 10)
+void v792_daq(int nevt = 10)
 {
     // Tree Branches
     int nadc = -999;
