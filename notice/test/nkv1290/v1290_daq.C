@@ -6,7 +6,7 @@ R__LOAD_LIBRARY(libNKV1290.so)
 //#endif
 
 using namespace std;
-void v1290_daq(int nevt = 100)
+void v1290_daq(int nevt = 1000)
 {
     // Tree Branches
     int ntdc = -999;
@@ -62,6 +62,12 @@ void v1290_daq(int nevt = 100)
 	    unsigned long words[20000];
         //unsigned long nw = tdc_module->TDCRead_Buffer(devnum, moduleID, words);
         unsigned long nw = tdc_module->TDCRead_Buffer(devnum, moduleID, words);
+
+	if (nw > 50) {
+          tdc_module->TDCClear_Buffer(devnum, moduleID);
+	  continue;
+	}
+
         cout << "NWord " << nw << endl;
         TDCEvent *tdc_evt = new TDCEvent();
         tdc_module->TDCEventBuild(words, nw, 0, tdc_evt);
@@ -79,7 +85,7 @@ void v1290_daq(int nevt = 100)
           for (int ih = 0; ih < ntdc; ih++) {
             tdc[ih] = -999;
             tdc_ch[ih] = -999;
-            tdc[ih] = (long) tdc_evt->tdc[ih];
+            tdc[ih] = (long) tdc_evt->tdc[ih]/40;
             tdc_ch[ih] = (int) tdc_evt->tdc_ch[ih];
           }
 
