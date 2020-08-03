@@ -10,10 +10,10 @@ void v1290_daq(int nevt = 1000)
 {
     // Tree Branches
     int ntdc = -999;
-    long tdc0 = -999;
-    int tdc_ch0 = -999;
-    long tdc1 = -999;
-    int tdc_ch1 = -999;
+    long tdc[100] = {-999,};
+    int tdc_ch[100] = {-999,};
+//    long tdc1 = -999;
+//    int tdc_ch1 = -999;
     int triggerID = -999;
     int eventID = -999;
 
@@ -29,10 +29,10 @@ void v1290_daq(int nevt = 1000)
     TTree *tree_out = new TTree("tree_out", "tdc_tree");
     tree_out->SetAutoFlush(10000);
     tree_out->Branch("ntdc", &ntdc);
-    tree_out->Branch("tdc0", &tdc0, "tdc0/L");
-    tree_out->Branch("tdc_ch0", &tdc_ch0);
-    tree_out->Branch("tdc1", &tdc1, "tdc1/L");
-    tree_out->Branch("tdc_ch1", &tdc_ch1);
+    tree_out->Branch("tdc", tdc, "tdc/L");
+    tree_out->Branch("tdc_ch", tdc_ch);
+//    tree_out->Branch("tdc1", &tdc1, "tdc1/L");
+//    tree_out->Branch("tdc_ch1", &tdc_ch1);
     tree_out->Branch("triggerID", &triggerID);
     tree_out->Branch("eventID", &eventID);
 
@@ -75,21 +75,20 @@ void v1290_daq(int nevt = 1000)
 //        cout << "TDC6 : " << tdc_evt->tdc_ch[5] << " " << tdc_evt->tdc[5] << endl;
 
         ntdc = tdc_evt->ntdc;
-        if (ntdc == 2) {
-            tdc0 = -999;
-            tdc_ch0 = -999;
-            tdc1 = -999;
-            tdc_ch1 = -999;
-            triggerID = -999;
-            eventID = -999;
-            ntdc = tdc_evt->ntdc;
-            tdc0 = (long) tdc_evt->tdc[0];
-            tdc_ch0 = (int) tdc_evt->tdc_ch[0];
-            tdc1 = (long) tdc_evt->tdc[1];
-            tdc_ch1 = (int) tdc_evt->tdc_ch[1];
-            triggerID = (int) tdc_evt->TriggerID;
-            eventID = (int) tdc_evt->EventNumber;
-            tree_out->Fill();
+        if (true) {
+          for (int ih = 0; ih < ntdc; ih++) {
+            tdc[ih] = -999;
+            tdc_ch[ih] = -999;
+            tdc[ih] = (long) tdc_evt->tdc[ih];
+            tdc_ch[ih] = (int) tdc_evt->tdc_ch[ih];
+          }
+
+          triggerID = -999;
+          eventID = -999;
+          ntdc = tdc_evt->ntdc;
+          triggerID = (int) tdc_evt->TriggerID;
+          eventID = (int) tdc_evt->EventNumber;
+          tree_out->Fill();
         }
 
         tdc_module->TDCClear_Buffer(devnum, moduleID);
