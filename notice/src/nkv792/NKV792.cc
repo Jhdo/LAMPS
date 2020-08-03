@@ -192,10 +192,15 @@ int NKV792::ADC_IsDataReady(int devnum, unsigned long mid)
 
 int NKV792::ADC_IsValidData(unsigned long word)
 {
-  int ret = 1;
-
+  int ret = -1;
+  int type = -1; // type 0(data) 1(ADC header) 2(ADC trailer) 3(global header) 4(ADC error) 5(global trailer)
+  unsigned long type_code = (word >> 24) & 0x7;
+  if (type_code == 0x00) type = 0;
+  else if (type_code == 0x02) type = 1;
+  else if (type_code == 0x04) type = 2;
+  else if (type_code == 0x06) type = 3;
+  if (type >= 0) ret = 1;
   word = (word >> 24) & 0x7;
-
   if (word == 0x6) ret = 0; 
 
   return ret;
@@ -235,13 +240,13 @@ unsigned long NKV792::ADCRead_Buffer(int devnum, unsigned long mid, unsigned lon
     
     words[i/4] = rdat_32bit[i] + rdat_32bit[i+1] + rdat_32bit[i+2] + rdat_32bit[i+3];
 
-    if (!ADC_IsValidData(words[i/4])) {
+    if (ADC_IsValidData(words[i/4]) == 0) {
       if (fDebug) cout << "v792 Met End of data block" << endl;
       if (fDebug) cout << "NW : " << nw_data << endl;
       return nw_data;
     }
 
-    nw_data++;
+    if (ADC_IsValidData(words[i/4]) == 1) nw_data++;
 //    cout << "rdat " << endl;
 //    cout << bitset<32>(rdat[i+3]) << endl;
 //    cout << bitset<32>(rdat[i+2]) << endl;
