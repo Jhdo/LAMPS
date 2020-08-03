@@ -6,7 +6,7 @@ R__LOAD_LIBRARY(libNKV1290.so)
 //#endif
 
 using namespace std;
-void v1290_daq(int nevt = 1000)
+void v1290_daq(int nevt = 100)
 {
     // Tree Branches
     int ntdc = -999;
@@ -29,8 +29,8 @@ void v1290_daq(int nevt = 1000)
     TTree *tree_out = new TTree("tree_out", "tdc_tree");
     tree_out->SetAutoFlush(10000);
     tree_out->Branch("ntdc", &ntdc);
-    tree_out->Branch("tdc", tdc, "tdc/L");
-    tree_out->Branch("tdc_ch", tdc_ch);
+    tree_out->Branch("tdc", tdc, "tdc[100]/L");
+    tree_out->Branch("tdc_ch", tdc_ch, "tdc_ch[100]/I");
 //    tree_out->Branch("tdc1", &tdc1, "tdc1/L");
 //    tree_out->Branch("tdc_ch1", &tdc_ch1);
     tree_out->Branch("triggerID", &triggerID);
