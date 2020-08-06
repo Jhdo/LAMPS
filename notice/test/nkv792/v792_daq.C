@@ -56,6 +56,11 @@ void v792_daq(int nevt = 10)
 
 	    unsigned long words[20000];
         unsigned long nw = adc_module->ADCRead_Buffer(devnum, moduleID, words);
+
+      for (int i = 0; i < 10; i++) {
+        cout << "Data Word : " << bitset<32>(words[i]) << endl;
+      }
+
     	if (nw > 50) {
           adc_module->ADCClear_Buffer(devnum, moduleID);
 	      continue;
