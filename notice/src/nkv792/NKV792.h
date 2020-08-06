@@ -22,7 +22,7 @@
 #define v792_ADDR_THRESHOLD  0x1080 // ch is set by 0x1080 + ?  (+0x4 per 1 channel : 792N, defaut 16x)
 #define v792_ADDR_PED 0x1060 // 8bit
 
-#define v792_THRESHOLD 0x0001 // 32, Mutiplied by 16, See manual p20
+#define v792_THRESHOLD 0x01 // 32, Mutiplied by 16, See manual p20
 #define v792_PED 0x0040 // Must be bigger than 60
 #define v792_READOUT_SIZE 128 // Read data buffer (doesn't matter with its contents) and check if it  contains EOB word if not, repeat readout
 
