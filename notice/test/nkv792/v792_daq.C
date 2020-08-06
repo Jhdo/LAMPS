@@ -10,10 +10,12 @@ void v792_daq(int nevt = 10)
 {
     // Tree Branches
     int nadc = -999;
-    long adc0 = -999;
-    int adc_ch0 = -999;
-    long adc1 = -999;
-    int adc_ch1 = -999;
+    long adc[100] = {-999,};
+    int adc_ch[100] = {-999,};
+    //long adc0 = -999;
+    //int adc_ch0 = -999;
+    //long adc1 = -999;
+    //int adc_ch1 = -999;
     int triggerID = -999;
 
     int devnum = 0; // Dev. Mount number in linux
@@ -28,10 +30,12 @@ void v792_daq(int nevt = 10)
     TTree *tree_out = new TTree("tree_out", "adc_tree");
     tree_out->SetAutoFlush(10000);
     tree_out->Branch("nadc", &nadc);
-    tree_out->Branch("adc0", &adc0, "adc0/L");
-    tree_out->Branch("adc_ch0", &adc_ch0);
-    tree_out->Branch("adc1", &adc1, "adc1/L");
-    tree_out->Branch("adc_ch1", &adc_ch1);
+    tree_out->Branch("adc", adc, "adc[100]/L");
+    tree_out->Branch("adc_ch", adc_ch, "adc_ch[100]/I");
+    //tree_out->Branch("adc0", &adc0, "adc0/L");
+    //tree_out->Branch("adc_ch0", &adc_ch0);
+    //tree_out->Branch("adc1", &adc1, "adc1/L");
+    //tree_out->Branch("adc_ch1", &adc_ch1);
     tree_out->Branch("triggerID", &triggerID);
 
     NKV792 *adc_module = new NKV792();
@@ -52,6 +56,11 @@ void v792_daq(int nevt = 10)
 
 	    unsigned long words[20000];
         unsigned long nw = adc_module->ADCRead_Buffer(devnum, moduleID, words);
+    	if (nw > 50) {
+          adc_module->ADCClear_Buffer(devnum, moduleID);
+	      continue;
+	    }
+
         cout << "NWord " << nw << endl;
         ADCEvent *adc_evt = new ADCEvent();
         adc_module->ADCEventBuild(words, nw, 0, adc_evt);
@@ -61,17 +70,15 @@ void v792_daq(int nevt = 10)
         cout << "ADC2 : " << adc_evt->adc_ch[1] << " " << adc_evt->adc[1] << endl;
 
         nadc = adc_evt->nadc;
-        if (nadc == 2) {
-            adc0 = -999;
-            adc_ch0 = -999;
-            adc1 = -999;
-            adc_ch1 = -999;
-            triggerID = -999;
+        if (true) {
+          for (int ih = 0; ih < nadc; ih++) {
+            adc[ih] = -999;
+            adc_ch[ih] = -999;
+            adc[ih] = (long) adc_evt->adc[ih]/40;
+            adc_ch[ih] = (int) adc_evt->adc_ch[ih];
+          }
             nadc = adc_evt->nadc;
-            adc0 = (long) adc_evt->adc[0];
-            adc_ch0 = (int) adc_evt->adc_ch[0];
-            adc1 = (long) adc_evt->adc[1];
-            adc_ch1 = (int) adc_evt->adc_ch[1];
+            triggerID = -999;
             triggerID = (int) adc_evt->TriggerID;
             tree_out->Fill();
         }
