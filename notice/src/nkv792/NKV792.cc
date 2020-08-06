@@ -94,7 +94,7 @@ void NKV792::ADCSet_ZeroSup(int devnum, unsigned long mid, int v)
   }
 
   else if (v == 1) {
-    bitset2_v = ~(bitset2_v) & ~(0x0001 << 4); // Enable zero_sup
+    bitset2_v = bitset2_v & ~(0x0001 << 4); // Enable zero_sup
     cout << "ZeroSuppresion Enabled" << endl;
   }
 
