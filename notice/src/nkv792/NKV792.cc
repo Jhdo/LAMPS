@@ -257,7 +257,7 @@ unsigned long NKV792::ADCRead_Buffer(int devnum, unsigned long mid, unsigned lon
     cout << bitset<32>(rdat_32bit[i+2]) << endl;
     cout << bitset<32>(rdat_32bit[i+1]) << endl;
     cout << bitset<32>(rdat_32bit[i]) << endl;
-    cout << "Data word " << bitset<32>(words[i]) << endl;
+    cout << "Data word " << bitset<32>(words[i/4]) << endl;
   }
 
 
