@@ -42,7 +42,9 @@ void v792_daq(int nevt = 10)
     cout << "Starting v792..." << endl;
     cout << "ADC Module Initialized" << endl;
     adc_module->VMEopen(devnum);
-    adc_module->ADCInit(devnum, moduleID);
+    //adc_module->ADCInit(devnum, moduleID);
+    adc_module->ADCSet_ZeroSup(devnum, moduleID, 0);
+
 
     for (int ievt = 0; ievt < nevt; ievt++) {
         cout << "Event " << ievt << endl;
