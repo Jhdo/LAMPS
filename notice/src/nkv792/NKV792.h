@@ -27,6 +27,7 @@
 #define v792_READOUT_SIZE 128 // Read data buffer (doesn't matter with its contents) and check if it  contains EOB word if not, repeat readout
 
 #include "NK6UVMEROOT.h"
+#include <bitset>
 
 class ADCEvent{
  public:
