@@ -162,6 +162,8 @@ unsigned long NKV792::ADCRead_Status1(int devnum, unsigned long mid)
 
   v = v & 0xF;
 
+  cout << "Status 1 : " << bitset<32>(v) << endl;
+
   return v;
 }
 
