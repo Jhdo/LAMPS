@@ -104,7 +104,7 @@ void NKV792::ADCSet_ZeroSup(int devnum, unsigned long mid, int v)
 }
 
 
-void NKV792::ADCSet_Threshold(int devnum, unsigned long mid, int ch, unsigned short v)
+void NKV792::ADCSet_Threshold(int devnum, unsigned long mid, int ch, unsigned char v)
 {
   unsigned long baseaddr;
   

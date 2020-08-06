@@ -50,7 +50,7 @@ class NKV792 : public NK6UVMEROOT
   void ADCClear_Buffer(int devnum, unsigned long mid);
   void ADCSet_ZeroSup(int devnum, unsigned long mid, int v);
   void ADCReset_TriggerCounter(int devnum, unsigned long mid);
-  void ADCSet_Threshold(int devnum, unsigned long mid, int ch, unsigned short v);
+  void ADCSet_Threshold(int devnum, unsigned long mid, int ch, unsigned char v);
   void ADCSet_Pedestal(int devnum, unsigned long mid, unsigned short pd);
   unsigned long ADCRead_TriggerCounter(int devnum, unsigned long mid);
   unsigned long ADCRead_Threshold(int devnum, unsigned long mid, int ch);
