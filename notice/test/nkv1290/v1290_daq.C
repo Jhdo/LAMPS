@@ -10,7 +10,7 @@ void v1290_daq(int nevt = 1000)
 {
     // Tree Branches
     int ntdc = -999;
-    long tdc[100] = {-999,};
+    double tdc[100] = {-999,};
     int tdc_ch[100] = {-999,};
 //    long tdc1 = -999;
 //    int tdc_ch1 = -999;
@@ -29,7 +29,7 @@ void v1290_daq(int nevt = 1000)
     TTree *tree_out = new TTree("tree_out", "tdc_tree");
     tree_out->SetAutoFlush(10000);
     tree_out->Branch("ntdc", &ntdc);
-    tree_out->Branch("tdc", tdc, "tdc[100]/L");
+    tree_out->Branch("tdc", tdc, "tdc[100]/D");
     tree_out->Branch("tdc_ch", tdc_ch, "tdc_ch[100]/I");
 //    tree_out->Branch("tdc1", &tdc1, "tdc1/L");
 //    tree_out->Branch("tdc_ch1", &tdc_ch1);
@@ -92,7 +92,7 @@ void v1290_daq(int nevt = 1000)
         ntdc = tdc_evt->ntdc;
         if (true) {
           for (int ih = 0; ih < ntdc; ih++) {
-            tdc[ih] = (long) tdc_evt->tdc[ih]/40;
+            tdc[ih] = (double) tdc_evt->tdc[ih]/40.;
             tdc_ch[ih] = (int) tdc_evt->tdc_ch[ih];
           }
 
