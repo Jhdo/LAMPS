@@ -80,17 +80,22 @@ void v1290_daq(int nevt = 1000)
 //        cout << "TDC5 : " << tdc_evt->tdc_ch[4] << " " << tdc_evt->tdc[4] << endl;
 //        cout << "TDC6 : " << tdc_evt->tdc_ch[5] << " " << tdc_evt->tdc[5] << endl;
 
+        // Init branch container
+        for (int i = 0; i < 100; i++) {
+          tdc[i] = -999;
+          tdc_ch[i] = -999;
+        }
+        triggerID = -999;
+        eventID = -999;
+        ntdc = -999;
+
         ntdc = tdc_evt->ntdc;
         if (true) {
           for (int ih = 0; ih < ntdc; ih++) {
-            tdc[ih] = -999;
-            tdc_ch[ih] = -999;
             tdc[ih] = (long) tdc_evt->tdc[ih]/40;
             tdc_ch[ih] = (int) tdc_evt->tdc_ch[ih];
           }
 
-          triggerID = -999;
-          eventID = -999;
           ntdc = tdc_evt->ntdc;
           triggerID = (int) tdc_evt->TriggerID;
           eventID = (int) tdc_evt->EventNumber;
