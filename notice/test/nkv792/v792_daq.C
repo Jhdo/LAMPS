@@ -50,8 +50,9 @@ void v792_daq(int nevt = 10)
         int itry = 0;
 	    while(true) {
             int dr = adc_module->ADC_IsDataReady(devnum, moduleID);
+            int bs = adc_module->ADC_IsBusy(devnum, moduleID);
             itry++;
-	        if (dr) break;
+	        if (dr == 1 && bs == 0) break;
 	        if (itry > 500000) return;
         }
 
