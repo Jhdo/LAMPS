@@ -52,6 +52,7 @@ void v792_daq(int nevt = 10)
             int dr = adc_module->ADC_IsDataReady(devnum, moduleID);
             int bs = adc_module->ADC_IsBusy(devnum, moduleID);
             itry++;
+            cout << "dr " << dr << " bs " << bs << endl;
 	        if (dr == 1 && bs == 0) break;
 	        if (itry > 500000) return;
         }
