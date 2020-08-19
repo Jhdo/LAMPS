@@ -86,19 +86,19 @@ void NKV792::ADCSet_ZeroSup(int devnum, unsigned long mid, int v)
 
   unsigned long addr = baseaddr + v792_ADDR_BITSET2;
 
-  unsigned short bitset2_v = VMEread(devnum, A32D16, 100, addr);
+  unsigned long addr_clear = baseaddr + v792_ADDR_BITSET2_CLEAR;
+
+  unsigned short set = 0x10;
 
   if (v == 0) {
-    bitset2_v = bitset2_v | (0x0001 << 4); // Disable zero_sup
+    VMEwrite(devnum, A32D16, 100, addr, set);
     cout << "ZeroSuppresion Disabled" << endl;
   }
 
   else if (v == 1) {
-    bitset2_v = bitset2_v & ~(0x0001 << 4); // Enable zero_sup
+    VMEwrite(devnum, A32D16, 100, addr_clear, set);
     cout << "ZeroSuppresion Enabled" << endl;
   }
-
-  VMEwrite(devnum, A32D16, 100, addr, bitset2_v);
 
   return;
 }
@@ -330,13 +330,9 @@ void NKV792::ADCClear_Buffer(int devnum, unsigned long mid)
   
   unsigned long addr_clear = baseaddr + v792_ADDR_BITSET2_CLEAR;
 
-  unsigned short bitset2_v = VMEread(devnum, A32D16, 100, addr);
-
-  bitset2_v = bitset2_v | (0x0001 << 2);
-
-  VMEwrite(devnum, A32D16, 100, addr, bitset2_v);
-
   unsigned short v = 0x4;
+
+  VMEwrite(devnum, A32D16, 100, addr, v);
 
   VMEwrite(devnum, A32D16, 100, addr_clear, v);
 }
