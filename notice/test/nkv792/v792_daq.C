@@ -6,7 +6,7 @@ R__LOAD_LIBRARY(libNKV792.so)
 //#endif
 
 using namespace std;
-void v792_daq(int nevt = 10)
+void v792_daq(int nevt = 100)
 {
     // Tree Branches
     int nadc = -999;
@@ -79,14 +79,16 @@ void v792_daq(int nevt = 10)
 
         nadc = adc_evt->nadc;
         if (true) {
-          for (int ih = 0; ih < nadc; ih++) {
+          for (int ih = 0; ih < 100; ih++) {
             adc[ih] = -999;
             adc_ch[ih] = -999;
+          }
+          triggerID = -999;
+          for (int ih = 0; ih < nadc; ih++) {
             adc[ih] = (long) adc_evt->adc[ih]/40;
             adc_ch[ih] = (int) adc_evt->adc_ch[ih];
           }
             nadc = adc_evt->nadc;
-            triggerID = -999;
             triggerID = (int) adc_evt->TriggerID;
             tree_out->Fill();
         }
