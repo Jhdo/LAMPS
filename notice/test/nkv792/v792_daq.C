@@ -16,7 +16,8 @@ void v792_daq(int nevt = 100)
     //int adc_ch0 = -999;
     //long adc1 = -999;
     //int adc_ch1 = -999;
-    int triggerID = -999;
+    long triggerID = -999;
+    long eventID = -999;
 
     int devnum = 0; // Dev. Mount number in linux
 
@@ -32,11 +33,8 @@ void v792_daq(int nevt = 100)
     tree_out->Branch("nadc", &nadc);
     tree_out->Branch("adc", adc, "adc[100]/L");
     tree_out->Branch("adc_ch", adc_ch, "adc_ch[100]/I");
-    //tree_out->Branch("adc0", &adc0, "adc0/L");
-    //tree_out->Branch("adc_ch0", &adc_ch0);
-    //tree_out->Branch("adc1", &adc1, "adc1/L");
-    //tree_out->Branch("adc_ch1", &adc_ch1);
-    tree_out->Branch("triggerID", &triggerID);
+    tree_out->Branch("triggerID", &triggerID, "triggerID/L");
+    tree_out->Branch("eventID", &eventID, "eventID/L");
 
     NKV792 *adc_module = new NKV792();
     cout << "Starting v792..." << endl;
@@ -72,8 +70,8 @@ void v792_daq(int nevt = 100)
         cout << "NWord " << nw << endl;
         ADCEvent *adc_evt = new ADCEvent();
         adc_module->ADCEventBuild(words, nw, 0, adc_evt);
-
-        cout << "TriggerID : " << adc_evt->TriggerID << endl;
+        triggerID = adc_module->ADCRead_TriggerCounter(devnum, mid)
+        cout << "EventID : " << adc_evt->TriggerID << endl;
         cout << "ADC1 : " << adc_evt->adc_ch[0] << " " << adc_evt->adc[0] << endl;
         cout << "ADC2 : " << adc_evt->adc_ch[1] << " " << adc_evt->adc[1] << endl;
 
@@ -84,12 +82,13 @@ void v792_daq(int nevt = 100)
             adc_ch[ih] = -999;
           }
           triggerID = -999;
+          eventID = -999;
           for (int ih = 0; ih < nadc; ih++) {
-            adc[ih] = (long) adc_evt->adc[ih]/40;
+            adc[ih] = (long) adc_evt->adc[ih];
             adc_ch[ih] = (int) adc_evt->adc_ch[ih];
           }
             nadc = adc_evt->nadc;
-            triggerID = (int) adc_evt->TriggerID;
+            eventID = (int) adc_evt->EventID;
             tree_out->Fill();
         }
 
