@@ -70,7 +70,6 @@ void v792_daq(int nevt = 100)
         cout << "NWord " << nw << endl;
         ADCEvent *adc_evt = new ADCEvent();
         adc_module->ADCEventBuild(words, nw, 0, adc_evt);
-        triggerID = adc_module->ADCRead_TriggerCounter(devnum, moduleID)
         cout << "EventID : " << adc_evt->TriggerID << endl;
         cout << "ADC1 : " << adc_evt->adc_ch[0] << " " << adc_evt->adc[0] << endl;
         cout << "ADC2 : " << adc_evt->adc_ch[1] << " " << adc_evt->adc[1] << endl;
@@ -83,6 +82,7 @@ void v792_daq(int nevt = 100)
           }
           triggerID = -999;
           eventID = -999;
+          triggerID = adc_module->ADCRead_TriggerCounter(devnum, moduleID)
           for (int ih = 0; ih < nadc; ih++) {
             adc[ih] = (long) adc_evt->adc[ih];
             adc_ch[ih] = (int) adc_evt->adc_ch[ih];
