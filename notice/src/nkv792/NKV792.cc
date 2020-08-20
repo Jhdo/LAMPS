@@ -66,9 +66,9 @@ unsigned long NKV792::ADCRead_TriggerCounter(int devnum, unsigned long mid)
 
   unsigned long addr_high = baseaddr + v792_ADDR_EVENTCOUNTER_HIGH;
 
-  unsigned short v_low = VMEread(devnum, A32D16, 100, addr_low);
+  unsigned long v_low = VMEread(devnum, A32D16, 100, addr_low);
   
-  unsigned short v_high = VMEread(devnum, A32D16, 100, addr_high);
+  unsigned long v_high = VMEread(devnum, A32D16, 100, addr_high);
 
   v_high = v_high & 0xF; // 8 bits are vailid
 
@@ -254,12 +254,12 @@ unsigned long NKV792::ADCRead_Buffer(int devnum, unsigned long mid, unsigned lon
 //    cout << bitset<32>(rdat[i+2]) << endl;
 //    cout << bitset<32>(rdat[i+1]) << endl;
 //    cout << bitset<32>(rdat[i]) << endl;
-    cout << "rdat_32" << endl;
-    cout << bitset<32>(rdat_32bit[i+3]) << endl;
-    cout << bitset<32>(rdat_32bit[i+2]) << endl;
-    cout << bitset<32>(rdat_32bit[i+1]) << endl;
-    cout << bitset<32>(rdat_32bit[i]) << endl;
-    cout << "Data word " << bitset<32>(words[i/4]) << endl;
+//    cout << "rdat_32" << endl;
+//    cout << bitset<32>(rdat_32bit[i+3]) << endl;
+//    cout << bitset<32>(rdat_32bit[i+2]) << endl;
+//    cout << bitset<32>(rdat_32bit[i+1]) << endl;
+//    cout << bitset<32>(rdat_32bit[i]) << endl;
+//    cout << "Data word " << bitset<32>(words[i/4]) << endl;
   }
 
 
@@ -290,6 +290,7 @@ void NKV792::ADCEventBuild(unsigned long *words, int nw, int i, ADCEvent *data)
     if (type_code == 2) {
       unsigned long EventCounter = words[i] & 0xFFFFFF;
       if (fDebug) cout << "ADC EventCounter  : " << EventCounter << endl;
+      data->EventID = EventCounter; // Need to update code for multiple event data buffer
       nevt++;
     }
 
