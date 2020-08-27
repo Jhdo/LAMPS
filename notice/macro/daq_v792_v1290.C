@@ -36,9 +36,9 @@ void daq_v792_v1290(int nevt = 1000)
     tree_out->Branch("triggerID_adc", &triggerID_adc, "triggerID_adc/L");
     tree_out->Branch("eventID_adc", &eventID_adc, "eventID_adc/L");
 
+    NKV1290 *tdc_module = new NKV1290();
     tdc_module->VMEopen(devnum);
 
-    NKV1290 *tdc_module = new NKV1290();
     cout << "Starting v1290..." << endl;
     tdc_module->TDCInit(devnum, moduleID_tdc, 1);
     tdc_module->TDCClear_Buffer(devnum, moduleID_tdc);
@@ -113,7 +113,7 @@ void daq_v792_v1290(int nevt = 1000)
           }
           triggerID_adc = -999;
           eventID_adc = -999;
-          triggerID_adc = adc_module->ADCRead_TriggerCounter(devnum, moduleID_adc)
+          triggerID_adc = adc_module->ADCRead_TriggerCounter(devnum, moduleID_adc);
           for (int ih = 0; ih < nadc; ih++) {
             adc[ih] = (long) adc_evt->adc[ih];
             adc_ch[ih] = (int) adc_evt->adc_ch[ih];
