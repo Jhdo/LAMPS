@@ -1,3 +1,5 @@
+#include <unistd.h>
+
 const unsigned short moduleID_tdc = 0x1000;
 const unsigned short moduleID_adc = 0x2000;
 R__LOAD_LIBRARY(libNK6UVMEROOT.so)
@@ -60,7 +62,7 @@ void daq_v792_v1290(int nevt = 1000)
             //cout << "dr " << dr << " bs " << bs << endl;
 	        if ((stat_tdc & 0x1) == 1 && dr_adc == 1) break;
 	        if (itry > 500000) return;
-        }
+      }
         
         unsigned long words_tdc[20000];
         unsigned long words_adc[20000];
@@ -68,7 +70,7 @@ void daq_v792_v1290(int nevt = 1000)
         unsigned long nw_tdc = tdc_module->TDCRead_Buffer(devnum, moduleID_tdc, words_tdc);
         unsigned long nw_adc = adc_module->ADCRead_Buffer(devnum, moduleID_adc, words_adc);
 
-	    cout << "TDC NWord " << nw_tdc << endl;
+	      cout << "TDC NWord " << nw_tdc << endl;
         cout << "ADC NWord " << nw_adc << endl;
         TDCEvent *tdc_evt = new TDCEvent();
         ADCEvent *adc_evt = new ADCEvent();
@@ -101,7 +103,6 @@ void daq_v792_v1290(int nevt = 1000)
           ntdc = tdc_evt->ntdc;
           triggerID_tdc = tdc_evt->TriggerID;
           eventID_tdc = (int) tdc_evt->EventNumber;
-          tree_out->Fill();
         }
 
         // Filling ADC Tree
@@ -120,13 +121,14 @@ void daq_v792_v1290(int nevt = 1000)
           }
             nadc = adc_evt->nadc;
             eventID_adc = (int) adc_evt->EventID;
-            tree_out->Fill();
         }
 
+        tree_out->Fill();
         tdc_module->TDCClear_Buffer(devnum, moduleID_tdc);
         adc_module->ADCClear_Buffer(devnum, moduleID_adc);
         delete tdc_evt;
         delete adc_evt;
+        usleep(100);
     }
 
     tree_out->Write();
