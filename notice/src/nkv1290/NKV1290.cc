@@ -226,6 +226,20 @@ unsigned long NKV1290::TDCRead_Buffer_Test(int devnum, unsigned long mid, unsign
 }
 
 
+unsigned long NKV1290::TDCRead_EventCounter(int devnum, unsigned long mid)
+{
+  unsigned long baseaddr;
+  
+  baseaddr = (mid & 0xFFFF) << 16;
+  
+  unsigned long addr = baseaddr + v1290_ADDR_EVTCOUNTER;
+  
+  unsigned long word = VMEread(devnum, A32D32, 100, addr);
+  
+  return word;
+}
+
+
 // Decoding Words : 32bit
 void NKV1290::TDCEventBuild(unsigned long *words, int nw, int iw, TDCEvent *data)
 {
@@ -265,8 +279,8 @@ void NKV1290::TDCEventBuild(unsigned long *words, int nw, int iw, TDCEvent *data
       unsigned long BunchID = words[i] & 0xFFF;
       unsigned long EventID = (words[i] >> 12) & 0xFFF;
       if (fDebug) cout << "BunchID : " << BunchID << " EventID : " << EventID << endl;
-      data->TriggerID = BunchID;
-      data->EventNumber = 0;
+      //data->TriggerID = BunchID;
+      data->EventNumber = EventID;
     }
 
     if (type_code == 2) {
