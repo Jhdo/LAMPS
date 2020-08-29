@@ -53,6 +53,7 @@ class NKV792 : public NK6UVMEROOT
   void ADCReset_TriggerCounter(int devnum, unsigned long mid);
   void ADCSet_Threshold(int devnum, unsigned long mid, int ch, unsigned char v);
   void ADCSet_Pedestal(int devnum, unsigned long mid, unsigned short pd);
+  void ADCSet_AllowEmptyEvent(int devnum, unsigned long mid, int v); // Allow writing empty events
   unsigned long ADCRead_TriggerCounter(int devnum, unsigned long mid);
   unsigned long ADCRead_Threshold(int devnum, unsigned long mid, int ch);
   unsigned long ADCRead_Status1(int devnum, unsigned long mid); // Get Status bit1 (First bit is DATA_READY)

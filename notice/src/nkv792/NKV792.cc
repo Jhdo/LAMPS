@@ -37,7 +37,35 @@ void NKV792::ADCInit(int devnum, unsigned long mid)
   ADCClear_Buffer(devnum, mid);
   
   ADCReset_TriggerCounter(devnum, mid);
+
+  ADCSet_AllowEmptyEvent(devnum, mid, 1);
   
+  return;
+}
+
+
+void NKV792::ADCSet_AllowEmptyEvent(int devnum, unsigned long mid, int v)
+{
+  unsigned long baseaddr;
+  
+  baseaddr = (mid & 0xFFFF) << 16;
+
+  unsigned long addr = baseaddr + v792_ADDR_BITSET2;
+
+  unsigned long addr_clear = baseaddr + v792_ADDR_BITSET2_CLEAR;
+
+  unsigned short set = (0x0001 << 12);
+
+  if (v == 0) {
+    VMEwrite(devnum, A32D16, 100, addr_clear, set);
+    cout << "Empty events disabled" << endl;
+  }
+
+  else if (v == 1) {
+    VMEwrite(devnum, A32D16, 100, addr, set);
+    cout << "Empty events enabled" << endl;
+  }
+
   return;
 }
 
