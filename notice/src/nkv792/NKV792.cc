@@ -27,10 +27,21 @@ void NKV792::ADCInit(int devnum, unsigned long mid)
   cout << "Initializing v792.." << endl;
   // Enable Zero suppresion
   ADCSet_ZeroSup(devnum, mid, 1);
+//  ADCSet_ZeroSup_bitset2(devnum, mid, 1);
+
   // Zero suppression threshold : Need to make ch by ch value
   for (int ch = 0; ch < 16; ch++) {
-    ADCSet_Threshold(devnum, mid, ch, v792_THRESHOLD);
+//    ADCSet_Threshold(devnum, mid, ch, v792_THRESHOLD);
+    if(ch == 8 || ch ==13)
+    {
+        ADCSet_Threshold(devnum, mid, ch, v792_THRESHOLD);
+    }
+    else 
+    {
+	    ADCSet_Threshold(devnum, mid, ch, 0x15);
+    }
   }
+ 
   // Pedestal is recommended to set larger than 60, see manual p16
   ADCSet_Pedestal(devnum, mid, v792_PED);
   
@@ -131,6 +142,33 @@ void NKV792::ADCSet_ZeroSup(int devnum, unsigned long mid, int v)
   return;
 }
 
+/*
+void NKV792::ADCSet_ZeroSup_bitset2(int devnum, unsigned long mid, int v)
+{
+  unsigned long baseaddr;
+
+  baseaddr = (mid & 0xFFFF) << 16;
+
+  unsigned long addr = baseaddr + v792_ADDR_BITSET2;
+
+  unsigned long addr_clear = baseaddr + v792_ADDR_BITSET2_CLEAR;
+
+  unsigned short set = 0x100;
+
+  if (v == 0) {
+    VMEwrite(devnum, A32D16, 100, addr, set);
+    cout << "ZeroSuppresion Disabled" << endl;
+  }
+
+  else if (v == 1) {
+    VMEwrite(devnum, A32D16, 100, addr_clear, set);
+    cout << "ZeroSuppresion Enabled" << endl;
+  }
+
+  return;
+}
+
+*/
 
 void NKV792::ADCSet_Threshold(int devnum, unsigned long mid, int ch, unsigned char v)
 {
