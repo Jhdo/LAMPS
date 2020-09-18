@@ -26,8 +26,8 @@ int run_nfadc400(int Nevent = 1000) {
   // get NKHOME enviernment
   TString mypath = gSystem->Getenv("NKHOME");
   cout<<"NKHOME pass : "<<mypath<<endl;
-  TString myvme  = mypath + TString("/lib/libNotice6UVMEROOT.so");  
-  TString myfadc = mypath + TString("/lib/libNoticeNFADC400ROOT.so");
+  TString myvme  = mypath + TString("/lib/libNK6UVME.so");  
+  TString myfadc = mypath + TString("/lib/libNoticeNFADC400_root.so");
   
   // Loading VME & FADC lib.
   gSystem->Load(myvme);
@@ -44,7 +44,7 @@ int run_nfadc400(int Nevent = 1000) {
   int mid = 0x0;    // Module ID --> Set by DIP switch on the board
 
   // Class
-  NK6UVME kvme;
+  NK6UVMEROOT kvme;
   NKNFADC400 kadc;
   
   //VME open  

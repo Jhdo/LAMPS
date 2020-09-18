@@ -17,7 +17,7 @@ CC	=	gcc
 
 COPTS	=	-fPIC -DLINUX -Wall -DNKC
 
-FLAGS	=	-shared -Wall,-soname -nostartfiles -s
+FLAGS	=	-shared  -nostartfiles -s
 
 
 LIBS	=	-L/$(NKHOME)/lib

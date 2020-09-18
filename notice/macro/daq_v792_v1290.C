@@ -8,7 +8,7 @@ R__LOAD_LIBRARY(libNK6UVMEROOT.so)
 R__LOAD_LIBRARY(libNKV792.so)
 
 using namespace std;
-void daq_v792_v1290(int nevt = 1000)
+void daq_v792_v1290(int nevt = 100)
 {
     int devnum = 0; // Dev. Mount number in linux
 
