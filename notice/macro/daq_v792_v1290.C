@@ -129,7 +129,7 @@ void daq_v792_v1290(int nevt = 100)
         adc_module->ADCClear_Buffer(devnum, moduleID_adc);
         delete tdc_evt;
         delete adc_evt;
-        usleep(10);
+        usleep(30);
     }
 
     tree_out->Write();
