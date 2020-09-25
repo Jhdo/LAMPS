@@ -1,4 +1,7 @@
 #include <unistd.h>
+#include <ctime>
+#include <chrono>
+
 
 const unsigned short moduleID_tdc = 0x1000;
 const unsigned short moduleID_adc = 0x2000;
@@ -23,6 +26,7 @@ void daq_v792_v1290(int nevt = 100)
     int adc_ch[100] = {-999,};
     long triggerID_adc = -999;
     long eventID_adc = -999;
+    long unix_time = -999;
 
     TFile *file_out = new TFile("AnaResult.root", "Recreate");
     TTree *tree_out = new TTree("tree_out", "tdc_tree");
@@ -37,6 +41,7 @@ void daq_v792_v1290(int nevt = 100)
     tree_out->Branch("adc_ch", adc_ch, "adc_ch[nadc]/I");
     tree_out->Branch("triggerID_adc", &triggerID_adc, "triggerID_adc/L");
     tree_out->Branch("eventID_adc", &eventID_adc, "eventID_adc/L");
+    tree_out->Branch("unix_time", &unix_time, "unix_time/L");
 
     NKV1290 *tdc_module = new NKV1290();
     tdc_module->VMEopen(devnum);
@@ -53,6 +58,8 @@ void daq_v792_v1290(int nevt = 100)
 
     for (int ievt = 0; ievt < nevt; ievt++) {
         cout << "Event " << ievt << endl;
+        //tdc_module->TDCClear_Buffer(devnum, moduleID_tdc);
+        adc_module->ADCClear_Buffer(devnum, moduleID_adc);
         int itry = 0;
 	    while(true) {
             unsigned long stat_tdc = tdc_module->TDCRead_Status(devnum, moduleID_tdc);
@@ -63,7 +70,9 @@ void daq_v792_v1290(int nevt = 100)
 	        if ((stat_tdc & 0x1) == 1 && dr_adc == 1) break;
 	        if (itry > 500000) return;
       }
-        
+        // Measuring elapsed time per an event process
+        auto start = std::chrono::high_resolution_clock::now();
+
         unsigned long words_tdc[20000];
         unsigned long words_adc[20000];
 
@@ -124,12 +133,15 @@ void daq_v792_v1290(int nevt = 100)
             eventID_adc = (int) adc_evt->EventID;
         }
 
+        unix_time = std::time(0);
+
         tree_out->Fill();
-        //tdc_module->TDCClear_Buffer(devnum, moduleID_tdc);
-        adc_module->ADCClear_Buffer(devnum, moduleID_adc);
         delete tdc_evt;
         delete adc_evt;
-        usleep(30);
+
+        auto elapsed = std::chrono::high_resolution_clock::now() - start;
+        long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+        std::cout << "Elapsed time : " << microseconds << " micro seconds per event" << std::endl;
     }
 
     tree_out->Write();
