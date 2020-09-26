@@ -13,7 +13,6 @@ using namespace std;
 
 NKV1290::NKV1290()
 {
-  fDebug = 0;
   printf("NKV1290 Initialization \n");
 }
 
@@ -248,7 +247,7 @@ void NKV1290::TDCEventBuild(unsigned long *words, int nw, int iw, TDCEvent *data
 //  unsigned long nevt = 0;
   for (int i = iw; i < nw; i++) {
     int type = -1; // type 0(data) 1(tdc header) 2(tdc trailer) 3(global header) 4(tdc error) 5(global trailer)
-    cout << "DataWord " << std::bitset<32>(words[i]) << endl;
+//    cout << "DataWord " << std::bitset<32>(words[i]) << endl;
     unsigned long type_code = (words[i] >> 27) & 0x1F;
     if (fDebug) cout << "Type Code : " << type_code << endl;
 //    unsigned long type_code = words[i] & 0xA98A58;
@@ -295,11 +294,11 @@ void NKV1290::TDCEventBuild(unsigned long *words, int nw, int iw, TDCEvent *data
     }
 
     if (type_code == 4) {
-      cout << "Warning TDC Error Word found" << endl;
+      if (fDebug) cout << "Warning TDC Error Word found" << endl;
     }
 
     if (type_code == 5) {
-      cout << "Met Global Trailer Word" << endl;
+      if (fDebug) cout << "Met Global Trailer Word" << endl;
     }
   } // nw loop
 
