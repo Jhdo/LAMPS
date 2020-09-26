@@ -7,7 +7,6 @@ const unsigned short moduleID_tdc = 0x1000;
 const unsigned short moduleID_adc = 0x2000;
 R__LOAD_LIBRARY(libNK6UVMEROOT.so)
 R__LOAD_LIBRARY(libNKV1290.so)
-R__LOAD_LIBRARY(libNK6UVMEROOT.so)
 R__LOAD_LIBRARY(libNKV792.so)
 
 using namespace std;
@@ -17,13 +16,13 @@ void daq_v792_v1290(int nevt = 100)
 
     // Tree Branches
     int ntdc = -999;
-    double tdc[100] = {-999,};
-    int tdc_ch[100] = {-999,};
+    double tdc[128] = {-999,};
+    int tdc_ch[128] = {-999,};
     long triggerID_tdc = -999;
     long eventID_tdc = -999;
     int nadc = -999;
-    long adc[100] = {-999,};
-    int adc_ch[100] = {-999,};
+    long adc[128] = {-999,};
+    int adc_ch[128] = {-999,};
     long triggerID_adc = -999;
     long eventID_adc = -999;
     long unix_time = -999;
@@ -79,19 +78,19 @@ void daq_v792_v1290(int nevt = 100)
         unsigned long nw_tdc = tdc_module->TDCRead_Buffer(devnum, moduleID_tdc, words_tdc);
         unsigned long nw_adc = adc_module->ADCRead_Buffer(devnum, moduleID_adc, words_adc);
 
-	      cout << "TDC NWord " << nw_tdc << endl;
-        cout << "ADC NWord " << nw_adc << endl;
+//	      cout << "TDC NWord " << nw_tdc << endl;
+//        cout << "ADC NWord " << nw_adc << endl;
         TDCEvent *tdc_evt = new TDCEvent();
         ADCEvent *adc_evt = new ADCEvent();
 
         tdc_module->TDCEventBuild(words_tdc, nw_tdc, 0, tdc_evt);
         adc_module->ADCEventBuild(words_adc, nw_adc, 0, adc_evt);
-        cout << "TDC Evt Number : " << tdc_evt->EventNumber << endl;
-        cout << "TDC1 : " << tdc_evt->tdc_ch[0] << " " << tdc_evt->tdc[0] << endl;
-        cout << "TDC2 : " << tdc_evt->tdc_ch[1] << " " << tdc_evt->tdc[1] << endl;
-        cout << "EventID : " << adc_evt->TriggerID << endl;
-        cout << "ADC1 : " << adc_evt->adc_ch[0] << " " << adc_evt->adc[0] << endl;
-        cout << "ADC2 : " << adc_evt->adc_ch[1] << " " << adc_evt->adc[1] << endl;
+//        cout << "TDC Evt Number : " << tdc_evt->EventNumber << endl;
+//        cout << "TDC1 : " << tdc_evt->tdc_ch[0] << " " << tdc_evt->tdc[0] << endl;
+//        cout << "TDC2 : " << tdc_evt->tdc_ch[1] << " " << tdc_evt->tdc[1] << endl;
+//        cout << "EventID : " << adc_evt->TriggerID << endl;
+//        cout << "ADC1 : " << adc_evt->adc_ch[0] << " " << adc_evt->adc[0] << endl;
+//        cout << "ADC2 : " << adc_evt->adc_ch[1] << " " << adc_evt->adc[1] << endl;
 
         // Fill TDC Tree
         for (int i = 0; i < 100; i++) {
