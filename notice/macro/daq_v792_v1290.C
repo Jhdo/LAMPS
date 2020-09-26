@@ -1,6 +1,11 @@
 #include <unistd.h>
 #include <ctime>
 #include <chrono>
+#include <iostream>
+#include "TFile.h"
+#include "TTree.h"
+#include "../include/NKV792.h"
+#include "../include/NKV1290.h"
 
 
 const unsigned short moduleID_tdc = 0x1000;
@@ -45,18 +50,18 @@ void daq_v792_v1290(int nevt = 100)
     NKV1290 *tdc_module = new NKV1290();
     tdc_module->VMEopen(devnum);
 
-    cout << "Starting v1290..." << endl;
+    std::cout << "Starting v1290..." << std::endl;
     tdc_module->TDCInit(devnum, moduleID_tdc, 1);
     tdc_module->TDCClear_Buffer(devnum, moduleID_tdc);
-    cout << "TDC Module Initialized" << endl;
+    std::cout << "TDC Module Initialized" << std::endl;
 
     NKV792 *adc_module = new NKV792();
-    cout << "Starting v792..." << endl;
+    std::cout << "Starting v792..." << std::endl;
     adc_module->ADCInit(devnum, moduleID_adc);
-    cout << "ADC Module Initialized" << endl;
+    std::cout << "ADC Module Initialized" << std::endl;
 
     for (int ievt = 0; ievt < nevt; ievt++) {
-        cout << "Event " << ievt << endl;
+      std::cout << "Event " << ievt << std::endl;
         //tdc_module->TDCClear_Buffer(devnum, moduleID_tdc);
         adc_module->ADCClear_Buffer(devnum, moduleID_adc);
         int itry = 0;
