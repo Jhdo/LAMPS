@@ -79,17 +79,34 @@ void daq_v792_v1290(int nevt = 100)
 
         unsigned long words_tdc[20000];
         unsigned long words_adc[20000];
-
+        
+        auto elapsed = std::chrono::high_resolution_clock::now() - start;
+        long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+        std::cout << "Elapsed time 1 : " << microseconds << " micro seconds" << std::endl;
+        
         unsigned long nw_tdc = tdc_module->TDCRead_Buffer(devnum, moduleID_tdc, words_tdc);
         unsigned long nw_adc = adc_module->ADCRead_Buffer(devnum, moduleID_adc, words_adc);
+
+        elapsed = std::chrono::high_resolution_clock::now() - start;
+        microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+        std::cout << "Elapsed time 2 : " << microseconds << " micro seconds" << std::endl;
 
 //	      cout << "TDC NWord " << nw_tdc << endl;
 //        cout << "ADC NWord " << nw_adc << endl;
         TDCEvent *tdc_evt = new TDCEvent();
         ADCEvent *adc_evt = new ADCEvent();
 
+        elapsed = std::chrono::high_resolution_clock::now() - start;
+        microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+        std::cout << "Elapsed time 3 : " << microseconds << " micro seconds" << std::endl;
+
         tdc_module->TDCEventBuild(words_tdc, nw_tdc, 0, tdc_evt);
         adc_module->ADCEventBuild(words_adc, nw_adc, 0, adc_evt);
+
+        elapsed = std::chrono::high_resolution_clock::now() - start;
+        microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+        std::cout << "Elapsed time 4 : " << microseconds << " micro seconds" << std::endl;
+
 //        cout << "TDC Evt Number : " << tdc_evt->EventNumber << endl;
 //        cout << "TDC1 : " << tdc_evt->tdc_ch[0] << " " << tdc_evt->tdc[0] << endl;
 //        cout << "TDC2 : " << tdc_evt->tdc_ch[1] << " " << tdc_evt->tdc[1] << endl;
@@ -98,6 +115,7 @@ void daq_v792_v1290(int nevt = 100)
 //        cout << "ADC2 : " << adc_evt->adc_ch[1] << " " << adc_evt->adc[1] << endl;
 
         // Fill TDC Tree
+
         for (int i = 0; i < 100; i++) {
           tdc[i] = -999;
           tdc_ch[i] = -999;
@@ -137,15 +155,19 @@ void daq_v792_v1290(int nevt = 100)
             eventID_adc = (int) adc_evt->EventID;
         }
 
+        elapsed = std::chrono::high_resolution_clock::now() - start;
+        microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+        std::cout << "Elapsed time 5 : " << microseconds << " micro seconds" << std::endl;
+
         unix_time = std::time(0);
 
         tree_out->Fill();
         delete tdc_evt;
         delete adc_evt;
 
-        auto elapsed = std::chrono::high_resolution_clock::now() - start;
-        long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
-        std::cout << "Elapsed time : " << microseconds << " micro seconds per event" << std::endl;
+        elapsed = std::chrono::high_resolution_clock::now() - start;
+        microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+        std::cout << "Elapsed time Total : " << microseconds << " micro seconds per event" << std::endl;
     }
 
     tree_out->Write();
