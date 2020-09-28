@@ -21,13 +21,13 @@ void daq_v792_v1290(int nevt = 100)
 
     // Tree Branches
     int ntdc = -999;
-    double tdc[128] = {-999,};
-    int tdc_ch[128] = {-999,};
+    double tdc[32] = {-999,};
+    int tdc_ch[32] = {-999,};
     long triggerID_tdc = -999;
     long eventID_tdc = -999;
     int nadc = -999;
-    long adc[128] = {-999,};
-    int adc_ch[128] = {-999,};
+    long adc[32] = {-999,};
+    int adc_ch[32] = {-999,};
     long triggerID_adc = -999;
     long eventID_adc = -999;
     long unix_time = -999;
@@ -116,7 +116,7 @@ void daq_v792_v1290(int nevt = 100)
 
         // Fill TDC Tree
 
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 32; i++) {
           tdc[i] = -999;
           tdc_ch[i] = -999;
         }
@@ -140,7 +140,7 @@ void daq_v792_v1290(int nevt = 100)
         // Filling ADC Tree
         nadc = adc_evt->nadc;
         if (true) {
-          for (int ih = 0; ih < 100; ih++) {
+          for (int ih = 0; ih < 32; ih++) {
             adc[ih] = -999;
             adc_ch[ih] = -999;
           }
