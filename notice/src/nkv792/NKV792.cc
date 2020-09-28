@@ -283,8 +283,8 @@ unsigned long NKV792::ADCRead_Buffer(int devnum, unsigned long mid, unsigned lon
   unsigned long addr;
   unsigned long nw_read = v792_READOUT_SIZE;
   unsigned long nw_data = 0;
-  unsigned char rdat[10000];
-  unsigned long rdat_32bit[10000];
+  unsigned char rdat[1024];
+  unsigned long rdat_32bit[1024];
   
   baseaddr = (mid & 0xFFFF) << 16;
   
