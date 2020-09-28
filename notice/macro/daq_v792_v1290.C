@@ -135,6 +135,12 @@ void daq_v792_v1290(int nevt = 100)
           //triggerID_tdc = tdc_evt->TriggerID;
           triggerID_tdc = (long) tdc_module->TDCRead_EventCounter(devnum, moduleID_tdc);
           eventID_tdc = (int) tdc_evt->EventNumber;
+          // Testing
+          eventID_tdc = (int) tdc_evt->EventNumber;
+          eventID_tdc = (int) tdc_evt->EventNumber;
+          eventID_tdc = (int) tdc_evt->EventNumber;
+          eventID_tdc = (int) tdc_evt->EventNumber;
+          eventID_tdc = (int) tdc_evt->EventNumber;
         }
 
         // Filling ADC Tree
@@ -152,6 +158,15 @@ void daq_v792_v1290(int nevt = 100)
             adc_ch[ih] = (int) adc_evt->adc_ch[ih];
           }
             nadc = adc_evt->nadc;
+            eventID_adc = (int) adc_evt->EventID;
+            // Testing
+            eventID_adc = (int) adc_evt->EventID;
+            eventID_adc = (int) adc_evt->EventID;
+            eventID_adc = (int) adc_evt->EventID;
+            eventID_adc = (int) adc_evt->EventID;
+            eventID_adc = (int) adc_evt->EventID;
+            eventID_adc = (int) adc_evt->EventID;
+            eventID_adc = (int) adc_evt->EventID;
             eventID_adc = (int) adc_evt->EventID;
         }
 
