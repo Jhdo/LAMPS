@@ -104,8 +104,8 @@ unsigned long NKV1290::TDCRead_Buffer(int devnum, unsigned long mid, unsigned lo
   unsigned long i;
   unsigned long addr;
   unsigned long nw_read = 0; // Number of words
-  unsigned char rdat[10000];
-  unsigned long rdat_32bit[10000];
+  unsigned char rdat[1024];
+  unsigned long rdat_32bit[1024];
   
   baseaddr = (mid & 0xFFFF) << 16; //A32 mode
   
