@@ -52,12 +52,12 @@ void daq_v792_v1290(int nevt = 100)
 
     std::cout << "Starting v1290..." << std::endl;
     tdc_module->TDCInit(devnum, moduleID_tdc, 1);
+
+    std::cout << "Starting v792..." << std::endl;
+    NKV792 *adc_module = new NKV792();
+    adc_module->ADCInit(devnum, moduleID_adc);
     tdc_module->TDCClear_Buffer(devnum, moduleID_tdc);
     std::cout << "TDC Module Initialized" << std::endl;
-
-    NKV792 *adc_module = new NKV792();
-    std::cout << "Starting v792..." << std::endl;
-    adc_module->ADCInit(devnum, moduleID_adc);
     std::cout << "ADC Module Initialized" << std::endl;
 
     for (int ievt = 0; ievt < nevt; ievt++) {
@@ -77,8 +77,8 @@ void daq_v792_v1290(int nevt = 100)
         // Measuring elapsed time per an event process
         auto start = std::chrono::high_resolution_clock::now();
 
-        unsigned long words_tdc[20000];
-        unsigned long words_adc[20000];
+        unsigned long words_tdc[2048];
+        unsigned long words_adc[2048];
         
         auto elapsed = std::chrono::high_resolution_clock::now() - start;
         long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
