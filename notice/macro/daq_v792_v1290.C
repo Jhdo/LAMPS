@@ -134,17 +134,6 @@ void daq_v792_v1290(int nevt = 100)
           ntdc = tdc_evt->ntdc;
           //triggerID_tdc = tdc_evt->TriggerID;
           triggerID_tdc = (long) tdc_module->TDCRead_EventCounter(devnum, moduleID_tdc);
-	  // testing
-          triggerID_tdc = (long) tdc_module->TDCRead_EventCounter(devnum, moduleID_tdc);
-          triggerID_tdc = (long) tdc_module->TDCRead_EventCounter(devnum, moduleID_tdc);
-          triggerID_tdc = (long) tdc_module->TDCRead_EventCounter(devnum, moduleID_tdc);
-          triggerID_tdc = (long) tdc_module->TDCRead_EventCounter(devnum, moduleID_tdc);
-          triggerID_tdc = (long) tdc_module->TDCRead_EventCounter(devnum, moduleID_tdc);
-          triggerID_tdc = (long) tdc_module->TDCRead_EventCounter(devnum, moduleID_tdc);
-          triggerID_tdc = (long) tdc_module->TDCRead_EventCounter(devnum, moduleID_tdc);
-          triggerID_tdc = (long) tdc_module->TDCRead_EventCounter(devnum, moduleID_tdc);
-          triggerID_tdc = (long) tdc_module->TDCRead_EventCounter(devnum, moduleID_tdc);
-          triggerID_tdc = (long) tdc_module->TDCRead_EventCounter(devnum, moduleID_tdc);
 
 	  eventID_tdc = (int) tdc_evt->EventNumber;
         }
@@ -158,19 +147,6 @@ void daq_v792_v1290(int nevt = 100)
           }
           triggerID_adc = -999;
           eventID_adc = -999;
-          triggerID_adc = (long) adc_module->ADCRead_TriggerCounter(devnum, moduleID_adc);
-	  // testing
-	  triggerID_adc = (long) adc_module->ADCRead_TriggerCounter(devnum, moduleID_adc);
-          triggerID_adc = (long) adc_module->ADCRead_TriggerCounter(devnum, moduleID_adc);
-          triggerID_adc = (long) adc_module->ADCRead_TriggerCounter(devnum, moduleID_adc);
-          triggerID_adc = (long) adc_module->ADCRead_TriggerCounter(devnum, moduleID_adc);
-          triggerID_adc = (long) adc_module->ADCRead_TriggerCounter(devnum, moduleID_adc);
-          triggerID_adc = (long) adc_module->ADCRead_TriggerCounter(devnum, moduleID_adc);
-          triggerID_adc = (long) adc_module->ADCRead_TriggerCounter(devnum, moduleID_adc);
-          triggerID_adc = (long) adc_module->ADCRead_TriggerCounter(devnum, moduleID_adc);
-          triggerID_adc = (long) adc_module->ADCRead_TriggerCounter(devnum, moduleID_adc);
-          triggerID_adc = (long) adc_module->ADCRead_TriggerCounter(devnum, moduleID_adc);
-          triggerID_adc = (long) adc_module->ADCRead_TriggerCounter(devnum, moduleID_adc);
           triggerID_adc = (long) adc_module->ADCRead_TriggerCounter(devnum, moduleID_adc);
           for (int ih = 0; ih < nadc; ih++) {
             adc[ih] = (long) adc_evt->adc[ih];
