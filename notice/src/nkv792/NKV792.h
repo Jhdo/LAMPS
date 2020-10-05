@@ -63,7 +63,7 @@ class NKV792 : public NK6UVMEROOT
   int ADC_IsDataReady(int devnum, unsigned long mid);
   int ADC_IsValidData(unsigned long word);
 
-  const int fDebug = 0;
+  const int fDebug = 1;
 
   ClassDef(NKV792, 1)
 
