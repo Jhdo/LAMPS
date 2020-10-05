@@ -259,7 +259,7 @@ void NKV1290::TDCEventBuild(unsigned long *words, int nw, int iw, TDCEvent *data
     else if (type_code == 0x10) type = 5;
     if (fDebug) cout << "Word Type : " << type_name[type].c_str() << endl;
 
-    if (type_code == 0) {
+    if (type == 0) {
       unsigned long tdc_raw = words[i] & 0x1FFFFF;
       unsigned long tdc_ch = (words[i] >> 21) & 0x0F;
       if (fDebug) cout << "TDC Ch " << tdc_ch << " TDC : " << tdc_raw << endl;
@@ -274,7 +274,7 @@ void NKV1290::TDCEventBuild(unsigned long *words, int nw, int iw, TDCEvent *data
       data->ntdc = nhit;
     }
 
-    if (type_code == 1) {
+    if (type == 1) {
       unsigned long BunchID = words[i] & 0xFFF;
       unsigned long EventID = (words[i] >> 12) & 0xFFF;
       if (fDebug) cout << "BunchID : " << BunchID << " EventID : " << EventID << endl;
@@ -282,22 +282,22 @@ void NKV1290::TDCEventBuild(unsigned long *words, int nw, int iw, TDCEvent *data
       //data->EventNumber = EventID;
     }
 
-    if (type_code == 2) {
+    if (type == 2) {
       unsigned long WordCount = words[i] & 0xFFF;
       unsigned long EventID = (words[i] >> 12) & 0xFFF;
       if (fDebug) cout << "WordCount : " << WordCount << " EventID : " << EventID << endl;
     }
 
-    if (type_code == 3) {
+    if (type == 3) {
       unsigned long EventCount = (words[i] >> 5) & 0x3FFFFF;
-      if (fDebug) cout << "Global Header EventCount : " << EventCount << endl;
+      if (fDebug) cout << "TDC Global Header EventCount : " << EventCount << endl;
     }
 
-    if (type_code == 4) {
+    if (type == 4) {
       if (fDebug) cout << "Warning TDC Error Word found" << endl;
     }
 
-    if (type_code == 5) {
+    if (type == 5) {
       if (fDebug) cout << "Met Global Trailer Word" << endl;
     }
   } // nw loop
