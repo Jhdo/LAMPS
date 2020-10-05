@@ -348,24 +348,24 @@ void NKV792::ADCEventBuild(unsigned long *words, int nw, int i, ADCEvent *data)
     else if (type_code == 0x06) type = 3;
     if (fDebug) cout << "Word Type : " << type_name[type].c_str() << endl;
 
-    if (type_code == 1) {
+    if (type == 1) {
       unsigned long nch = (words[i] >> 8) & 0x003F;
       if (fDebug) cout << "ADC NCH  : " << nch << endl;
     }
 
-    if (type_code == 2) {
+    if (type == 2) {
       unsigned long EventCounter = words[i] & 0xFFFFFF;
       if (fDebug) cout << "ADC Trailer EventCounter  : " << EventCounter << endl;
       data->EventID = EventCounter; // Need to update code for multiple event data buffer
       nevt++;
     }
 
-    if (type_code == 3) {
+    if (type == 3) {
       cout << "Warning : ADC Invalid Data is in word" << endl;
       return;
     }
 
-    if (type_code == 0) {
+    if (type == 0) {
       unsigned long adc_raw = words[i] & 0xFFF;
       unsigned long adc_ch = (words[i] >> 17) & 0xF;
       if (fDebug) cout << "ADC Ch " << adc_ch << " ADC : " << adc_raw << endl;
