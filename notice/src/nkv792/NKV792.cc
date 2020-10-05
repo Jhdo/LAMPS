@@ -355,7 +355,7 @@ void NKV792::ADCEventBuild(unsigned long *words, int nw, int i, ADCEvent *data)
 
     if (type_code == 2) {
       unsigned long EventCounter = words[i] & 0xFFFFFF;
-      if (fDebug) cout << "ADC EventCounter  : " << EventCounter << endl;
+      if (fDebug) cout << "ADC Trailer EventCounter  : " << EventCounter << endl;
       data->EventID = EventCounter; // Need to update code for multiple event data buffer
       nevt++;
     }
