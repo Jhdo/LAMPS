@@ -278,8 +278,8 @@ void NKV1290::TDCEventBuild(unsigned long *words, int nw, int iw, TDCEvent *data
       unsigned long BunchID = words[i] & 0xFFF;
       unsigned long EventID = (words[i] >> 12) & 0xFFF;
       if (fDebug) cout << "BunchID : " << BunchID << " EventID : " << EventID << endl;
-      //data->TriggerID = BunchID;
-      data->EventNumber = EventID;
+      data->TriggerID = BunchID;
+      //data->EventNumber = EventID;
     }
 
     if (type_code == 2) {
@@ -290,7 +290,7 @@ void NKV1290::TDCEventBuild(unsigned long *words, int nw, int iw, TDCEvent *data
 
     if (type_code == 3) {
       unsigned long EventCount = (words[i] >> 5) & 0x3FFFFF;
-      if (fDebug) cout << "EventCount : " << EventCount << endl;
+      if (fDebug) cout << "Global Header EventCount : " << EventCount << endl;
     }
 
     if (type_code == 4) {
