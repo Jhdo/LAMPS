@@ -156,9 +156,12 @@ void daq_v792_v1290(int nevt = 100)
             eventID_adc = (int) adc_evt->EventID;
         }
 
+
+
         elapsed = std::chrono::high_resolution_clock::now() - start;
         microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
         std::cout << "Elapsed time 5 : " << microseconds << " micro seconds" << std::endl;
+        std::cout << "Total Trigger Count, TDC : " << eventID_tdc << " ADC : " << eventID_adc << std::endl;
 
         unix_time = std::time(0);
 
