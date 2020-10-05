@@ -370,7 +370,7 @@ void NKV792::ADCEventBuild(unsigned long *words, int nw, int i, ADCEvent *data)
       unsigned long adc_ch = (words[i] >> 17) & 0xF;
       if (fDebug) cout << "ADC Ch " << adc_ch << " ADC : " << adc_raw << endl;
       if (nhit >= 500) {
-        cout << "Number of tdc hits are too many" << endl;
+        cout << "Number of adc hits are too many" << endl;
         return;
       }
 
