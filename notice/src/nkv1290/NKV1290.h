@@ -71,7 +71,7 @@ class NKV1290 : public NK6UVMEROOT
   
   int TDCWrite_Opcode(int devnum, unsigned long mid, int nw, unsigned short *words);
 
-  const int fDebug = 0; 
+  const int fDebug = 1; 
   int fReadOutMode;
   // const unsigned short v1290_TM_WIDTH = 20; //20(default) // Trigger matching window width (each step is 25ns)
   // const signed short v1290_TM_OFFSET = -40; //-40(default) // Trigger matching window offset
