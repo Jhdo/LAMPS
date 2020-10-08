@@ -153,7 +153,7 @@ void daq_v792_v1290(int nevt = 100)
             adc_ch[ih] = (int) adc_evt->adc_ch[ih];
           }
             nadc = adc_evt->nadc;
-            eventID_adc = (int) adc_evt->EventID;
+            eventID_adc = (int) adc_evt->EventNumber;
         }
 
 
