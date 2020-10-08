@@ -180,18 +180,21 @@ unsigned long NKV1290::TDCRead_Buffer_Test(int devnum, unsigned long mid, unsign
 {
   if (fDebug) cout << "Reading TDC Data" << endl;
   unsigned long baseaddr;
+  unsigned long i;
   unsigned long addr;
-  unsigned long nw_read = 0; // Number of words
+  unsigned long nw_read = v1290_READOUT_SIZE; // Number of words
+  unsigned char rdat[1024];
+  unsigned long rdat_32bit[1024];
   
   baseaddr = (mid & 0xFFFF) << 16; //A32 mode
   
   addr = baseaddr + v1290_ADDR_DATA;
 
-  int nevt = TDCRead_FIFO_Stored(devnum, mid);
-  for (int ie = 0; ie < nevt; ie++) {    
-    unsigned long nw = TDCRead_NW(devnum, mid);
-    nw_read = nw_read + nw;
-  }
+  //int nevt = TDCRead_FIFO_Stored(devnum, mid);
+  //for (int ie = 0; ie < nevt; ie++) {    
+  //  unsigned long nw = TDCRead_NW(devnum, mid);
+  //  nw_read = nw_read + nw;
+  //}
 
   if (fReadOutMode) cout << "Trigger Matching Mode" << endl;
   else {
@@ -199,7 +202,7 @@ unsigned long NKV1290::TDCRead_Buffer_Test(int devnum, unsigned long mid, unsign
     nw_read = 15;
   }
 
-  if (fDebug) cout << "NW : " << nw_read << " NEVT " << nevt << endl;
+  if (fDebug) cout << "NW : " << nw_read << endl;
 
   if (nw_read <= 0 ) {
     cout << "Empty Buffer" << endl;
@@ -211,14 +214,28 @@ unsigned long NKV1290::TDCRead_Buffer_Test(int devnum, unsigned long mid, unsign
     return 0;
   }
 
-  if (nevt > 1) {
-    cout << "Warning Multiple Events in buffer" << endl;
-  //  return 0;
-  }
-
-  for (int ir = 0; ir < (int) nw_read; ir++) {
-    addr = baseaddr + v1290_ADDR_DATA + ir*4;
-    words[ir] = VMEread(devnum, A32D32, 100, addr);
+  // Note : lower idex in rdat lower addr, lower parts of bits?
+  VMEblockread(devnum, A32D32, 100, addr, 4*nw_read, rdat);
+  
+  // Decoding Words : 32bit
+  for (i = 0; i < 4*nw_read - 3; i=i+4) {
+    rdat_32bit[i+3] = (rdat[i+3] & 0xFF) << 24;
+    rdat_32bit[i+2] = (rdat[i+2] & 0xFF) << 16;
+    rdat_32bit[i+1] = (rdat[i+1] & 0xFF) << 8;
+    rdat_32bit[i] = (rdat[i] & 0xFF);
+    
+    words[i/4] = rdat_32bit[i] + rdat_32bit[i+1] + rdat_32bit[i+2] + rdat_32bit[i+3];
+//    cout << "rdat " << endl;
+//    cout << bitset<32>(rdat[i+3]) << endl;
+//    cout << bitset<32>(rdat[i+2]) << endl;
+//    cout << bitset<32>(rdat[i+1]) << endl;
+//    cout << bitset<32>(rdat[i]) << endl;
+//    cout << "rdat_32" << endl;
+//    cout << bitset<32>(rdat_32bit[i+3]) << endl;
+//    cout << bitset<32>(rdat_32bit[i+2]) << endl;
+//    cout << bitset<32>(rdat_32bit[i+1]) << endl;
+//   cout << bitset<32>(rdat_32bit[i]) << endl;
+//    cout << "Data word " << bitset<32>(words[i]) << endl;
   }
 
   return nw_read;
@@ -304,6 +321,78 @@ void NKV1290::TDCEventBuild(unsigned long *words, int nw, int iw, TDCEvent *data
 
   return;
 }
+
+
+
+// Decoding Words : 32bit
+void NKV1290::TDCEventBuild_MEB(unsigned long *words, int nw, TDCEvent data_arr[])
+{
+  int nhit = 0;
+  int current_ev = -1;
+  unsigned long EventCount = -999;
+  string type_name[6] = {"TDC Data", "TDC Header", "TDC Trailer", "TDC Global Header",  "TDC Error", "TDC Global Trailer"};
+//  unsigned long nevt = 0;
+  for (int i = 0; i < nw; i++) {
+    int type = -1; // type 0(data) 1(tdc header) 2(tdc trailer) 3(global header) 4(tdc error) 5(global trailer)
+//    cout << "DataWord " << std::bitset<32>(words[i]) << endl;
+    unsigned long type_code = (words[i] >> 27) & 0x1F;
+    if (fDebug) cout << "Type Code : " << type_code << endl;
+//    unsigned long type_code = words[i] & 0xA98A58;
+    if (type_code == 0x0) type = 0;
+    else if (type_code == 0x1) type = 1;
+    else if (type_code == 0x3) type = 2;
+    else if (type_code == 0x8) type = 3;
+    else if (type_code == 0x4) type = 4;
+    else if (type_code == 0x10) type = 5;
+    if (fDebug) cout << "Word Type : " << type_name[type].c_str() << endl;
+
+    if (type == 0) {
+      unsigned long tdc_raw = words[i] & 0x1FFFFF;
+      unsigned long tdc_ch = (words[i] >> 21) & 0x0F;
+      if (fDebug) cout << "TDC Ch " << tdc_ch << " TDC : " << tdc_raw << endl;
+      if (nhit >= 500) {
+        cout << "Number of tdc hits are too many" << endl;
+        return;
+      }
+
+      data_arr[current_ev].tdc[nhit] = tdc_raw;
+      data_arr[current_ev].tdc_ch[nhit] = tdc_ch;
+      nhit++;
+      data_arr[current_ev].ntdc = nhit;
+    }
+
+    if (type == 1) {
+      current_ev += 1;
+      unsigned long BunchID = words[i] & 0xFFF;
+      unsigned long EventID = (words[i] >> 12) & 0xFFF;
+      if (fDebug) cout << "BunchID : " << BunchID << " EventID : " << EventID << endl;
+      data_arr[current_ev].TriggerID = BunchID;
+      //data->EventNumber = EventID;
+    }
+
+    if (type == 2) {
+      unsigned long WordCount = words[i] & 0xFFF;
+      unsigned long EventID = (words[i] >> 12) & 0xFFF;
+      if (fDebug) cout << "WordCount : " << WordCount << " EventID : " << EventID << endl;
+    }
+
+    if (type == 3) {
+      EventCount = (words[i] >> 5) & 0x3FFFFF;
+      if (fDebug) cout << "TDC Global Header EventCount : " << EventCount << endl;
+    }
+
+    if (type == 4) {
+      if (fDebug) cout << "Warning TDC Error Word found" << endl;
+    }
+
+    if (type == 5) {
+      if (fDebug) cout << "Met Global Trailer Word" << endl;
+    }
+  } // nw loop
+
+  return;
+}
+
 
 
 // Number of words in buffer
