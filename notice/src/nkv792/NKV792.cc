@@ -339,7 +339,7 @@ void NKV792::ADCEventBuild(unsigned long *words, int nw, int i, ADCEvent *data)
   unsigned long nevt = 0;
   string type_name[4] = {"ADC Data", "ADC Header", "ADC Trailer", "ADC Invalid Data"};
 
-  for (i = 0; i < nw; i++) {
+  for (int i = 0; i < nw; i++) {
     int type = -1; // type 0(data) 1(ADC header) 2(ADC trailer) 3(global header) 4(ADC error) 5(global trailer)
     unsigned long type_code = (words[i] >> 24) & 0x7;
     if (type_code == 0x00) type = 0;
@@ -356,7 +356,7 @@ void NKV792::ADCEventBuild(unsigned long *words, int nw, int i, ADCEvent *data)
     if (type == 2) {
       unsigned long EventCounter = words[i] & 0xFFFFFF;
       if (fDebug) cout << "ADC Trailer EventCounter  : " << EventCounter << endl;
-      data->EventID = EventCounter; // Need to update code for multiple event data buffer
+      data->EventNumber = EventCounter; // Need to update code for multiple event data buffer
       nevt++;
     }
 
@@ -385,6 +385,64 @@ void NKV792::ADCEventBuild(unsigned long *words, int nw, int i, ADCEvent *data)
   
   return;
 }
+
+
+void NKV792::ADCEventBuild_MEB(unsigned long *words, int nw, ADCEvent data_arr[])
+{
+  int nhit = 0;
+  int current_ev = -1;
+  unsigned long nevt = 0;
+  string type_name[4] = {"ADC Data", "ADC Header", "ADC Trailer", "ADC Invalid Data"};
+
+  for (int i = 0; i < nw; i++) {
+    int type = -1; // type 0(data) 1(ADC header) 2(ADC trailer) 3(global header) 4(ADC error) 5(global trailer)
+    unsigned long type_code = (words[i] >> 24) & 0x7;
+    if (type_code == 0x00) type = 0;
+    else if (type_code == 0x02) type = 1;
+    else if (type_code == 0x04) type = 2;
+    else if (type_code == 0x06) type = 3;
+    if (fDebug) cout << "Word Type : " << type_name[type].c_str() << endl;
+
+    if (type == 1) {
+      current_ev += 1;
+      unsigned long nch = (words[i] >> 8) & 0x003F;
+      if (fDebug) cout << "ADC NCH  : " << nch << endl;
+    }
+
+    if (type == 2) {
+      unsigned long EventCounter = words[i] & 0xFFFFFF;
+      if (fDebug) cout << "ADC Trailer EventCounter  : " << EventCounter << endl;
+      data_arr[current_ev].TriggerID = EventCounter; // Need to update code for multiple event data buffer
+      nevt++;
+    }
+
+    if (type == 3) {
+      cout << "Warning : ADC Invalid Data is in word" << endl;
+      return;
+    }
+
+    if (type == 0) {
+      unsigned long adc_raw = words[i] & 0xFFF;
+      unsigned long adc_ch = (words[i] >> 17) & 0xF;
+      if (fDebug) cout << "ADC Ch " << adc_ch << " ADC : " << adc_raw << endl;
+      if (nhit >= 500) {
+        cout << "Number of adc hits are too many" << endl;
+        return;
+      }
+
+      data_arr[current_ev].adc[nhit] = adc_raw;
+      data_arr[current_ev].adc_ch[nhit] = adc_ch;
+      nhit++;
+      data_arr[current_ev].nadc = nhit;
+    }
+  }
+
+  if (fDebug)  cout << "NEvent : " << nevt << endl;
+  
+  return;
+}
+
+
 
 
 void NKV792::ADCClear_Buffer(int devnum, unsigned long mid)
