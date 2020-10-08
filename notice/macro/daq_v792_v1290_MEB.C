@@ -15,10 +15,11 @@ R__LOAD_LIBRARY(libNKV1290.so)
 R__LOAD_LIBRARY(libNKV792.so)
 
 using namespace std;
-void daq_v792_v1290(int nevt = 100)
+void daq_v792_v1290_MEB(int nevt = 100)
 {
     int devnum = 0; // Dev. Mount number in linux
 
+    const int buffer_evt = v792_NEVENT_BUFFER;
     // Tree Branches
     int ntdc = -999;
     double tdc[32] = {-999,};
@@ -31,6 +32,16 @@ void daq_v792_v1290(int nevt = 100)
     long triggerID_adc = -999;
     long eventID_adc = -999;
     long unix_time = -999;
+    
+    TDCEvent tdc_data_arr[buffer_evt];
+    ADCEvent adc_data_arr[buffer_evt];
+
+    for (int i = 0; i < buffer_evt; i++) {
+      tdc_data_arr[i] = TDCEvent();
+      tdc_data_arr[i].reset();
+      adc_data_arr[i] = ADCEvent();
+      adc_data_arr[i].reset();
+    }
 
     TFile *file_out = new TFile("AnaResult.root", "Recreate");
     TTree *tree_out = new TTree("tree_out", "tdc_tree");
@@ -71,7 +82,7 @@ void daq_v792_v1290(int nevt = 100)
             int bs_adc = adc_module->ADC_IsBusy(devnum, moduleID_adc);
             itry++;
             //cout << "dr " << dr << " bs " << bs << endl;
-	        if ((stat_tdc & 0x1) == 1 && dr_adc == 1) break;
+	        //if ((stat_tdc & 0x1) == 1 && dr_adc == 1) break;
 	        if (itry > 500000) return;
       }
         // Measuring elapsed time per an event process
@@ -84,7 +95,7 @@ void daq_v792_v1290(int nevt = 100)
         long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
         std::cout << "Elapsed time 1 : " << microseconds << " micro seconds" << std::endl;
         
-        unsigned long nw_tdc = tdc_module->TDCRead_Buffer(devnum, moduleID_tdc, words_tdc);
+        unsigned long nw_tdc = tdc_module->TDCRead_Buffer_Test(devnum, moduleID_tdc, words_tdc);
         unsigned long nw_adc = adc_module->ADCRead_Buffer(devnum, moduleID_adc, words_adc);
 
         elapsed = std::chrono::high_resolution_clock::now() - start;
@@ -93,15 +104,19 @@ void daq_v792_v1290(int nevt = 100)
 
 //	      cout << "TDC NWord " << nw_tdc << endl;
 //        cout << "ADC NWord " << nw_adc << endl;
-        TDCEvent *tdc_evt = new TDCEvent();
-        ADCEvent *adc_evt = new ADCEvent();
 
         elapsed = std::chrono::high_resolution_clock::now() - start;
         microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
         std::cout << "Elapsed time 3 : " << microseconds << " micro seconds" << std::endl;
 
-        tdc_module->TDCEventBuild(words_tdc, nw_tdc, 0, tdc_evt);
-        adc_module->ADCEventBuild(words_adc, nw_adc, 0, adc_evt);
+        int nevt_tdc = tdc_module->TDCEventBuild_MEB(words_tdc, nw_tdc, tdc_data_arr);
+        int nevt_adc = adc_module->ADCEventBuild_MEB(words_adc, nw_adc, adc_data_arr);
+
+        cout << "Found Events in buffer : " << nevt_tdc << ", " << nevt_adc << endl;
+
+        if (nevt_tdc != nevt_adc) {
+          cout << "Warning : Number of Event in buffer of ADC, TDC are different" << endl;
+        }
 
         elapsed = std::chrono::high_resolution_clock::now() - start;
         microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
@@ -114,64 +129,61 @@ void daq_v792_v1290(int nevt = 100)
 //        cout << "ADC1 : " << adc_evt->adc_ch[0] << " " << adc_evt->adc[0] << endl;
 //        cout << "ADC2 : " << adc_evt->adc_ch[1] << " " << adc_evt->adc[1] << endl;
 
-        // Fill TDC Tree
-
-        for (int i = 0; i < 32; i++) {
-          tdc[i] = -999;
-          tdc_ch[i] = -999;
-        }
-        triggerID_tdc = -999;
-        eventID_tdc = -999;
-        ntdc = -999;
-
-        ntdc = tdc_evt->ntdc;
-        if (true) {
-          for (int ih = 0; ih < ntdc; ih++) {
-            tdc[ih] = (double) tdc_evt->tdc[ih]/40.;
-            tdc_ch[ih] = (int) tdc_evt->tdc_ch[ih];
+        for (int ievt = 0; ievt < nevt_tdc; ievt++){
+          // Fill TDC Tree
+          for (int i = 0; i < 32; i++) {
+            tdc[i] = -999;
+            tdc_ch[i] = -999;
           }
 
-          ntdc = tdc_evt->ntdc;
-          //triggerID_tdc = tdc_evt->TriggerID;
-          triggerID_tdc = (long) tdc_module->TDCRead_EventCounter(devnum, moduleID_tdc);
+          triggerID_tdc = -999;
+          eventID_tdc = -999;
+          ntdc = -999;
 
-	  eventID_tdc = (int) tdc_evt->EventNumber;
-        }
+          ntdc = tdc_data_arr[ievt].ntdc;
+          for (int ih = 0; ih < ntdc; ih++) {
+            tdc[ih] = (double) tdc_data_arr[ievt].tdc[ih]/40.;
+            tdc_ch[ih] = (int) tdc_data_arr[ievt].tdc_ch[ih];
+          }
 
-        // Filling ADC Tree
-        nadc = adc_evt->nadc;
-        if (true) {
+          triggerID_tdc = tdc_data_arr[ievt].TriggerID;
+          //triggerID_tdc = (long) tdc_module->TDCRead_EventCounter(devnum, moduleID_tdc);
+	        eventID_tdc = (int) tdc_data_arr[ievt].EventNumber;
+
+          // Filling ADC Tree
           for (int ih = 0; ih < 32; ih++) {
             adc[ih] = -999;
             adc_ch[ih] = -999;
           }
           triggerID_adc = -999;
           eventID_adc = -999;
-          triggerID_adc = (long) adc_module->ADCRead_TriggerCounter(devnum, moduleID_adc);
+          nadc = -999;
+
+          nadc = adc_data_arr[ievt].nadc;
+          //triggerID_adc = (long) adc_module->ADCRead_TriggerCounter(devnum, moduleID_adc);
           for (int ih = 0; ih < nadc; ih++) {
-            adc[ih] = (long) adc_evt->adc[ih];
-            adc_ch[ih] = (int) adc_evt->adc_ch[ih];
+            adc[ih] = (long) adc_data_arr[ievt].adc[ih];
+            adc_ch[ih] = (int) adc_data_arr[ievt].adc_ch[ih];
           }
-            nadc = adc_evt->nadc;
-            eventID_adc = (int) adc_evt->EventID;
+          
+          nadc = adc_data_arr[ievt].nadc;
+          triggerID_adc = (int) adc_data_arr[ievt].TriggerID;
+          
+          unix_time = std::time(0);
+
+          tree_out->Fill();
+  
+          adc_data_arr[ievt].reset();
+          tdc_data_arr[ievt].reset();
+          elapsed = std::chrono::high_resolution_clock::now() - start;
+          microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+          std::cout << "Elapsed time 5 : " << microseconds << " micro seconds" << std::endl;
+          std::cout << "Total Trigger Count, TDC : " << eventID_tdc << " ADC : " << eventID_adc << std::endl;
         }
 
-
-
         elapsed = std::chrono::high_resolution_clock::now() - start;
         microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
-        std::cout << "Elapsed time 5 : " << microseconds << " micro seconds" << std::endl;
-        std::cout << "Total Trigger Count, TDC : " << eventID_tdc << " ADC : " << eventID_adc << std::endl;
-
-        unix_time = std::time(0);
-
-        tree_out->Fill();
-        delete tdc_evt;
-        delete adc_evt;
-
-        elapsed = std::chrono::high_resolution_clock::now() - start;
-        microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
-        std::cout << "Elapsed time Total : " << microseconds << " micro seconds per event" << std::endl;
+        std::cout << "Elapsed time Total : " << microseconds << " micro seconds per cycle" << std::endl;
     }
 
     tree_out->Write();
