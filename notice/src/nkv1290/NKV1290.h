@@ -31,6 +31,7 @@
 // Parameters
 #define v1290_TM_WIDTH 0x0008 // 8 (0x0014 default) 25ns per 1
 #define v1290_TM_OFFSET 0xFFF7 // -8 (signed short) 25ns per 1
+#define v1290_READOUT_SIZE 128 // Read data buffer (doesn't matter with its contents) and check if it  contains EOB word if not, repeat readout
 
 //#include "Notice6UVME.h"
 #include "NK6UVMEROOT.h"
@@ -40,10 +41,21 @@ class TDCEvent
  public:
   unsigned long TriggerID;
   unsigned long EventNumber;
-  unsigned long tdc[500];
-  unsigned long tdc_ch[500];
+  unsigned long tdc[128];
+  unsigned long tdc_ch[128];
   unsigned long tdc_err;
   unsigned long ntdc; // Number of data words (Expect 2)
+
+  void reset() {
+    TriggerID = -999;
+    EventNumber = -999;
+    tdc_err = -999;
+    ntdc = 0;
+    for (int i = 0; i < 128; i++){
+      tdc[i] = -999;
+      tdc_ch[i] = -999;
+    }
+  }
 };
 
 
@@ -55,6 +67,7 @@ class NKV1290 : public NK6UVMEROOT
 
   void TDCInit(int devnum, unsigned long mid, int ReadOutMode = 1);
   void TDCEventBuild(unsigned long *words, int nw, int iw, TDCEvent *data); // Decoding words into event object (try to search i_th event)
+  void TDCEventBuild_MEB(unsigned long *words, int nw, TDCEvent data_arr[]); // Decoding words into event object (try to search i_th event)
   void TDCClear_Buffer(int devnum, unsigned long mid);
   void TDCSet_TM_Width(int devnum, unsigned long mid, unsigned short wd);
   void TDCSet_TM_Offset(int devnum, unsigned long mid, short os);
