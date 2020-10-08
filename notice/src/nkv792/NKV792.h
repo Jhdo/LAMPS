@@ -24,19 +24,30 @@
 
 #define v792_THRESHOLD 0x08 // 8x16 = 128, Mutiplied by 16, See manual p20
 #define v792_PED 0x003C // Must be bigger than 60
-#define v792_READOUT_SIZE 32 // Read data buffer (doesn't matter with its contents) and check if it  contains EOB word if not, repeat readout
+#define v792_READOUT_SIZE 128 // Read data buffer (doesn't matter with its contents) and check if it  contains EOB word if not, repeat readout
 
 #include "NK6UVMEROOT.h"
 #include <bitset>
 
 class ADCEvent{
  public:
-  unsigned long EventID;
+  unsigned long EventNumber;
   unsigned long TriggerID;
-  unsigned long adc[500];
-  unsigned long adc_ch[500];
+  unsigned long adc[128];
+  unsigned long adc_ch[128];
   unsigned long adc_err;
   unsigned long nadc; // Number of data words (Expect 2)
+
+  void reset() {
+    TriggerID = -999;
+    EventNumber = -999;
+    adc_err = -999;
+    nadc = 0;
+    for (int i = 0; i < 128; i++){
+      adc[i] = -999;
+      adc_ch[i] = -999;
+    }
+  }
 };
 
 
@@ -48,6 +59,7 @@ class NKV792 : public NK6UVMEROOT
 
   void ADCInit(int devnum, unsigned long mid);
   void ADCEventBuild(unsigned long *words, int nw, int i, ADCEvent *data); // Decoding words into event object (try to search i_th event)
+  void ADCEventBuild_MEB(unsigned long *words, int nw, ADCEvent data_arr[]); // Decoding words into event object (try to search i_th event)
   void ADCClear_Buffer(int devnum, unsigned long mid);
   void ADCSet_ZeroSup(int devnum, unsigned long mid, int v);
 //  void ADCSet_ZeroSup_bitset2(int devnum, unsigned long mid, int v);
