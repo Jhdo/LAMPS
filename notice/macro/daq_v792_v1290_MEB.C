@@ -6,7 +6,9 @@
 #include "TTree.h"
 #include "../include/NKV792.h"
 #include "../include/NKV1290.h"
+#include <csignal>
 
+bool bStop = false;
 
 const unsigned short moduleID_tdc = 0x1000;
 const unsigned short moduleID_adc = 0x2000;
@@ -66,14 +68,15 @@ void daq_v792_v1290_MEB(int nevt = 100)
 
     std::cout << "Starting v792..." << std::endl;
     NKV792 *adc_module = new NKV792();
-    adc_module->ADCInit(devnum, moduleID_adc);
+    adc_module->ADC_SoftReset(devnum, moduleID_adc);
+    //adc_module->ADCInit(devnum, moduleID_adc);
     tdc_module->TDCClear_Buffer(devnum, moduleID_tdc);
     std::cout << "TDC Module Initialized" << std::endl;
     std::cout << "ADC Module Initialized" << std::endl;
 
     for (int ievt = 0; ievt < nevt; ievt++) {
       std::cout << "Event " << ievt << std::endl;
-        //tdc_module->TDCClear_Buffer(devnum, moduleID_tdc);
+        tdc_module->TDCClear_Buffer(devnum, moduleID_tdc);
         adc_module->ADCClear_Buffer(devnum, moduleID_adc);
         int itry = 0;
 	    while(true) {
@@ -82,7 +85,7 @@ void daq_v792_v1290_MEB(int nevt = 100)
             int bs_adc = adc_module->ADC_IsBusy(devnum, moduleID_adc);
             itry++;
             //cout << "dr " << dr << " bs " << bs << endl;
-	        //if ((stat_tdc & 0x1) == 1 && dr_adc == 1) break;
+	    if ((stat_tdc & 0x1) == 1 && dr_adc == 1) break;
 	        if (itry > 500000) return;
       }
         // Measuring elapsed time per an event process
@@ -146,8 +149,8 @@ void daq_v792_v1290_MEB(int nevt = 100)
             tdc_ch[ih] = (int) tdc_data_arr[ievt].tdc_ch[ih];
           }
 
-          triggerID_tdc = tdc_data_arr[ievt].TriggerID;
-          //triggerID_tdc = (long) tdc_module->TDCRead_EventCounter(devnum, moduleID_tdc);
+          //triggerID_tdc = tdc_data_arr[ievt].TriggerID;
+          triggerID_tdc = (long) tdc_module->TDCRead_EventCounter(devnum, moduleID_tdc);
 	        eventID_tdc = (int) tdc_data_arr[ievt].EventNumber;
 
           // Filling ADC Tree
@@ -160,14 +163,16 @@ void daq_v792_v1290_MEB(int nevt = 100)
           nadc = -999;
 
           nadc = adc_data_arr[ievt].nadc;
-          //triggerID_adc = (long) adc_module->ADCRead_TriggerCounter(devnum, moduleID_adc);
+	  cout << "NADC : " << nadc << endl;
+          triggerID_adc = (long) adc_module->ADCRead_TriggerCounter(devnum, moduleID_adc);
           for (int ih = 0; ih < nadc; ih++) {
             adc[ih] = (long) adc_data_arr[ievt].adc[ih];
             adc_ch[ih] = (int) adc_data_arr[ievt].adc_ch[ih];
+	    cout << "ADC " << adc[ih] << " Ch " << adc_ch[ih] << endl;
           }
           
           nadc = adc_data_arr[ievt].nadc;
-          triggerID_adc = (int) adc_data_arr[ievt].TriggerID;
+          //triggerID_adc = (int) adc_data_arr[ievt].TriggerID;
           
           unix_time = std::time(0);
 
@@ -178,8 +183,14 @@ void daq_v792_v1290_MEB(int nevt = 100)
           elapsed = std::chrono::high_resolution_clock::now() - start;
           microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
           std::cout << "Elapsed time 5 : " << microseconds << " micro seconds" << std::endl;
-          std::cout << "Total Trigger Count, TDC : " << eventID_tdc << " ADC : " << eventID_adc << std::endl;
+          std::cout << "Total Trigger Count, TDC : " << triggerID_tdc << " ADC : " << triggerID_adc << std::endl;
         }
+
+        if(bStop){
+                std::cout << "terminated!" << std::endl;
+                break;
+        }
+
 
         elapsed = std::chrono::high_resolution_clock::now() - start;
         microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
