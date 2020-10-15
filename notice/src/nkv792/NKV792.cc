@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <iostream>
 #include <TROOT.h>
+#include <unistd.h>
 
 #include "NKV792.h"
 
@@ -38,7 +39,7 @@ void NKV792::ADCInit(int devnum, unsigned long mid)
     }
     else 
     {
-	    ADCSet_Threshold(devnum, mid, ch, 0x15);
+	    ADCSet_Threshold(devnum, mid, ch, v792_THRESHOLD);
     }
   }
  
@@ -283,8 +284,8 @@ unsigned long NKV792::ADCRead_Buffer(int devnum, unsigned long mid, unsigned lon
   unsigned long addr;
   unsigned long nw_read = v792_READOUT_SIZE;
   unsigned long nw_data = 0;
-  unsigned char rdat[1024];
-  unsigned long rdat_32bit[1024];
+  unsigned char rdat[4096];
+  unsigned long rdat_32bit[4096];
   
   baseaddr = (mid & 0xFFFF) << 16;
   
@@ -387,7 +388,7 @@ void NKV792::ADCEventBuild(unsigned long *words, int nw, int i, ADCEvent *data)
 }
 
 
-void NKV792::ADCEventBuild_MEB(unsigned long *words, int nw, ADCEvent data_arr[])
+int NKV792::ADCEventBuild_MEB(unsigned long *words, int nw, ADCEvent data_arr[])
 {
   int nhit = 0;
   int current_ev = -1;
@@ -418,7 +419,7 @@ void NKV792::ADCEventBuild_MEB(unsigned long *words, int nw, ADCEvent data_arr[]
 
     if (type == 3) {
       cout << "Warning : ADC Invalid Data is in word" << endl;
-      return;
+      return -1;
     }
 
     if (type == 0) {
@@ -427,7 +428,7 @@ void NKV792::ADCEventBuild_MEB(unsigned long *words, int nw, ADCEvent data_arr[]
       if (fDebug) cout << "ADC Ch " << adc_ch << " ADC : " << adc_raw << endl;
       if (nhit >= 500) {
         cout << "Number of adc hits are too many" << endl;
-        return;
+        return -1;
       }
 
       data_arr[current_ev].adc[nhit] = adc_raw;
@@ -439,7 +440,7 @@ void NKV792::ADCEventBuild_MEB(unsigned long *words, int nw, ADCEvent data_arr[]
 
   if (fDebug)  cout << "NEvent : " << nevt << endl;
   
-  return;
+  return current_ev +1;
 }
 
 
@@ -461,3 +462,23 @@ void NKV792::ADCClear_Buffer(int devnum, unsigned long mid)
 
   VMEwrite(devnum, A32D16, 100, addr_clear, v);
 }
+
+
+
+void NKV792::ADC_SoftReset(int devnum, unsigned long mid)
+{
+  unsigned long baseaddr;
+
+  baseaddr = (mid & 0xFFFF) << 16;
+
+  unsigned long addr = baseaddr + v792_ADDR_BITSET1;
+
+  unsigned long addr_clear = baseaddr + v792_ADDR_BITSET1_CLEAR;
+
+  unsigned short v = 0x1 << 7;
+
+  VMEwrite(devnum, A32D16, 100, addr, v);
+
+  VMEwrite(devnum, A32D16, 100, addr_clear, v);
+}
+
