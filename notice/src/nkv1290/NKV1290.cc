@@ -104,8 +104,8 @@ unsigned long NKV1290::TDCRead_Buffer(int devnum, unsigned long mid, unsigned lo
   unsigned long i;
   unsigned long addr;
   unsigned long nw_read = 0; // Number of words
-  unsigned char rdat[1024];
-  unsigned long rdat_32bit[1024];
+  unsigned char rdat[4096];
+  unsigned long rdat_32bit[4096];
   
   baseaddr = (mid & 0xFFFF) << 16; //A32 mode
   
@@ -325,7 +325,7 @@ void NKV1290::TDCEventBuild(unsigned long *words, int nw, int iw, TDCEvent *data
 
 
 // Decoding Words : 32bit
-void NKV1290::TDCEventBuild_MEB(unsigned long *words, int nw, TDCEvent data_arr[])
+int NKV1290::TDCEventBuild_MEB(unsigned long *words, int nw, TDCEvent data_arr[])
 {
   int nhit = 0;
   int current_ev = -1;
@@ -352,7 +352,7 @@ void NKV1290::TDCEventBuild_MEB(unsigned long *words, int nw, TDCEvent data_arr[
       if (fDebug) cout << "TDC Ch " << tdc_ch << " TDC : " << tdc_raw << endl;
       if (nhit >= 500) {
         cout << "Number of tdc hits are too many" << endl;
-        return;
+        return -1;
       }
 
       data_arr[current_ev].tdc[nhit] = tdc_raw;
@@ -387,10 +387,11 @@ void NKV1290::TDCEventBuild_MEB(unsigned long *words, int nw, TDCEvent data_arr[
 
     if (type == 5) {
       if (fDebug) cout << "Met Global Trailer Word" << endl;
+      break;
     }
   } // nw loop
 
-  return;
+  return current_ev + 1;
 }
 
 
