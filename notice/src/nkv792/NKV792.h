@@ -25,7 +25,7 @@
 
 #define v792_THRESHOLD 0x01 // 8x16 = 128, Mutiplied by 16, See manual p20
 #define v792_PED 0x00B4 // Must be bigger than 60
-#define v792_READOUT_SIZE 128 // Read data buffer (doesn't matter with its contents) and check if it  contains EOB word if not, repeat readout
+#define v792_READOUT_SIZE 196 // Read data buffer (doesn't matter with its contents) and check if it  contains EOB word if not, repeat readout
 #define v792_NEVENT_BUFFER 32
 #include "NK6UVMEROOT.h"
 #include <bitset>
@@ -34,8 +34,8 @@ class ADCEvent{
  public:
   unsigned long EventNumber;
   unsigned long TriggerID;
-  unsigned long adc[128];
-  unsigned long adc_ch[128];
+  unsigned long adc[32];
+  unsigned long adc_ch[32];
   unsigned long adc_err;
   unsigned long nadc; // Number of data words (Expect 2)
 
@@ -44,7 +44,7 @@ class ADCEvent{
     EventNumber = -999;
     adc_err = -999;
     nadc = 0;
-    for (int i = 0; i < 128; i++){
+    for (int i = 0; i < 32; i++){
       adc[i] = -999;
       adc_ch[i] = -999;
     }
