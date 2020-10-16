@@ -17,7 +17,7 @@ R__LOAD_LIBRARY(libNKV1290.so)
 R__LOAD_LIBRARY(libNKV792.so)
 
 using namespace std;
-void daq_v792_v1290_MEB(int nevt = 100)
+void daq_v792_v1290_MEB(int nevt = 2000)
 {
     int devnum = 0; // Dev. Mount number in linux
 
@@ -69,7 +69,7 @@ void daq_v792_v1290_MEB(int nevt = 100)
     std::cout << "Starting v792..." << std::endl;
     NKV792 *adc_module = new NKV792();
     adc_module->ADC_SoftReset(devnum, moduleID_adc);
-    //adc_module->ADCInit(devnum, moduleID_adc);
+    adc_module->ADCInit(devnum, moduleID_adc);
     tdc_module->TDCClear_Buffer(devnum, moduleID_tdc);
     std::cout << "TDC Module Initialized" << std::endl;
     std::cout << "ADC Module Initialized" << std::endl;
@@ -144,13 +144,15 @@ void daq_v792_v1290_MEB(int nevt = 100)
           ntdc = -999;
 
           ntdc = tdc_data_arr[ievt].ntdc;
+	  cout << "Test NTDC " << ntdc << endl;
           for (int ih = 0; ih < ntdc; ih++) {
             tdc[ih] = (double) tdc_data_arr[ievt].tdc[ih]/40.;
             tdc_ch[ih] = (int) tdc_data_arr[ievt].tdc_ch[ih];
+	    cout <<"Test TDC : " << tdc[ih] << " " << tdc_ch[ih] << endl;
           }
 
-          //triggerID_tdc = tdc_data_arr[ievt].TriggerID;
-          triggerID_tdc = (long) tdc_module->TDCRead_EventCounter(devnum, moduleID_tdc);
+          triggerID_tdc = tdc_data_arr[ievt].TriggerID;
+          //triggerID_tdc = (long) tdc_module->TDCRead_EventCounter(devnum, moduleID_tdc);
 	        eventID_tdc = (int) tdc_data_arr[ievt].EventNumber;
 
           // Filling ADC Tree
@@ -164,7 +166,7 @@ void daq_v792_v1290_MEB(int nevt = 100)
 
           nadc = adc_data_arr[ievt].nadc;
 	  cout << "NADC : " << nadc << endl;
-          triggerID_adc = (long) adc_module->ADCRead_TriggerCounter(devnum, moduleID_adc);
+          //triggerID_adc = (long) adc_module->ADCRead_TriggerCounter(devnum, moduleID_adc);
           for (int ih = 0; ih < nadc; ih++) {
             adc[ih] = (long) adc_data_arr[ievt].adc[ih];
             adc_ch[ih] = (int) adc_data_arr[ievt].adc_ch[ih];
@@ -172,23 +174,23 @@ void daq_v792_v1290_MEB(int nevt = 100)
           }
           
           nadc = adc_data_arr[ievt].nadc;
-          //triggerID_adc = (int) adc_data_arr[ievt].TriggerID;
+          triggerID_adc = (int) adc_data_arr[ievt].TriggerID;
           
           unix_time = std::time(0);
 
           tree_out->Fill();
   
-          adc_data_arr[ievt].reset();
-          tdc_data_arr[ievt].reset();
+          //adc_data_arr[ievt].reset();
+          //tdc_data_arr[ievt].reset();
           elapsed = std::chrono::high_resolution_clock::now() - start;
           microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
           std::cout << "Elapsed time 5 : " << microseconds << " micro seconds" << std::endl;
           std::cout << "Total Trigger Count, TDC : " << triggerID_tdc << " ADC : " << triggerID_adc << std::endl;
-        }
 
-        if(bStop){
-                std::cout << "terminated!" << std::endl;
-                break;
+          if(bStop){
+            std::cout << "terminated!" << std::endl;
+            break;
+          }
         }
 
 
