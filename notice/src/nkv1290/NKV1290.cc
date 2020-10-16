@@ -183,8 +183,8 @@ unsigned long NKV1290::TDCRead_Buffer_Test(int devnum, unsigned long mid, unsign
   unsigned long i;
   unsigned long addr;
   unsigned long nw_read = v1290_READOUT_SIZE; // Number of words
-  unsigned char rdat[1024];
-  unsigned long rdat_32bit[1024];
+  unsigned char rdat[4096];
+  unsigned long rdat_32bit[4096];
   
   baseaddr = (mid & 0xFFFF) << 16; //A32 mode
   
@@ -331,7 +331,7 @@ int NKV1290::TDCEventBuild_MEB(unsigned long *words, int nw, TDCEvent data_arr[]
   int current_ev = 0;
   //unsigned long current_BunchID = -1;
   unsigned long EventCount = -999;
-  string type_name[6] = {"TDC Data", "TDC Header", "TDC Trailer", "TDC Global Header",  "TDC Error", "TDC Global Trailer"};
+  string type_name[7] = {"TDC Data", "TDC Header", "TDC Trailer", "TDC Global Header",  "TDC Error", "TDC Global Trailer", "Filler"};
 //  unsigned long nevt = 0;
   for (int i = 0; i < nw; i++) {
     int type = -1; // type 0(data) 1(tdc header) 2(tdc trailer) 3(global header) 4(tdc error) 5(global trailer)
@@ -345,6 +345,7 @@ int NKV1290::TDCEventBuild_MEB(unsigned long *words, int nw, TDCEvent data_arr[]
     else if (type_code == 0x8) type = 3;
     else if (type_code == 0x4) type = 4;
     else if (type_code == 0x10) type = 5;
+    else if (type_code == 24) type = 6;
     if (fDebug) cout << "Word Type : " << type_name[type].c_str() << endl;
 
     if (type == 0) {
@@ -394,7 +395,7 @@ int NKV1290::TDCEventBuild_MEB(unsigned long *words, int nw, TDCEvent data_arr[]
       if (fDebug) cout << "Met Global Trailer Word" << endl;
     }
 
-    if (type_code == 24) break; 
+    if (type == 6) break; 
   } // nw loop
 
   return current_ev;
