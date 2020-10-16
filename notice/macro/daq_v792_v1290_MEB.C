@@ -144,11 +144,11 @@ void daq_v792_v1290_MEB(int nevt = 2000)
           ntdc = -999;
 
           ntdc = tdc_data_arr[ievt].ntdc;
-	  cout << "Test NTDC " << ntdc << endl;
+	        cout << "Test NTDC " << ntdc << endl;
           for (int ih = 0; ih < ntdc; ih++) {
             tdc[ih] = (double) tdc_data_arr[ievt].tdc[ih]/40.;
             tdc_ch[ih] = (int) tdc_data_arr[ievt].tdc_ch[ih];
-	    cout <<"Test TDC : " << tdc[ih] << " " << tdc_ch[ih] << endl;
+	          cout <<"Test TDC : " << tdc[ih] << " " << tdc_ch[ih] << endl;
           }
 
           triggerID_tdc = tdc_data_arr[ievt].TriggerID;
@@ -165,12 +165,12 @@ void daq_v792_v1290_MEB(int nevt = 2000)
           nadc = -999;
 
           nadc = adc_data_arr[ievt].nadc;
-	  cout << "NADC : " << nadc << endl;
+	        cout << "NADC : " << nadc << endl;
           //triggerID_adc = (long) adc_module->ADCRead_TriggerCounter(devnum, moduleID_adc);
           for (int ih = 0; ih < nadc; ih++) {
             adc[ih] = (long) adc_data_arr[ievt].adc[ih];
             adc_ch[ih] = (int) adc_data_arr[ievt].adc_ch[ih];
-	    cout << "ADC " << adc[ih] << " Ch " << adc_ch[ih] << endl;
+	          cout << "ADC " << adc[ih] << " Ch " << adc_ch[ih] << endl;
           }
           
           nadc = adc_data_arr[ievt].nadc;
