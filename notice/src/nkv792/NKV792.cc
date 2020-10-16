@@ -39,7 +39,7 @@ void NKV792::ADCInit(int devnum, unsigned long mid)
     }
     else 
     {
-	    ADCSet_Threshold(devnum, mid, ch, v792_THRESHOLD);
+	    ADCSet_Threshold(devnum, mid, ch, 0x15);
     }
   }
  
@@ -391,7 +391,7 @@ void NKV792::ADCEventBuild(unsigned long *words, int nw, int i, ADCEvent *data)
 int NKV792::ADCEventBuild_MEB(unsigned long *words, int nw, ADCEvent data_arr[])
 {
   int nhit = 0;
-  int current_ev = -1;
+  int current_ev = 0;
   unsigned long nevt = 0;
   string type_name[4] = {"ADC Data", "ADC Header", "ADC Trailer", "ADC Invalid Data"};
 
@@ -405,7 +405,6 @@ int NKV792::ADCEventBuild_MEB(unsigned long *words, int nw, ADCEvent data_arr[])
     if (fDebug) cout << "Word Type : " << type_name[type].c_str() << endl;
 
     if (type == 1) {
-      current_ev += 1;
       unsigned long nch = (words[i] >> 8) & 0x003F;
       if (fDebug) cout << "ADC NCH  : " << nch << endl;
     }
@@ -414,7 +413,10 @@ int NKV792::ADCEventBuild_MEB(unsigned long *words, int nw, ADCEvent data_arr[])
       unsigned long EventCounter = words[i] & 0xFFFFFF;
       if (fDebug) cout << "ADC Trailer EventCounter  : " << EventCounter << endl;
       data_arr[current_ev].TriggerID = EventCounter; // Need to update code for multiple event data buffer
+      current_ev += 1;
       nevt++;
+      nhit = 0;
+      data_arr[current_ev].reset();
     }
 
     if (type == 3) {
@@ -440,7 +442,7 @@ int NKV792::ADCEventBuild_MEB(unsigned long *words, int nw, ADCEvent data_arr[])
 
   if (fDebug)  cout << "NEvent : " << nevt << endl;
   
-  return current_ev +1;
+  return current_ev;
 }
 
 
