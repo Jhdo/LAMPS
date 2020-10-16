@@ -25,7 +25,7 @@
 
 #define v792_THRESHOLD 0x01 // 8x16 = 128, Mutiplied by 16, See manual p20
 #define v792_PED 0x00B4 // Must be bigger than 60
-#define v792_READOUT_SIZE 196 // Read data buffer (doesn't matter with its contents) and check if it  contains EOB word if not, repeat readout
+#define v792_READOUT_SIZE 200 // Read data buffer (doesn't matter with its contents) and check if it  contains EOB word if not, repeat readout
 #define v792_NEVENT_BUFFER 32
 #include "NK6UVMEROOT.h"
 #include <bitset>
