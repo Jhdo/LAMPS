@@ -328,7 +328,8 @@ void NKV1290::TDCEventBuild(unsigned long *words, int nw, int iw, TDCEvent *data
 int NKV1290::TDCEventBuild_MEB(unsigned long *words, int nw, TDCEvent data_arr[])
 {
   int nhit = 0;
-  int current_ev = -1;
+  int current_ev = 0;
+  //unsigned long current_BunchID = -1;
   unsigned long EventCount = -999;
   string type_name[6] = {"TDC Data", "TDC Header", "TDC Trailer", "TDC Global Header",  "TDC Error", "TDC Global Trailer"};
 //  unsigned long nevt = 0;
@@ -362,9 +363,10 @@ int NKV1290::TDCEventBuild_MEB(unsigned long *words, int nw, TDCEvent data_arr[]
     }
 
     if (type == 1) {
-      current_ev += 1;
       unsigned long BunchID = words[i] & 0xFFF;
       unsigned long EventID = (words[i] >> 12) & 0xFFF;
+      //if (current_BunchID == BunchID) continue;
+      //current_BunchID = BunchID;
       if (fDebug) cout << "BunchID : " << BunchID << " EventID : " << EventID << endl;
       data_arr[current_ev].TriggerID = BunchID;
       //data->EventNumber = EventID;
@@ -386,12 +388,16 @@ int NKV1290::TDCEventBuild_MEB(unsigned long *words, int nw, TDCEvent data_arr[]
     }
 
     if (type == 5) {
+      current_ev += 1;
+      nhit = 0;
+      data_arr[current_ev].reset();
       if (fDebug) cout << "Met Global Trailer Word" << endl;
-      break;
     }
+
+    if (type_code == 24) break; 
   } // nw loop
 
-  return current_ev + 1;
+  return current_ev;
 }
 
 
