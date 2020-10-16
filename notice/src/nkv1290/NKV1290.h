@@ -31,7 +31,7 @@
 // Parameters
 #define v1290_TM_WIDTH 0x0008 // 8 (0x0014 default) 25ns per 1
 #define v1290_TM_OFFSET 0xFFF7 // -8 (signed short) 25ns per 1
-#define v1290_READOUT_SIZE 196 // Read data buffer (doesn't matter with its contents) and check if it  contains EOB word if not, repeat readout
+#define v1290_READOUT_SIZE 200 // Read data buffer (doesn't matter with its contents) and check if it  contains EOB word if not, repeat readout
 
 //#include "Notice6UVME.h"
 #include "NK6UVMEROOT.h"
