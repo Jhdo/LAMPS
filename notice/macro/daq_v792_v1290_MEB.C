@@ -34,6 +34,8 @@ void daq_v792_v1290_MEB(int nevt = 2000)
     long triggerID_adc = -999;
     long eventID_adc = -999;
     long unix_time = -999;
+    int nevt_buffer_adc = -999;
+    int nevt_buffer_tdc = -999;
     
     TDCEvent tdc_data_arr[buffer_evt];
     ADCEvent adc_data_arr[buffer_evt];
@@ -59,6 +61,8 @@ void daq_v792_v1290_MEB(int nevt = 2000)
     tree_out->Branch("triggerID_adc", &triggerID_adc, "triggerID_adc/L");
     tree_out->Branch("eventID_adc", &eventID_adc, "eventID_adc/L");
     tree_out->Branch("unix_time", &unix_time, "unix_time/L");
+    tree_out->Branch("nevt_buffer_tdc", &nevt_buffer_tdc, "nevt_buffer_tdc/I");
+    tree_out->Branch("nevt_buffer_adc", &nevt_buffer_adc, "nevt_buffer_adc/I");
 
     NKV1290 *tdc_module = new NKV1290();
     tdc_module->VMEopen(devnum);
@@ -114,6 +118,9 @@ void daq_v792_v1290_MEB(int nevt = 2000)
 
         int nevt_tdc = tdc_module->TDCEventBuild_MEB(words_tdc, nw_tdc, tdc_data_arr);
         int nevt_adc = adc_module->ADCEventBuild_MEB(words_adc, nw_adc, adc_data_arr);
+
+        nevt_buffer_adc = nevt_adc;
+        nevt_buffer_tdc = nevt_tdc;
 
         cout << "Found Events in buffer : " << nevt_tdc << ", " << nevt_adc << endl;
 
