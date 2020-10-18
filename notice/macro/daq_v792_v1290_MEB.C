@@ -80,8 +80,8 @@ void daq_v792_v1290_MEB(int nevt = 2000)
 
     for (int ievt = 0; ievt < nevt; ievt++) {
       std::cout << "Event " << ievt << std::endl;
-      adc_module->ADCClear_Buffer(devnum, moduleID_adc);
       tdc_module->TDCClear_Buffer(devnum, moduleID_tdc);
+      adc_module->ADCClear_Buffer(devnum, moduleID_adc);
       int itry = 0;
 	    while(true) {
         unsigned long stat_tdc = tdc_module->TDCRead_Status(devnum, moduleID_tdc);
