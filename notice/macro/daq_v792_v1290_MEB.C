@@ -80,17 +80,17 @@ void daq_v792_v1290_MEB(int nevt = 2000)
 
     for (int ievt = 0; ievt < nevt; ievt++) {
       std::cout << "Event " << ievt << std::endl;
-        adc_module->ADCClear_Buffer(devnum, moduleID_adc);
-        tdc_module->TDCClear_Buffer(devnum, moduleID_tdc);
-        int itry = 0;
+      adc_module->ADCClear_Buffer(devnum, moduleID_adc);
+      tdc_module->TDCClear_Buffer(devnum, moduleID_tdc);
+      int itry = 0;
 	    while(true) {
-            unsigned long stat_tdc = tdc_module->TDCRead_Status(devnum, moduleID_tdc);
-            int dr_adc = adc_module->ADC_IsDataReady(devnum, moduleID_adc);
-            //int bs_adc = adc_module->ADC_IsBusy(devnum, moduleID_adc);
-            itry++;
-            //cout << "dr " << dr << " bs " << bs << endl;
-	    if ((stat_tdc & 0x1) == 1 && dr_adc == 1) break;
-	        if (itry > 500000) return;
+        unsigned long stat_tdc = tdc_module->TDCRead_Status(devnum, moduleID_tdc);
+        int dr_adc = adc_module->ADC_IsDataReady(devnum, moduleID_adc);
+        //int bs_adc = adc_module->ADC_IsBusy(devnum, moduleID_adc);
+        itry++;
+        //cout << "dr " << dr << " bs " << bs << endl;
+	      if ((stat_tdc & 0x1) == 1 && dr_adc == 1) break;
+	      if (itry > 500000) return;
       }
         // Measuring elapsed time per an event process
         auto start = std::chrono::high_resolution_clock::now();
