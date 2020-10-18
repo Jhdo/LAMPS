@@ -474,9 +474,12 @@ void NKV1290::TDCClear_Buffer(int devnum, unsigned long mid)
   
   baseaddr = (mid & 0xFFFF) << 16;
   
+  unsigned long addr_rst = baseaddr + v1290_ADDR_SOFT_EVENTCOUNT_RESET;
+
   unsigned long addr = baseaddr + v1290_ADDR_SW_CLEAR;
   
   //unsigned short data = 0;
+  VMEwrite(devnum, A32D16, 100, addr_rst, 0);
 
   VMEwrite(devnum, A32D16, 100, addr, 0);
 }
