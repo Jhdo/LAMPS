@@ -124,6 +124,11 @@ void daq_v792_v1290_MEB(int nevt = 2000)
 
         cout << "Found Events in buffer : " << nevt_tdc << ", " << nevt_adc << endl;
 
+        if (nevt_tdc > buffer_evt || nevt_adc > buffer_evt) {
+          cout << "Warning : Number of Event in buffer overflow" << endl;
+          continue;
+        }
+
         if (nevt_tdc != nevt_adc) {
           cout << "Warning : Number of Event in buffer of ADC, TDC are different" << endl;
         }
