@@ -25,7 +25,7 @@
 
 #define v792_THRESHOLD 0x01 // 8x16 = 128, Mutiplied by 16, See manual p20
 #define v792_PED 0x00B4 // Must be bigger than 60
-#define v792_READOUT_SIZE 200 // Read data buffer (doesn't matter with its contents) and check if it  contains EOB word if not, repeat readout
+#define v792_READOUT_SIZE 256 // Read data buffer (doesn't matter with its contents) and check if it  contains EOB word if not, repeat readout
 #define v792_NEVENT_BUFFER 34
 #include "NK6UVMEROOT.h"
 #include <bitset>
@@ -77,7 +77,7 @@ class NKV792 : public NK6UVMEROOT
   int ADC_IsDataReady(int devnum, unsigned long mid);
   int ADC_IsValidData(unsigned long word);
 
-  const int fDebug = 1;
+  const int fDebug = 0;
 
   ClassDef(NKV792, 1)
 
