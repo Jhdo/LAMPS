@@ -32,7 +32,7 @@
 // Parameters
 #define v1290_TM_WIDTH 0x0008 // 8 (0x0014 default) 25ns per 1
 #define v1290_TM_OFFSET 0xFFF7 // -8 (signed short) 25ns per 1
-#define v1290_READOUT_SIZE 200 // Read data buffer (doesn't matter with its contents) and check if it  contains EOB word if not, repeat readout
+#define v1290_READOUT_SIZE 256 // Read data buffer (doesn't matter with its contents) and check if it  contains EOB word if not, repeat readout
 
 //#include "Notice6UVME.h"
 #include "NK6UVMEROOT.h"
@@ -85,7 +85,7 @@ class NKV1290 : public NK6UVMEROOT
   
   int TDCWrite_Opcode(int devnum, unsigned long mid, int nw, unsigned short *words);
 
-  const int fDebug = 1; 
+  const int fDebug = 0; 
   int fReadOutMode;
   // const unsigned short v1290_TM_WIDTH = 20; //20(default) // Trigger matching window width (each step is 25ns)
   // const signed short v1290_TM_OFFSET = -40; //-40(default) // Trigger matching window offset
