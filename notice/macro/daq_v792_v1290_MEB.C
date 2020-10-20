@@ -21,7 +21,7 @@ void daq_v792_v1290_MEB(int nevt = 200)
 {
     int devnum = 0; // Dev. Mount number in linux
 
-    const int buffer_evt = v792_NEVENT_BUFFER +20;
+    const int buffer_evt = v792_NEVENT_BUFFER;
     // Tree Branches
     int ntdc = -999;
     double tdc[32] = {-999,};
