@@ -26,11 +26,11 @@ int run_nfadc400(int Nevent = 1000) {
   // get NKHOME enviernment
   TString mypath = gSystem->Getenv("NKHOME");
   cout<<"NKHOME pass : "<<mypath<<endl;
-  TString myvme  = mypath + TString("/lib/libNK6UVME.so");  
+  //TString myvme  = mypath + TString("/lib/libNK6UVME.so");  
   TString myfadc = mypath + TString("/lib/libNoticeNFADC400_root.so");
   
   // Loading VME & FADC lib.
-  gSystem->Load(myvme);
+  //gSystem->Load(myvme);
   gSystem->Load(myfadc);
    
   //local variable 
