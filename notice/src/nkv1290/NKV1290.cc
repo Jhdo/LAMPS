@@ -469,6 +469,22 @@ unsigned long NKV1290::TDCRead_FIFO_Stored(int devnum, unsigned long mid)
 }
 
 
+unsigned long NKV1290::TDCRead_Event_Stored(int devnum, unsigned long mid)
+{
+  unsigned long baseaddr;
+  
+  baseaddr = (mid & 0xFFFF) << 16;
+  
+  unsigned long addr = baseaddr + v1290_ADDR_EVENT_STORED;
+  
+  unsigned long word = VMEread(devnum, A32D16, 100, addr);
+
+  unsigned long ne = word & 0xFFFF;
+  
+  return ne;
+}
+
+
 // Note : First bit of Status bit is DATA_READY
 unsigned long NKV1290::TDCRead_Status(int devnum, unsigned long mid)
 {
