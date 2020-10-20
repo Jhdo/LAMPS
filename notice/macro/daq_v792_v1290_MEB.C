@@ -198,13 +198,12 @@ void daq_v792_v1290_MEB(int nevt = 200)
           microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
           std::cout << "Elapsed time 5 : " << microseconds << " micro seconds" << std::endl;
           std::cout << "Total Trigger Count, TDC : " << triggerID_tdc << " ADC : " << triggerID_adc << std::endl;
-
-          if(bStop){
-            std::cout << "terminated!" << std::endl;
-            break;
-          }
         }
 
+        if(bStop){
+          std::cout << "terminated!" << std::endl;
+          break;
+        }
 
         elapsed = std::chrono::high_resolution_clock::now() - start;
         microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
