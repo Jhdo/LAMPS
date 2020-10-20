@@ -24,6 +24,7 @@
 #define v1290_ADDR_EVTCOUNTER 0x101C //(D32)
 #define v1290_ADDR_DATA 0x0000 //(D32)
 #define v1290_ADDR_STATUS 0x1002
+#define v1290_ADDR_EVENT_STORED 0x1020
 #define v1290_ADDR_SW_CLEAR 0x1016
 #define v1290_ADDR_MICRO 0x102E
 #define v1290_ADDR_MICRO_HS 0x1030
@@ -78,7 +79,8 @@ class NKV1290 : public NK6UVMEROOT
   unsigned long TDCRead_Buffer(int devnum, unsigned long mid, unsigned long *words);
   unsigned long TDCRead_Buffer_Test(int devnum, unsigned long mid, unsigned long *words);
   unsigned long TDCRead_NW(int devnum, unsigned long mid); // Get Number of Words in Buffer
-  unsigned long TDCRead_EVTID(int devnum, unsigned long mid); // Get Number of Events in Buffer
+  unsigned long TDCRead_EVTID(int devnum, unsigned long mid);
+  unsigned long TDCRead_Event_Stored(int devnum, unsigned long mid); // Get Number of Events in Buffer
   unsigned long TDCRead_Status(int devnum, unsigned long mid); // Get Status bit (First bit is DATA_READY)
   unsigned long TDCRead_Control(int devnum, unsigned long mid); // Read Control Reg
   unsigned long TDCRead_FIFO_Stored(int devnum, unsigned long mid); // Get Number of Events in FIFO
