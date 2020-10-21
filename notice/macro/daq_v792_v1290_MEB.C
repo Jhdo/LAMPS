@@ -37,7 +37,7 @@ void daq_v792_v1290_MEB(int nevt = 200)
     long unix_time = -999;
     int nevt_buffer_adc = -999;
     int nevt_buffer_tdc = -999;
-    int tdc_nevt_clear = 500;
+    int tdc_nevt_clear = 1500; // Maximum number of event in tdc buffer (32k words)
     
     TDCEvent tdc_data_arr[buffer_evt];
     ADCEvent adc_data_arr[buffer_evt];
@@ -89,7 +89,8 @@ void daq_v792_v1290_MEB(int nevt = 200)
           tdc_module->TDCClear_Buffer(devnum, moduleID_tdc);
           adc_module->ADCClear_Buffer(devnum, moduleID_adc);
           tdc_buffer = tdc_module->TDCRead_Event_Stored(devnum, moduleID_tdc);
-          if (tdc_buffer == 0) break; // Check if tdc memory is empty if not, clear again
+          // Check if tdc memory is empty if not, clear again, if trigger rate is about 8khz or larger it may need few trial
+          if (tdc_buffer == 0) break;
           cout << "TDC buffer is not empty, Retrying Clear.." << endl;
         }
       }
