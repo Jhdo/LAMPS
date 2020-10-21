@@ -72,8 +72,9 @@ void NKV1290::TDCInit(int devnum, unsigned long mid, int ReadOutMode)
   // Trigger matching Window offset
   TDCSet_TM_Offset(devnum, mid, v1290_TM_OFFSET);
 
-
   TDCSet_Subtract_TriggerTime(devnum, mid, 1);
+
+  //TDCSet_HeaderTrailer(devnum, mid, 0); // Disable TDC Header/Trailer in data buffer
 
 // opcd[0]=0x3100; // Disable TDC Header/Trailer
 // TDCWrite_Opcode(devnum, mid, 1, opcode)
@@ -90,6 +91,20 @@ void NKV1290::TDCSet_Subtract_TriggerTime(int devnum, unsigned long mid, int v)
   if (v == 1) opcode[0] = 0x1400; // Enable Subtraction
   
   else if (v == 0) opcode[0] = 0x1500; // Disable
+
+  TDCWrite_Opcode(devnum, mid, 1, opcode);
+
+  return;
+}
+
+
+void NKV1290::TDCSet_HeaderTrailer(int devnum, unsigned long mid, int v)
+{
+  unsigned short opcode[10];
+
+  if (v == 1) opcode[0] = 0x3000; // Enable
+  
+  else if (v == 0) opcode[0] = 0x3100; // Disable
 
   TDCWrite_Opcode(devnum, mid, 1, opcode);
 
@@ -369,7 +384,6 @@ int NKV1290::TDCEventBuild_MEB(unsigned long *words, int nw, TDCEvent data_arr[]
       //if (current_BunchID == BunchID) continue;
       //current_BunchID = BunchID;
       if (fDebug) cout << "BunchID : " << BunchID << " EventID : " << EventID << endl;
-      data_arr[current_ev].TriggerID = BunchID;
       //data->EventNumber = EventID;
     }
 
@@ -381,7 +395,9 @@ int NKV1290::TDCEventBuild_MEB(unsigned long *words, int nw, TDCEvent data_arr[]
 
     if (type == 3) {
       EventCount = (words[i] >> 5) & 0x3FFFFF;
+      data_arr[current_ev].TriggerID = EventCount;
       if (fDebug) cout << "TDC Global Header EventCount : " << EventCount << endl;
+
     }
 
     if (type == 4) {
@@ -448,6 +464,22 @@ unsigned long NKV1290::TDCRead_FIFO_Stored(int devnum, unsigned long mid)
   unsigned long word = VMEread(devnum, A32D16, 100, addr);
 
   unsigned long ne = word & 0x07FF;
+  
+  return ne;
+}
+
+
+unsigned long NKV1290::TDCRead_Event_Stored(int devnum, unsigned long mid)
+{
+  unsigned long baseaddr;
+  
+  baseaddr = (mid & 0xFFFF) << 16;
+  
+  unsigned long addr = baseaddr + v1290_ADDR_EVENT_STORED;
+  
+  unsigned long word = VMEread(devnum, A32D16, 100, addr);
+
+  unsigned long ne = word & 0xFFFF;
   
   return ne;
 }

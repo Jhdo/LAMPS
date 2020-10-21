@@ -164,8 +164,8 @@ void daq_v792_v1290_MEB(int nevt = 200)
           }
 
           triggerID_tdc = tdc_data_arr[ievt].TriggerID;
-          //triggerID_tdc = (long) tdc_module->TDCRead_EventCounter(devnum, moduleID_tdc);
 	        eventID_tdc = (int) tdc_data_arr[ievt].EventNumber;
+          //triggerID_tdc = (long) tdc_module->TDCRead_EventCounter(devnum, moduleID_tdc);
 
           // Filling ADC Tree
           for (int ih = 0; ih < 32; ih++) {
@@ -178,7 +178,6 @@ void daq_v792_v1290_MEB(int nevt = 200)
 
           nadc = adc_data_arr[ievt].nadc;
 //	        cout << "NADC : " << nadc << endl;
-          //triggerID_adc = (long) adc_module->ADCRead_TriggerCounter(devnum, moduleID_adc);
           for (int ih = 0; ih < nadc; ih++) {
             adc[ih] = (long) adc_data_arr[ievt].adc[ih];
             adc_ch[ih] = (int) adc_data_arr[ievt].adc_ch[ih];
@@ -187,6 +186,7 @@ void daq_v792_v1290_MEB(int nevt = 200)
           
           nadc = adc_data_arr[ievt].nadc;
           triggerID_adc = (int) adc_data_arr[ievt].TriggerID;
+          //triggerID_adc = (long) adc_module->ADCRead_TriggerCounter(devnum, moduleID_adc);
           
           unix_time = std::time(0);
 
@@ -198,13 +198,12 @@ void daq_v792_v1290_MEB(int nevt = 200)
           microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
           std::cout << "Elapsed time 5 : " << microseconds << " micro seconds" << std::endl;
           std::cout << "Total Trigger Count, TDC : " << triggerID_tdc << " ADC : " << triggerID_adc << std::endl;
-
-          if(bStop){
-            std::cout << "terminated!" << std::endl;
-            break;
-          }
         }
 
+        if(bStop){
+          std::cout << "terminated!" << std::endl;
+          break;
+        }
 
         elapsed = std::chrono::high_resolution_clock::now() - start;
         microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();

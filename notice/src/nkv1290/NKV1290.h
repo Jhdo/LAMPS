@@ -24,6 +24,7 @@
 #define v1290_ADDR_EVTCOUNTER 0x101C //(D32)
 #define v1290_ADDR_DATA 0x0000 //(D32)
 #define v1290_ADDR_STATUS 0x1002
+#define v1290_ADDR_EVENT_STORED 0x1020
 #define v1290_ADDR_SW_CLEAR 0x1016
 #define v1290_ADDR_MICRO 0x102E
 #define v1290_ADDR_MICRO_HS 0x1030
@@ -67,17 +68,19 @@ class NKV1290 : public NK6UVMEROOT
   virtual ~NKV1290();
 
   void TDCInit(int devnum, unsigned long mid, int ReadOutMode = 1);
-  void TDCEventBuild(unsigned long *words, int nw, int iw, TDCEvent *data); // Decoding words into event object (try to search i_th event)
-  int TDCEventBuild_MEB(unsigned long *words, int nw, TDCEvent data_arr[]); // Decoding words into event object (try to search i_th event)
+  void TDCEventBuild(unsigned long *words, int nw, int iw, TDCEvent *data); // Decoding words into event object
+  int TDCEventBuild_MEB(unsigned long *words, int nw, TDCEvent data_arr[]); // Decoding words into event object
   void TDCClear_Buffer(int devnum, unsigned long mid);
   void TDCSet_TM_Width(int devnum, unsigned long mid, unsigned short wd);
   void TDCSet_TM_Offset(int devnum, unsigned long mid, short os);
   void TDCWrite_Control(int devnum, unsigned long mid, unsigned long word); // Write Control Reg
   void TDCSet_Subtract_TriggerTime(int devnum, unsigned long mid, int v); // Write Control Reg
+  void TDCSet_HeaderTrailer(int devnum, unsigned long mid, int v);
   unsigned long TDCRead_Buffer(int devnum, unsigned long mid, unsigned long *words);
   unsigned long TDCRead_Buffer_Test(int devnum, unsigned long mid, unsigned long *words);
   unsigned long TDCRead_NW(int devnum, unsigned long mid); // Get Number of Words in Buffer
-  unsigned long TDCRead_EVTID(int devnum, unsigned long mid); // Get Number of Events in Buffer
+  unsigned long TDCRead_EVTID(int devnum, unsigned long mid);
+  unsigned long TDCRead_Event_Stored(int devnum, unsigned long mid); // Get Number of Events in Buffer
   unsigned long TDCRead_Status(int devnum, unsigned long mid); // Get Status bit (First bit is DATA_READY)
   unsigned long TDCRead_Control(int devnum, unsigned long mid); // Read Control Reg
   unsigned long TDCRead_FIFO_Stored(int devnum, unsigned long mid); // Get Number of Events in FIFO

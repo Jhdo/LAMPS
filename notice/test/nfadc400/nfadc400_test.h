@@ -1,6 +1,6 @@
 
-#define NCH 2               // number of fadc channel to be used 
-#define DATA_POINT 0x4000   // data size : Refer manual 
+#define NCH 1               // number of fadc channel to be used 
+#define DATA_POINT 0x1000   // data size : Refer manual 
 #define NDATA (DATA_POINT*NCH)
 
 class fadc{
