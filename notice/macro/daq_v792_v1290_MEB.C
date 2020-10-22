@@ -93,7 +93,7 @@ void daq_v792_v1290_MEB(int nevt = 3000)
         tdc_module->TDCClear_Buffer(devnum, moduleID_tdc);
         adc_module->ADCClear_Buffer(devnum, moduleID_adc);
         int evt_count_tdc = tdc_module->TDCRead_Event_Stored(devnum, moduleID_tdc);
-	cout << "Buffer Clearing : " << evt_count_tdc << endl;
+	      cout << "Buffer Clearing : " << evt_count_tdc << endl;
         // Check if tdc memory is empty if not, clear again, if trigger rate is about 8khz or larger, it may need few trial
         if (evt_count_tdc == 0) break;
         cout << "TDC buffer is not empty, Retrying Clear.." << endl;
@@ -125,11 +125,11 @@ void daq_v792_v1290_MEB(int nevt = 3000)
         int nevt_adc = adc_module->ADCEventBuild_MEB(words_adc, nw_adc, adc_data_arr);
         int nevt_tdc = tdc_module->TDCEventBuild_MEB(words_tdc, nw_tdc, tdc_data_arr);
 
-	// event overflow
-	if (nevt_adc >= 32) {
-	  cout << "Event Overflow, Discarding event" << endl;
-          continue;
-	}
+	      // event overflow
+	      if (nevt_adc >= 32) {
+	      cout << "Event Overflow, Discarding event" << endl;
+        continue;
+	      }
 
         nevt_buffer_adc = nevt_adc;
         nevt_buffer_tdc = nevt_tdc;
@@ -171,7 +171,7 @@ void daq_v792_v1290_MEB(int nevt = 3000)
           }
 
           triggerID_tdc = tdc_data_arr[ievt].TriggerID;
-	  eventID_tdc = (int) tdc_data_arr[ievt].EventNumber;
+      	  eventID_tdc = (int) tdc_data_arr[ievt].EventNumber;
           //triggerID_tdc = (long) tdc_module->TDCRead_EventCounter(devnum, moduleID_tdc);
 
           // Filling ADC Tree
@@ -204,7 +204,7 @@ void daq_v792_v1290_MEB(int nevt = 3000)
         }
 
         evt_taken += niter;
-	tdc_buffer += nevt_tdc;
+	      tdc_buffer += nevt_tdc;
 
         if(bStop){
           std::cout << "terminated!" << std::endl;
