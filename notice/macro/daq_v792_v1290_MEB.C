@@ -10,6 +10,11 @@
 
 bool bStop = false;
 
+void sigint_handler(int sig){
+        bStop = true;
+}
+
+
 const unsigned short moduleID_tdc = 0x1000;
 const unsigned short moduleID_adc = 0x2000;
 R__LOAD_LIBRARY(libNK6UVMEROOT.so)
@@ -17,7 +22,7 @@ R__LOAD_LIBRARY(libNKV1290.so)
 R__LOAD_LIBRARY(libNKV792.so)
 
 using namespace std;
-void daq_v792_v1290_MEB(int nevt = 200)
+void daq_v792_v1290_MEB(int nevt = 3000)
 {
     int devnum = 0; // Dev. Mount number in linux
 
@@ -37,7 +42,7 @@ void daq_v792_v1290_MEB(int nevt = 200)
     long unix_time = -999;
     int nevt_buffer_adc = -999;
     int nevt_buffer_tdc = -999;
-    int tdc_nevt_clear = 1500; // Maximum number of event in tdc buffer (32k words)
+    int tdc_nevt_clear = 600; // Maximum number of event in tdc buffer (32k words)
     
     TDCEvent tdc_data_arr[buffer_evt];
     ADCEvent adc_data_arr[buffer_evt];
@@ -74,28 +79,26 @@ void daq_v792_v1290_MEB(int nevt = 200)
 
     std::cout << "Starting v792..." << std::endl;
     NKV792 *adc_module = new NKV792();
-    adc_module->ADC_SoftReset(devnum, moduleID_adc);
+    //adc_module->ADC_SoftReset(devnum, moduleID_adc);
     adc_module->ADCInit(devnum, moduleID_adc);
-    tdc_module->TDCClear_Buffer(devnum, moduleID_tdc);
+    int tdc_buffer = 0;
     std::cout << "TDC Module Initialized" << std::endl;
     std::cout << "ADC Module Initialized" << std::endl;
 
     for (int icycle = 0; icycle < nevt; icycle++) {
-      std::cout << "Event Process Cycle : " << icycle << " Event Taken : " << evt_taken << std::endl;
-      int tdc_buffer = tdc_module->TDCRead_Event_Stored(devnum, moduleID_tdc);
-      if (tdc_buffer > tdc_nevt_clear) {
-        while (true) {
-          cout << "Events in TDC buffer " << tdc_buffer << endl;
-          tdc_module->TDCClear_Buffer(devnum, moduleID_tdc);
-          adc_module->ADCClear_Buffer(devnum, moduleID_adc);
-          tdc_buffer = tdc_module->TDCRead_Event_Stored(devnum, moduleID_tdc);
-          // Check if tdc memory is empty if not, clear again, if trigger rate is about 8khz or larger it may need few trial
-          if (tdc_buffer == 0) break;
-          cout << "TDC buffer is not empty, Retrying Clear.." << endl;
-        }
+      std::cout << "Event Process Cycle : " << icycle << ", Event Taken : " << evt_taken << std::endl;
+      cout << "TDC buffer " << tdc_buffer << endl;
+      while (true) {
+        tdc_buffer = 0;
+        tdc_module->TDCClear_Buffer(devnum, moduleID_tdc);
+        adc_module->ADCClear_Buffer(devnum, moduleID_adc);
+        int evt_count_tdc = tdc_module->TDCRead_Event_Stored(devnum, moduleID_tdc);
+	cout << "Buffer Clearing : " << evt_count_tdc << endl;
+        // Check if tdc memory is empty if not, clear again, if trigger rate is about 8khz or larger, it may need few trial
+        if (evt_count_tdc == 0) break;
+        cout << "TDC buffer is not empty, Retrying Clear.." << endl;
       }
 
-      else adc_module->ADCClear_Buffer(devnum, moduleID_adc);
       int itry = 0;
 	    while(true) {
         unsigned long stat_tdc = tdc_module->TDCRead_Status(devnum, moduleID_tdc);
@@ -112,27 +115,21 @@ void daq_v792_v1290_MEB(int nevt = 200)
         unsigned long words_tdc[2048];
         unsigned long words_adc[2048];
         
-        auto elapsed = std::chrono::high_resolution_clock::now() - start;
-        long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
-        std::cout << "Elapsed time 1 : " << microseconds << " micro seconds" << std::endl;
-        
         unsigned long nw_tdc = tdc_module->TDCRead_Buffer_Test(devnum, moduleID_tdc, words_tdc);
         unsigned long nw_adc = adc_module->ADCRead_Buffer(devnum, moduleID_adc, words_adc);
 
-        elapsed = std::chrono::high_resolution_clock::now() - start;
-        microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
-        std::cout << "Elapsed time 2 : " << microseconds << " micro seconds" << std::endl;
+        auto elapsed = std::chrono::high_resolution_clock::now() - start;
+        long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+        std::cout << "Elapsed time 1 : " << microseconds << " micro seconds" << std::endl;
 
-//	      cout << "TDC NWord " << nw_tdc << endl;
-//        cout << "ADC NWord " << nw_adc << endl;
-
-        elapsed = std::chrono::high_resolution_clock::now() - start;
-        microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
-        std::cout << "Elapsed time 3 : " << microseconds << " micro seconds" << std::endl;
-
-        // Note : nevt_adc is expected to have smaller or equal value than nevt_tdc
         int nevt_adc = adc_module->ADCEventBuild_MEB(words_adc, nw_adc, adc_data_arr);
         int nevt_tdc = tdc_module->TDCEventBuild_MEB(words_tdc, nw_tdc, tdc_data_arr);
+
+	// event overflow
+	if (nevt_adc >= 32) {
+	  cout << "Event Overflow, Discarding event" << endl;
+          continue;
+	}
 
         nevt_buffer_adc = nevt_adc;
         nevt_buffer_tdc = nevt_tdc;
@@ -150,16 +147,11 @@ void daq_v792_v1290_MEB(int nevt = 200)
 
         elapsed = std::chrono::high_resolution_clock::now() - start;
         microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
-        std::cout << "Elapsed time 4 : " << microseconds << " micro seconds" << std::endl;
+        std::cout << "Elapsed time 2 : " << microseconds << " micro seconds" << std::endl;
 
-//        cout << "TDC Evt Number : " << tdc_evt->EventNumber << endl;
-//        cout << "TDC1 : " << tdc_evt->tdc_ch[0] << " " << tdc_evt->tdc[0] << endl;
-//        cout << "TDC2 : " << tdc_evt->tdc_ch[1] << " " << tdc_evt->tdc[1] << endl;
-//        cout << "EventID : " << adc_evt->TriggerID << endl;
-//        cout << "ADC1 : " << adc_evt->adc_ch[0] << " " << adc_evt->adc[0] << endl;
-//        cout << "ADC2 : " << adc_evt->adc_ch[1] << " " << adc_evt->adc[1] << endl;
-
-        for (int ievt = 0; ievt < nevt_adc; ievt++){
+	int niter = nevt_adc;
+	if (nevt_adc > nevt_tdc) niter = nevt_tdc;
+        for (int ievt = 0; ievt < niter; ievt++){
           // Fill TDC Tree
           for (int i = 0; i < 32; i++) {
             tdc[i] = -999;
@@ -179,7 +171,7 @@ void daq_v792_v1290_MEB(int nevt = 200)
           }
 
           triggerID_tdc = tdc_data_arr[ievt].TriggerID;
-	        eventID_tdc = (int) tdc_data_arr[ievt].EventNumber;
+	  eventID_tdc = (int) tdc_data_arr[ievt].EventNumber;
           //triggerID_tdc = (long) tdc_module->TDCRead_EventCounter(devnum, moduleID_tdc);
 
           // Filling ADC Tree
@@ -209,13 +201,10 @@ void daq_v792_v1290_MEB(int nevt = 200)
   
           //adc_data_arr[ievt].reset();
           //tdc_data_arr[ievt].reset();
-          elapsed = std::chrono::high_resolution_clock::now() - start;
-          microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
-          std::cout << "Elapsed time 5 : " << microseconds << " micro seconds" << std::endl;
-          std::cout << "Total Trigger Count, TDC : " << triggerID_tdc << " ADC : " << triggerID_adc << std::endl;
         }
 
-        evt_taken += nevt_adc;
+        evt_taken += niter;
+	tdc_buffer += nevt_tdc;
 
         if(bStop){
           std::cout << "terminated!" << std::endl;
