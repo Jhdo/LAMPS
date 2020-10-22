@@ -21,7 +21,8 @@ void daq_v792_v1290_MEB(int nevt = 200)
 {
     int devnum = 0; // Dev. Mount number in linux
 
-    const int buffer_evt = v792_NEVENT_BUFFER;
+    const int buffer_evt = v792_NEVENT_BUFFER + 10;
+    long evt_taken = 0;
     // Tree Branches
     int ntdc = -999;
     double tdc[32] = {-999,};
@@ -36,6 +37,7 @@ void daq_v792_v1290_MEB(int nevt = 200)
     long unix_time = -999;
     int nevt_buffer_adc = -999;
     int nevt_buffer_tdc = -999;
+    int tdc_nevt_clear = 1500; // Maximum number of event in tdc buffer (32k words)
     
     TDCEvent tdc_data_arr[buffer_evt];
     ADCEvent adc_data_arr[buffer_evt];
@@ -78,10 +80,22 @@ void daq_v792_v1290_MEB(int nevt = 200)
     std::cout << "TDC Module Initialized" << std::endl;
     std::cout << "ADC Module Initialized" << std::endl;
 
-    for (int ievt = 0; ievt < nevt; ievt++) {
-      std::cout << "Event " << ievt << std::endl;
-      tdc_module->TDCClear_Buffer(devnum, moduleID_tdc);
-      adc_module->ADCClear_Buffer(devnum, moduleID_adc);
+    for (int icycle = 0; icycle < nevt; icycle++) {
+      std::cout << "Event Process Cycle : " << icycle << " Event Taken : " << evt_taken << std::endl;
+      int tdc_buffer = tdc_module->TDCRead_Event_Stored(devnum, moduleID_tdc);
+      if (tdc_buffer > tdc_nevt_clear) {
+        while (true) {
+          cout << "Events in TDC buffer " << tdc_buffer << endl;
+          tdc_module->TDCClear_Buffer(devnum, moduleID_tdc);
+          adc_module->ADCClear_Buffer(devnum, moduleID_adc);
+          tdc_buffer = tdc_module->TDCRead_Event_Stored(devnum, moduleID_tdc);
+          // Check if tdc memory is empty if not, clear again, if trigger rate is about 8khz or larger it may need few trial
+          if (tdc_buffer == 0) break;
+          cout << "TDC buffer is not empty, Retrying Clear.." << endl;
+        }
+      }
+
+      else adc_module->ADCClear_Buffer(devnum, moduleID_adc);
       int itry = 0;
 	    while(true) {
         unsigned long stat_tdc = tdc_module->TDCRead_Status(devnum, moduleID_tdc);
@@ -116,8 +130,9 @@ void daq_v792_v1290_MEB(int nevt = 200)
         microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
         std::cout << "Elapsed time 3 : " << microseconds << " micro seconds" << std::endl;
 
-        int nevt_tdc = tdc_module->TDCEventBuild_MEB(words_tdc, nw_tdc, tdc_data_arr);
+        // Note : nevt_adc is expected to have smaller or equal value than nevt_tdc
         int nevt_adc = adc_module->ADCEventBuild_MEB(words_adc, nw_adc, adc_data_arr);
+        int nevt_tdc = tdc_module->TDCEventBuild_MEB(words_tdc, nw_tdc, tdc_data_arr);
 
         nevt_buffer_adc = nevt_adc;
         nevt_buffer_tdc = nevt_tdc;
@@ -144,7 +159,7 @@ void daq_v792_v1290_MEB(int nevt = 200)
 //        cout << "ADC1 : " << adc_evt->adc_ch[0] << " " << adc_evt->adc[0] << endl;
 //        cout << "ADC2 : " << adc_evt->adc_ch[1] << " " << adc_evt->adc[1] << endl;
 
-        for (int ievt = 0; ievt < nevt_tdc; ievt++){
+        for (int ievt = 0; ievt < nevt_adc; ievt++){
           // Fill TDC Tree
           for (int i = 0; i < 32; i++) {
             tdc[i] = -999;
@@ -199,6 +214,8 @@ void daq_v792_v1290_MEB(int nevt = 200)
           std::cout << "Elapsed time 5 : " << microseconds << " micro seconds" << std::endl;
           std::cout << "Total Trigger Count, TDC : " << triggerID_tdc << " ADC : " << triggerID_adc << std::endl;
         }
+
+        evt_taken += nevt_adc;
 
         if(bStop){
           std::cout << "terminated!" << std::endl;
