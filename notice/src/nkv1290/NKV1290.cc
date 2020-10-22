@@ -74,7 +74,7 @@ void NKV1290::TDCInit(int devnum, unsigned long mid, int ReadOutMode)
 
   TDCSet_Subtract_TriggerTime(devnum, mid, 1);
 
-  //TDCSet_HeaderTrailer(devnum, mid, 0); // Disable TDC Header/Trailer in data buffer
+  TDCSet_HeaderTrailer(devnum, mid, 0); // Disable TDC Header/Trailer in data buffer
 
 // opcd[0]=0x3100; // Disable TDC Header/Trailer
 // TDCWrite_Opcode(devnum, mid, 1, opcode)
