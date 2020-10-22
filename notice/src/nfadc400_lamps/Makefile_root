@@ -30,7 +30,7 @@ DEPLIBS	=	-lNK6UVMEROOT
 LIBS	=	-L/$(NKHOME)/lib
 
 ROOTINCLUDE =	-I$(ROOTSYS)/include
-INCLUDEDIR =	-I/$(NKHOME)/include
+INCLUDEDIR =	-I$(NKHOME)/include
 
 INSTALLDIR     =	$(NKHOME)/lib
 INSTALLINCLUDE =	$(NKHOME)/include
@@ -65,12 +65,12 @@ $(LIB)	:	$(OBJS)
 
 $(OBJS)	: $(INCLUDES)
 $(DICS) : 
-
-	rootcling -f -DNKROOT $@ $(INCLUDEDIR) $(INCLUDES) LinkDef.h
+	@echo "Generating dictionary $@..."
+	
+	rootcling -f $@ -c -DNKROOT $(INCLUDEDIR) $(INCLUDES) LinkDef.h
 
 	# @gcc -E -DNKROOT $(ROOTINCLUDE) $(INCLUDEDIR) $(FILENAME).h > $(ROOTNAME).h
 
-	#@echo "Generating dictionary $@..."
 
 	#@rootcint -f $(DICS) -c $(INCLUDESS)
 
