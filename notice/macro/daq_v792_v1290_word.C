@@ -29,10 +29,10 @@ void daq_v792_v1290_word(int nevt = 3000)
   long evt_taken = 0;
 
   // Tree Branches
-  int nword_tdc = -999;
-  long tdc_word[32] = {-999,};
-  int nword_adc = -999;
-  long adc_word[32] = {-999,};
+  int nword_tdc = 0;
+  long tdc_word[512] = {-999,};
+  int nword_adc = 0;
+  long adc_word[512] = {-999,};
   long unix_time = -999;
   //int tdc_nevt_clear = 600; // Maximum number of event in tdc buffer (32k words)
 
@@ -99,7 +99,7 @@ void daq_v792_v1290_word(int nevt = 3000)
 
     // Fill TDC Tree
     nword_tdc = 0;
-    for (int i = 0; i < 32; i++) {
+    for (int i = 0; i < 512; i++) {
       tdc_word[i] = -999;
     }
 
@@ -111,7 +111,7 @@ void daq_v792_v1290_word(int nevt = 3000)
 
     // Fill ADC Tree
     nword_adc = 0;
-    for (int i = 0; i < 32; i++) {
+    for (int i = 0; i < 512; i++) {
       adc_word[i] = -999;
     }
 
