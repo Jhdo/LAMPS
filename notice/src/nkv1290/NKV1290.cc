@@ -191,7 +191,7 @@ unsigned long NKV1290::TDCRead_Buffer(int devnum, unsigned long mid, unsigned lo
 
 
 // Testing data buffer addr approaching 
-unsigned long NKV1290::TDCRead_Buffer_Test(int devnum, unsigned long mid, unsigned long *words)
+unsigned long NKV1290::TDCRead_Buffer_MEB(int devnum, unsigned long mid, unsigned long *words)
 {
   if (fDebug) cout << "Reading TDC Data" << endl;
   unsigned long baseaddr;

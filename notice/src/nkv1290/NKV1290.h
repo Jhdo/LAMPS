@@ -75,7 +75,7 @@ class NKV1290 : public NK6UVMEROOT
   void TDCSet_Subtract_TriggerTime(int devnum, unsigned long mid, int v); // Write Control Reg
   void TDCSet_HeaderTrailer(int devnum, unsigned long mid, int v);
   unsigned long TDCRead_Buffer(int devnum, unsigned long mid, unsigned long *words);
-  unsigned long TDCRead_Buffer_Test(int devnum, unsigned long mid, unsigned long *words);
+  unsigned long TDCRead_Buffer_MEB(int devnum, unsigned long mid, unsigned long *words);
   unsigned long TDCRead_NW(int devnum, unsigned long mid); // Get Number of Words in Buffer
   unsigned long TDCRead_EVTID(int devnum, unsigned long mid);
   unsigned long TDCRead_Event_Stored(int devnum, unsigned long mid); // Get Number of Events in Buffer
