@@ -311,7 +311,7 @@ unsigned long NKV792::ADCRead_Buffer(int devnum, unsigned long mid, unsigned lon
 
     if (ADC_IsValidData(words[i/4]) == 0) {
       if (fDebug) cout << "v792 Met End of data block" << endl;
-      if (fDebug) cout << "NW : " << nw_data << endl;
+      if (fDebug) cout << "NW ADC : " << nw_data << endl;
       return nw_data;
     }
 
