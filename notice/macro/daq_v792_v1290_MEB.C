@@ -34,16 +34,15 @@ void daq_v792_v1290_MEB(int nevt = 3000)
   double tdc[32] = {-999,};
   int tdc_ch[32] = {-999,};
   long triggerID_tdc = -999;
-  long eventID_tdc = -999;
+  long EventNumber = 0;
   int nadc = -999;
   long adc[32] = {-999,};
   int adc_ch[32] = {-999,};
   long triggerID_adc = -999;
-  long eventID_adc = -999;
   long unix_time = -999;
   int nevt_buffer_adc = -999;
   int nevt_buffer_tdc = -999;
-  int tdc_nevt_clear = 600; // Maximum number of event in tdc buffer (32k words)
+  //int tdc_nevt_clear = 600; // Maximum number of event in tdc buffer (32k words)
 
   TDCEvent tdc_data_arr[buffer_evt];
   ADCEvent adc_data_arr[buffer_evt];
@@ -62,12 +61,11 @@ void daq_v792_v1290_MEB(int nevt = 3000)
   tree_out->Branch("tdc", tdc, "tdc[ntdc]/D");
   tree_out->Branch("tdc_ch", tdc_ch, "tdc_ch[ntdc]/I");
   tree_out->Branch("triggerID_tdc", &triggerID_tdc, "triggerID_tdc/L");
-  tree_out->Branch("eventID_tdc", &eventID_tdc, "eventID_tdc/L");
   tree_out->Branch("nadc", &nadc);
   tree_out->Branch("adc", adc, "adc[nadc]/L");
   tree_out->Branch("adc_ch", adc_ch, "adc_ch[nadc]/I");
   tree_out->Branch("triggerID_adc", &triggerID_adc, "triggerID_adc/L");
-  tree_out->Branch("eventID_adc", &eventID_adc, "eventID_adc/L");
+  tree_out->Branch("EventNumber", &EventNumber, "EventNumber/L");
   tree_out->Branch("unix_time", &unix_time, "unix_time/L");
   tree_out->Branch("nevt_buffer_tdc", &nevt_buffer_tdc, "nevt_buffer_tdc/I");
   tree_out->Branch("nevt_buffer_adc", &nevt_buffer_adc, "nevt_buffer_adc/I");
@@ -96,8 +94,7 @@ void daq_v792_v1290_MEB(int nevt = 3000)
       int evt_count_tdc = tdc_module->TDCRead_Event_Stored(devnum, moduleID_tdc);
       cout << "Buffer Clearing : " << evt_count_tdc << endl;
       // Check if tdc memory is empty if not, clear again, if trigger rate is about 8khz or larger, it may need few trial
-      if (evt_count_tdc == 0)
-        break;
+      if (evt_count_tdc == 0) break;
       cout << "TDC buffer is not empty, Retrying Clear.." << endl;
     }
 
@@ -117,7 +114,7 @@ void daq_v792_v1290_MEB(int nevt = 3000)
     unsigned long words_tdc[2048];
     unsigned long words_adc[2048];
 
-    unsigned long nw_tdc = tdc_module->TDCRead_Buffer_Test(devnum, moduleID_tdc, words_tdc);
+    unsigned long nw_tdc = tdc_module->TDCRead_Buffer_MEB(devnum, moduleID_tdc, words_tdc);
     unsigned long nw_adc = adc_module->ADCRead_Buffer(devnum, moduleID_adc, words_adc);
 
     auto elapsed = std::chrono::high_resolution_clock::now() - start;
@@ -162,7 +159,6 @@ void daq_v792_v1290_MEB(int nevt = 3000)
       }
 
       triggerID_tdc = -999;
-      eventID_tdc = -999;
       ntdc = -999;
 
       ntdc = tdc_data_arr[ievt].ntdc;
@@ -174,7 +170,6 @@ void daq_v792_v1290_MEB(int nevt = 3000)
       }
 
       triggerID_tdc = tdc_data_arr[ievt].TriggerID;
-      eventID_tdc = (int)tdc_data_arr[ievt].EventNumber;
       //triggerID_tdc = (long) tdc_module->TDCRead_EventCounter(devnum, moduleID_tdc);
 
       // Filling ADC Tree
@@ -183,7 +178,6 @@ void daq_v792_v1290_MEB(int nevt = 3000)
         adc_ch[ih] = -999;
       }
       triggerID_adc = -999;
-      eventID_adc = -999;
       nadc = -999;
 
       nadc = adc_data_arr[ievt].nadc;
@@ -201,6 +195,8 @@ void daq_v792_v1290_MEB(int nevt = 3000)
       unix_time = std::time(0);
 
       tree_out->Fill();
+
+      EventNumber += 1;
 
       //adc_data_arr[ievt].reset();
       //tdc_data_arr[ievt].reset();
