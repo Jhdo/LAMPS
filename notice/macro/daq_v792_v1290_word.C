@@ -96,23 +96,25 @@ void daq_v792_v1290_word(int nevt = 3000)
     std::cout << "Elapsed time 1 : " << microseconds << " micro seconds" << std::endl;
 
     // Fill TDC Tree
-    nword_tdc = -999;
+    nword_tdc = 0;
     for (int i = 0; i < 32; i++) {
       tdc_word[i] = -999;
     }
 
     nword_tdc = (int) nw_tdc;
+    cout << "TDC Valid NWord : " << nword_tdc << endl;
     for (int iw = 0; iw < nw_tdc; iw++) {
       tdc_word[iw] = (long) words_tdc[iw];
     }
 
     // Fill ADC Tree
-    nword_adc = -999;
+    nword_adc = 0;
     for (int i = 0; i < 32; i++) {
       adc_word[i] = -999;
     }
 
     nword_adc = (int) nw_adc;
+    cout << "ADC Valid NWord : " << nword_adc << endl;
     for (int iw = 0; iw < nw_adc; iw++) {
       adc_word[iw] = (long) words_adc[iw];
     }
