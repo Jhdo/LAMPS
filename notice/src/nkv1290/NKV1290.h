@@ -45,13 +45,11 @@ class TDCEvent
   unsigned long EventNumber;
   unsigned long tdc[32];
   unsigned long tdc_ch[32];
-  unsigned long tdc_err;
   unsigned long ntdc; // Number of data words (Expect 2)
 
   void reset() {
     TriggerID = -999;
     EventNumber = -999;
-    tdc_err = -999;
     ntdc = 0;
     for (int i = 0; i < 32; i++){
       tdc[i] = -999;
