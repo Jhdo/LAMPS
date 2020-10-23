@@ -196,6 +196,8 @@ void daq_v792_v1290_MEB(int nevt = 3000)
 
       tree_out->Fill();
 
+      //if (icycle%100 == 0) tree_out->Write();
+
       EventNumber += 1;
 
       //adc_data_arr[ievt].reset();
