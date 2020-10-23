@@ -197,6 +197,7 @@ unsigned long NKV1290::TDCRead_Buffer_MEB(int devnum, unsigned long mid, unsigne
   unsigned long baseaddr;
   unsigned long i;
   unsigned long addr;
+  unsigned long nw_data = 0;
   unsigned long nw_read = v1290_READOUT_SIZE; // Number of words
   unsigned char rdat[4096];
   unsigned long rdat_32bit[4096];
@@ -233,6 +234,7 @@ unsigned long NKV1290::TDCRead_Buffer_MEB(int devnum, unsigned long mid, unsigne
   VMEblockread(devnum, A32D32, 100, addr, 4*nw_read, rdat);
   
   // Decoding Words : 32bit
+  
   for (i = 0; i < 4*nw_read - 3; i=i+4) {
     rdat_32bit[i+3] = (rdat[i+3] & 0xFF) << 24;
     rdat_32bit[i+2] = (rdat[i+2] & 0xFF) << 16;
@@ -251,9 +253,38 @@ unsigned long NKV1290::TDCRead_Buffer_MEB(int devnum, unsigned long mid, unsigne
 //    cout << bitset<32>(rdat_32bit[i+1]) << endl;
 //   cout << bitset<32>(rdat_32bit[i]) << endl;
 //    cout << "Data word " << bitset<32>(words[i]) << endl;
+
+    if (TDC_IsValidData(words[i/4]) == 0) {
+      if (fDebug) cout << "v1290 Met End of data block" << endl;
+      if (fDebug) cout << "NW TDC : " << nw_data << endl;
+      return nw_data;
+    }
+
+    if (TDC_IsValidData(words[i/4]) == 1) nw_data++;
   }
 
-  return nw_read;
+  return nw_data;
+}
+
+
+int NKV1290::TDC_IsValidData(unsigned long word)
+{
+  int ret = -1;
+  string type_name[7] = {"TDC Data", "TDC Header", "TDC Trailer", "TDC Global Header",  "TDC Error", "TDC Global Trailer", "Filler"};
+  int type = -1;
+  unsigned long type_code = (word >> 27) & 0x1F;
+  if (type_code == 0x0) type = 0;
+  else if (type_code == 0x1) type = 1;
+  else if (type_code == 0x3) type = 2;
+  else if (type_code == 0x8) type = 3;
+  else if (type_code == 0x4) type = 4;
+  else if (type_code == 0x10) type = 5;
+  else if (type_code == 24) type = 6;
+
+  if (type == 0 || type == 1 || type == 2 || type == 3 || type == 4 || type == 5) ret = 1;
+  else if (type == 6) ret = 0;
+
+  return ret;
 }
 
 
