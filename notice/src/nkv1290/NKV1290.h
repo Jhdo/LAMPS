@@ -83,6 +83,8 @@ class NKV1290 : public NK6UVMEROOT
   unsigned long TDCRead_Control(int devnum, unsigned long mid); // Read Control Reg
   unsigned long TDCRead_FIFO_Stored(int devnum, unsigned long mid); // Get Number of Events in FIFO
   unsigned long TDCRead_EventCounter(int devnum, unsigned long mid);
+  int TDC_IsValidData(unsigned long word);
+
   
   int TDCWrite_Opcode(int devnum, unsigned long mid, int nw, unsigned short *words);
 
