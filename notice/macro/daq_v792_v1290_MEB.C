@@ -42,6 +42,7 @@ void daq_v792_v1290_MEB(int nevt = 3000)
   long unix_time = -999;
   int nevt_buffer_adc = -999;
   int nevt_buffer_tdc = -999;
+  int tdc_buffer = 0;
   //int tdc_nevt_clear = 600; // Maximum number of event in tdc buffer (32k words)
 
   TDCEvent tdc_data_arr[buffer_evt];
@@ -70,17 +71,20 @@ void daq_v792_v1290_MEB(int nevt = 3000)
   tree_out->Branch("nevt_buffer_tdc", &nevt_buffer_tdc, "nevt_buffer_tdc/I");
   tree_out->Branch("nevt_buffer_adc", &nevt_buffer_adc, "nevt_buffer_adc/I");
 
+  std::cout << "Starting v1290..." << std::endl;
   NKV1290 *tdc_module = new NKV1290();
   tdc_module->VMEopen(devnum);
-
-  std::cout << "Starting v1290..." << std::endl;
   tdc_module->TDCInit(devnum, moduleID_tdc, 1);
 
   std::cout << "Starting v792..." << std::endl;
   NKV792 *adc_module = new NKV792();
   //adc_module->ADC_SoftReset(devnum, moduleID_adc);
   adc_module->ADCInit(devnum, moduleID_adc);
-  int tdc_buffer = 0;
+
+  //Resetting Both Trigger count
+  tdc_module->TDCClear_Buffer(devnum, moduleID_tdc);
+  adc_module->ADCReset_TriggerCounter(devnum, moduleID_adc);
+  
   std::cout << "TDC Module Initialized" << std::endl;
   std::cout << "ADC Module Initialized" << std::endl;
 
