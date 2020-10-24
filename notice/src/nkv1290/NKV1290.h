@@ -29,6 +29,7 @@
 #define v1290_ADDR_MICRO 0x102E
 #define v1290_ADDR_MICRO_HS 0x1030
 #define v1290_ADDR_CONTROL 0x1000
+#define v1290_ADDR_ALMOST_FULL_LEVEL 0x1022
 
 // Parameters
 #define v1290_TM_WIDTH 0x0008 // 8 (0x0014 default) 25ns per 1
@@ -74,6 +75,7 @@ class NKV1290 : public NK6UVMEROOT
   void TDCWrite_Control(int devnum, unsigned long mid, unsigned long word); // Write Control Reg
   void TDCSet_Subtract_TriggerTime(int devnum, unsigned long mid, int v); // Write Control Reg
   void TDCSet_HeaderTrailer(int devnum, unsigned long mid, int v);
+  void TDCSet_AlmostFullLevel(int devnum, unsigned long mid, unsigned short v);
   unsigned long TDCRead_Buffer(int devnum, unsigned long mid, unsigned long *words);
   unsigned long TDCRead_Buffer_MEB(int devnum, unsigned long mid, unsigned long *words);
   unsigned long TDCRead_NW(int devnum, unsigned long mid); // Get Number of Words in Buffer
