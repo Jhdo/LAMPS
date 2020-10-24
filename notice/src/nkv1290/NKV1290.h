@@ -34,6 +34,8 @@
 // Parameters
 #define v1290_TM_WIDTH 0x0008 // 8 (0x0014 default) 25ns per 1
 #define v1290_TM_OFFSET 0xFFF7 // -8 (signed short) 25ns per 1
+#define v1290_TM_EXTRA_SEARCH 0x0
+#define v1290_TM_REJECT_MARGIN 0x0
 #define v1290_READOUT_SIZE 256 // Read data buffer (doesn't matter with its contents) and check if it  contains EOB word if not, repeat readout
 
 //#include "Notice6UVME.h"
@@ -72,10 +74,12 @@ class NKV1290 : public NK6UVMEROOT
   void TDCClear_Buffer(int devnum, unsigned long mid);
   void TDCSet_TM_Width(int devnum, unsigned long mid, unsigned short wd);
   void TDCSet_TM_Offset(int devnum, unsigned long mid, short os);
+  void TDCSet_TM_ExtraSearch(int devnum, unsigned long mid, unsigned short wd);
+  void TDCSet_TM_RejectMargin(int devnum, unsigned long mid, unsigned short wd);
   void TDCWrite_Control(int devnum, unsigned long mid, unsigned long word); // Write Control Reg
   void TDCSet_Subtract_TriggerTime(int devnum, unsigned long mid, int v); // Write Control Reg
   void TDCSet_HeaderTrailer(int devnum, unsigned long mid, int v);
-  void TDCSet_AlmostFullLevel(int devnum, unsigned long mid, unsigned short v);
+  void TDCSet_AlmostFullLevel(int devnum, unsigned long mid, unsigned short v); // Set Max NWord in buffer before warning
   unsigned long TDCRead_Buffer(int devnum, unsigned long mid, unsigned long *words);
   unsigned long TDCRead_Buffer_MEB(int devnum, unsigned long mid, unsigned long *words);
   unsigned long TDCRead_NW(int devnum, unsigned long mid); // Get Number of Words in Buffer
