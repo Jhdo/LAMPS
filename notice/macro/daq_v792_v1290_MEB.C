@@ -89,16 +89,11 @@ void daq_v792_v1290_MEB(int nevt = 3000)
   std::cout << "TDC Module Initialized" << std::endl;
   std::cout << "ADC Module Initialized" << std::endl;
 
+  long TriggerID_Offset = 0;
   for (int icycle = 0; icycle < nevt; icycle++) {
     std::cout << "Event Process Cycle : " << icycle << ", Event Taken : " << evt_taken << std::endl;
     cout << "TDC buffer " << tdc_buffer << endl;
     // Saving TriggerID offset before mem clear (only in bunch mode)
-    long TriggerID_Offset = 0;
-    if (BunchMode == 1) {
-      unsigned long TrID_adc = (unsigned long) adc_module->ADCRead_TriggerCounter(devnum, moduleID_adc);
-      unsigned long TrID_tdc = (unsigned long) tdc_module->TDCRead_EventCounter(devnum, moduleID_tdc);
-      TriggerID_Offset = TrID_adc - TrID_tdc;
-    }
     // Memory Buffer Clear
     int TDC_BufferClear = 1;
     if (BunchMode == 1) {
@@ -106,6 +101,12 @@ void daq_v792_v1290_MEB(int nevt = 3000)
       int TDCAlmostFull = 0;
       if (((stat_tdc >> 1) & 0x1) == 1) TDCAlmostFull = 1;
       if (TDCAlmostFull == 0) TDC_BufferClear = 0;
+    }
+
+    if (BunchMode == 1 && TDC_BufferClear == 1) {
+      unsigned long TrID_adc = (unsigned long) adc_module->ADCRead_TriggerCounter(devnum, moduleID_adc);
+      unsigned long TrID_tdc = (unsigned long) tdc_module->TDCRead_EventCounter(devnum, moduleID_tdc);
+      TriggerID_Offset = TrID_adc - TrID_tdc;
     }
 
     while (TDC_BufferClear == 1) {
