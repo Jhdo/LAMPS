@@ -46,12 +46,12 @@ void NKV792::ADCInit(int devnum, unsigned long mid)
   // Pedestal is recommended to set larger than 60, see manual p16
   ADCSet_Pedestal(devnum, mid, v792_PED);
   
+  ADCSet_AllowEmptyEvent(devnum, mid, 1);
+
   ADCClear_Buffer(devnum, mid);
-  
+
   ADCReset_TriggerCounter(devnum, mid);
 
-  ADCSet_AllowEmptyEvent(devnum, mid, 1);
-  
   return;
 }
 
