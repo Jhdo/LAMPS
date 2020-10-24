@@ -27,6 +27,7 @@ void daq_v792_v1290_word(int nevt = 3000)
 
   int devnum = 0; // Dev. Mount number in linux
   long evt_taken = 0;
+  int tdc_buffer = 0;
 
   // Tree Branches
   int nword_tdc = 0;
@@ -45,17 +46,20 @@ void daq_v792_v1290_word(int nevt = 3000)
   tree_out->Branch("adc_word", adc_word, "adc_word[nword_adc]/L");
   tree_out->Branch("unix_time", &unix_time, "unix_time/L");
 
+  std::cout << "Starting v1290..." << std::endl;
   NKV1290 *tdc_module = new NKV1290();
   tdc_module->VMEopen(devnum);
-
-  std::cout << "Starting v1290..." << std::endl;
   tdc_module->TDCInit(devnum, moduleID_tdc, 1);
 
   std::cout << "Starting v792..." << std::endl;
   NKV792 *adc_module = new NKV792();
   //adc_module->ADC_SoftReset(devnum, moduleID_adc);
   adc_module->ADCInit(devnum, moduleID_adc);
-  int tdc_buffer = 0;
+
+  //Resetting Both Trigger count
+  tdc_module->TDCClear_Buffer(devnum, moduleID_tdc);
+  adc_module->ADCReset_TriggerCounter(devnum, moduleID_adc);
+
   std::cout << "TDC Module Initialized" << std::endl;
   std::cout << "ADC Module Initialized" << std::endl;
 
