@@ -76,10 +76,10 @@ void NKV1290::TDCInit(int devnum, unsigned long mid, int ReadOutMode)
 
   TDCSet_HeaderTrailer(devnum, mid, 0); // Disable TDC Header/Trailer in data buffer
 
+  // Call clear_buffer at last line (it reset trigger count)
   TDCClear_Buffer(devnum, mid);
-// opcd[0]=0x3100; // Disable TDC Header/Trailer
-// TDCWrite_Opcode(devnum, mid, 1, opcode)
-  cout << "Done" << endl;
+
+  cout << "TDC Init Done" << endl;
 
   return;
 }
