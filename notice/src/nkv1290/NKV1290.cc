@@ -46,6 +46,30 @@ void NKV1290::TDCSet_TM_Offset(int devnum, unsigned long mid, signed short os)
 }
 
 
+void NKV1290::TDCSet_TM_ExtraSearch(int devnum, unsigned long mid, unsigned short wd)
+{
+  unsigned short opcode[10];
+
+  opcode[0]=0x1200; opcode[1]= (wd & 0xFFFF);
+  
+  TDCWrite_Opcode(devnum, mid, 2, opcode);
+
+  return;
+}
+
+
+void NKV1290::TDCSet_TM_RejectMargin(int devnum, unsigned long mid, unsigned short wd)
+{
+  unsigned short opcode[10];
+
+  opcode[0]=0x1300; opcode[1]= (wd & 0xFFFF);
+  
+  TDCWrite_Opcode(devnum, mid, 2, opcode);
+
+  return;
+}
+
+
 void NKV1290::TDCInit(int devnum, unsigned long mid, int ReadOutMode)
 {
   cout << "Initializing v1290.." << endl;
@@ -71,6 +95,10 @@ void NKV1290::TDCInit(int devnum, unsigned long mid, int ReadOutMode)
 
   // Trigger matching Window offset
   TDCSet_TM_Offset(devnum, mid, v1290_TM_OFFSET);
+
+  TDCSet_TM_ExtraSearch(devnum, mid, v1290_TM_EXTRA_SEARCH);
+
+  TDCSet_TM_RejectMargin(devnum, mid, v1290_TM_REJECT_MARGIN);
 
   TDCSet_Subtract_TriggerTime(devnum, mid, 1);
 
