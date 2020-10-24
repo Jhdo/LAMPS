@@ -76,6 +76,8 @@ void NKV1290::TDCInit(int devnum, unsigned long mid, int ReadOutMode)
 
   TDCSet_HeaderTrailer(devnum, mid, 0); // Disable TDC Header/Trailer in data buffer
 
+  TDCSet_AlmostFullLevel(devnum, mid, 30000);
+
   // Call clear_buffer at last line (it reset trigger count)
   TDCClear_Buffer(devnum, mid);
 
@@ -108,6 +110,20 @@ void NKV1290::TDCSet_HeaderTrailer(int devnum, unsigned long mid, int v)
   else if (v == 0) opcode[0] = 0x3100; // Disable
 
   TDCWrite_Opcode(devnum, mid, 1, opcode);
+
+  return;
+}
+
+
+void NKV1290::TDCSet_AlmostFullLevel(int devnum, unsigned long mid, unsigned short v)
+{
+  unsigned long baseaddr;
+
+  baseaddr = (mid & 0xFFFF) << 16;
+
+  unsigned long addr = baseaddr + v1290_ADDR_ALMOST_FULL_LEVEL;
+
+  VMEwrite(devnum, A32D16, 100, addr, v);
 
   return;
 }
