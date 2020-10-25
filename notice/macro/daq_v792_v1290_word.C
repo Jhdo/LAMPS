@@ -25,6 +25,7 @@ void daq_v792_v1290_word(int nevt = 3000)
 {
   std::signal(SIGINT, sigint_handler);
 
+  int BunchMode = 0; // 0 : Continueous beam, 1 : Bunch-like beam
   int devnum = 0; // Dev. Mount number in linux
   long evt_taken = 0;
   int tdc_buffer = 0;
@@ -63,9 +64,22 @@ void daq_v792_v1290_word(int nevt = 3000)
   std::cout << "TDC Module Initialized" << std::endl;
   std::cout << "ADC Module Initialized" << std::endl;
 
+  long TriggerID_Offset = 0;
   for (int icycle = 0; icycle < nevt; icycle++) {
     std::cout << "Event Process Cycle : " << icycle << std::endl;
-    while (true) {
+    int TDC_BufferClear = 1;
+    if (BunchMode == 1) {
+      int TDCAlmostFull = tdc_module->TDC_IsAlmostFull(devnum, moduleID_tdc);
+      if (TDCAlmostFull == 0) TDC_BufferClear = 0;
+    }
+
+    if (BunchMode == 1 && TDC_BufferClear == 1) {
+      unsigned long TrID_adc = (unsigned long) adc_module->ADCRead_TriggerCounter(devnum, moduleID_adc);
+      unsigned long TrID_tdc = (unsigned long) tdc_module->TDCRead_EventCounter(devnum, moduleID_tdc);
+      TriggerID_Offset = TrID_adc - TrID_tdc;
+    }
+
+    while (TDC_BufferClear == 1) {
       tdc_buffer = 0;
       tdc_module->TDCClear_Buffer(devnum, moduleID_tdc);
       adc_module->ADCClear_Buffer(devnum, moduleID_adc);
@@ -75,6 +89,8 @@ void daq_v792_v1290_word(int nevt = 3000)
       if (evt_count_tdc == 0) break;
       cout << "TDC buffer is not empty, Retrying Clear.." << endl;
     }
+    
+    if (TDC_BufferClear == 0) adc_module->ADCClear_Buffer(devnum, moduleID_adc);
 
     int itry = 0;
     while (true) {
