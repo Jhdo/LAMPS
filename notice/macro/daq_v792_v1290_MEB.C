@@ -97,9 +97,7 @@ void daq_v792_v1290_MEB(int nevt = 3000)
     // Memory Buffer Clear
     int TDC_BufferClear = 1;
     if (BunchMode == 1) {
-      unsigned long stat_tdc = tdc_module->TDCRead_Status(devnum, moduleID_tdc);
-      int TDCAlmostFull = 0;
-      if (((stat_tdc >> 1) & 0x1) == 1) TDCAlmostFull = 1;
+      int TDCAlmostFull = tdc_module->TDC_IsAlmostFull(devnum, moduleID_tdc);
       if (TDCAlmostFull == 0) TDC_BufferClear = 0;
     }
 
