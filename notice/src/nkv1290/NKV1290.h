@@ -90,14 +90,11 @@ class NKV1290 : public NK6UVMEROOT
   unsigned long TDCRead_FIFO_Stored(int devnum, unsigned long mid); // Get Number of Events in FIFO
   unsigned long TDCRead_EventCounter(int devnum, unsigned long mid);
   int TDC_IsValidData(unsigned long word);
-
-  
+  int TDC_IsAlmostFull(int devnum, unsigned long mid);
   int TDCWrite_Opcode(int devnum, unsigned long mid, int nw, unsigned short *words);
 
   const int fDebug = 0; 
   int fReadOutMode;
-  // const unsigned short v1290_TM_WIDTH = 20; //20(default) // Trigger matching window width (each step is 25ns)
-  // const signed short v1290_TM_OFFSET = -40; //-40(default) // Trigger matching window offset
 
   ClassDef(NKV1290, 1)
 };
