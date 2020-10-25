@@ -333,6 +333,18 @@ int NKV1290::TDC_IsValidData(unsigned long word)
 }
 
 
+int NKV1290::TDC_IsAlmostFull(int devnum, unsigned long mid)
+{
+  int ret = 0;
+
+  unsigned long stat_tdc = TDCRead_Status(devnum, mid);
+
+  if (((stat_tdc >> 1) & 0x1) == 1) ret = 1;
+
+  return ret;
+}
+
+
 unsigned long NKV1290::TDCRead_EventCounter(int devnum, unsigned long mid)
 {
   unsigned long baseaddr;
