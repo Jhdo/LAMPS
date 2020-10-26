@@ -81,7 +81,8 @@ void NKV1290::TDCInit(int devnum, unsigned long mid, int ReadOutMode)
 
   //cout << "Control bit : " << std::hex << control << endl;
 
-  TDCWrite_Control(devnum, mid, control);
+  // Enable Event FIFO
+  //TDCWrite_Control(devnum, mid, control);
 
   unsigned short opcode[10];
 
@@ -338,6 +339,8 @@ int NKV1290::TDC_IsAlmostFull(int devnum, unsigned long mid)
   int ret = 0;
 
   unsigned long stat_tdc = TDCRead_Status(devnum, mid);
+
+  cout << "Status bit : " << bitset<32>(stat_tdc) << endl;
 
   if (((stat_tdc >> 1) & 0x1) == 1) ret = 1;
 
