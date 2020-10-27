@@ -25,7 +25,7 @@ void daq_v792_v1290_MEB(int nevt = 3000)
 {
   std::signal(SIGINT, sigint_handler);
 
-  int BunchMode = 0; // - : Continueous beam, 1 : Bunch-like beam
+  int BunchMode = 0; // 0 : Continueous beam, 1 : Bunch-like beam
   int devnum = 0; // Dev. Mount number in linux
 
   const int buffer_evt = v792_NEVENT_BUFFER + 10;
