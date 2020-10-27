@@ -109,16 +109,16 @@ void daq_v792_v1290_MEB(int nevt = 15000)
       TriggerID_Offset = TrID_adc - TrID_tdc;
     }
 
-//    while (TDC_BufferClear == 1) {
-//      tdc_buffer = 0;
-      //tdc_module->TDCClear_Buffer(devnum, moduleID_tdc);
-      //adc_module->ADCClear_Buffer(devnum, moduleID_adc);
-//      int evt_count_tdc = tdc_module->TDCRead_Event_Stored(devnum, moduleID_tdc);
-//      cout << "Buffer Clearing : " << evt_count_tdc << endl;
+    while (icycle == 1) {
+      tdc_buffer = 0;
+      tdc_module->TDCClear_Buffer(devnum, moduleID_tdc);
+      adc_module->ADCClear_Buffer(devnum, moduleID_adc);
+      int evt_count_tdc = tdc_module->TDCRead_Event_Stored(devnum, moduleID_tdc);
+      cout << "Buffer Clearing : " << evt_count_tdc << endl;
       // Check if tdc memory is empty if not, clear again, if trigger rate is about 8khz or larger, it may need few trial
-//      if (evt_count_tdc == 0) break;
-//      cout << "TDC buffer is not empty, Retrying Clear.." << endl;
-//    }
+      if (evt_count_tdc == 0) break;
+      cout << "TDC buffer is not empty, Retrying Clear.." << endl;
+    }
     
 //    if (TDC_BufferClear == 0) adc_module->ADCClear_Buffer(devnum, moduleID_adc);
    
@@ -195,7 +195,13 @@ void daq_v792_v1290_MEB(int nevt = 15000)
         //	          cout <<"Test TDC : " << tdc[ih] << " " << tdc_ch[ih] << endl;
       }
 
-      triggerID_tdc = tdc_data_arr[ievt].TriggerID; + TriggerID_Offset;
+      if (BunchMode == 0 && icycle == 1 && ievt == 0) TriggerID_Offset = adc_data_arr[ievt].TriggerID - tdc_data_arr[ievt].TriggerID;
+
+      cout << "Ref TrOffset " << TriggerID_Offset << endl;
+      cout << "Evt " << ievt << " trID offset : " << adc_data_arr[ievt].TriggerID - tdc_data_arr[ievt].TriggerID << endl;
+
+      triggerID_tdc = tdc_data_arr[ievt].TriggerID + TriggerID_Offset;
+
       //triggerID_tdc = (long) tdc_module->TDCRead_EventCounter(devnum, moduleID_tdc);
 
       // Filling ADC Tree
