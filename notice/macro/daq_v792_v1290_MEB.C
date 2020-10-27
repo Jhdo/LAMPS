@@ -25,7 +25,7 @@ void daq_v792_v1290_MEB(int nevt = 15000)
 {
   std::signal(SIGINT, sigint_handler);
 
-  int BunchMode = 1; // - : Continueous beam, 1 : Bunch-like beam
+  int BunchMode = 0; // - : Continueous beam, 1 : Bunch-like beam
   int devnum = 0; // Dev. Mount number in linux
 
   const int buffer_evt = v792_NEVENT_BUFFER + 10;
@@ -58,7 +58,7 @@ void daq_v792_v1290_MEB(int nevt = 15000)
 
   TFile *file_out = new TFile("AnaResult.root", "Recreate");
   TTree *tree_out = new TTree("tree_out", "tdc_tree");
-  tree_out->SetAutoFlush(100000);
+  tree_out->SetAutoFlush(1000000);
   tree_out->Branch("ntdc", &ntdc);
   tree_out->Branch("tdc", tdc, "tdc[ntdc]/D");
   tree_out->Branch("tdc_ch", tdc_ch, "tdc_ch[ntdc]/I");
@@ -96,31 +96,31 @@ void daq_v792_v1290_MEB(int nevt = 15000)
     cout << "TDC buffer " << tdc_buffer << endl;
     // Saving TriggerID offset before mem clear (only in bunch mode)
     // Memory Buffer Clear
-    int TDC_BufferClear = 1;
-    if (BunchMode == 1) {
-      int TDCAlmostFull = tdc_module->TDC_IsAlmostFull(devnum, moduleID_tdc);
-      cout <<"AlmostFull " << TDCAlmostFull << endl;
-      if (TDCAlmostFull == 0) TDC_BufferClear = 0;
-    }
+//    int TDC_BufferClear = 1;
+//    if (BunchMode == 1) {
+//      int TDCAlmostFull = tdc_module->TDC_IsAlmostFull(devnum, moduleID_tdc);
+//      cout <<"AlmostFull " << TDCAlmostFull << endl;
+//      if (TDCAlmostFull == 0) TDC_BufferClear = 0;
+//    }
 
-    if (BunchMode == 1 && TDC_BufferClear == 1) {
+    if (BunchMode == 1) {
       unsigned long TrID_adc = (unsigned long) adc_module->ADCRead_TriggerCounter(devnum, moduleID_adc);
       unsigned long TrID_tdc = (unsigned long) tdc_module->TDCRead_EventCounter(devnum, moduleID_tdc);
       TriggerID_Offset = TrID_adc - TrID_tdc;
     }
 
-    while (TDC_BufferClear == 1) {
-      tdc_buffer = 0;
+//    while (TDC_BufferClear == 1) {
+//      tdc_buffer = 0;
       //tdc_module->TDCClear_Buffer(devnum, moduleID_tdc);
       //adc_module->ADCClear_Buffer(devnum, moduleID_adc);
-      int evt_count_tdc = tdc_module->TDCRead_Event_Stored(devnum, moduleID_tdc);
-      cout << "Buffer Clearing : " << evt_count_tdc << endl;
+//      int evt_count_tdc = tdc_module->TDCRead_Event_Stored(devnum, moduleID_tdc);
+//      cout << "Buffer Clearing : " << evt_count_tdc << endl;
       // Check if tdc memory is empty if not, clear again, if trigger rate is about 8khz or larger, it may need few trial
-      if (evt_count_tdc == 0) break;
-      cout << "TDC buffer is not empty, Retrying Clear.." << endl;
-    }
+//      if (evt_count_tdc == 0) break;
+//      cout << "TDC buffer is not empty, Retrying Clear.." << endl;
+//    }
     
-    if (TDC_BufferClear == 0) adc_module->ADCClear_Buffer(devnum, moduleID_adc);
+//    if (TDC_BufferClear == 0) adc_module->ADCClear_Buffer(devnum, moduleID_adc);
    
     int itry = 0;
     while (true) {
