@@ -45,18 +45,18 @@ class TDCEvent
 {
  public:
   unsigned long TriggerID;
-  unsigned long EventNumber;
+  long EventNumber;
   unsigned long tdc[32];
   unsigned long tdc_ch[32];
   unsigned long ntdc; // Number of data words (Expect 2)
 
   void reset() {
-    TriggerID = -999;
+    TriggerID = 0;
     EventNumber = -999;
     ntdc = 0;
     for (int i = 0; i < 32; i++){
-      tdc[i] = -999;
-      tdc_ch[i] = -999;
+      tdc[i] = 0;
+      tdc_ch[i] = 0;
     }
   }
 };
