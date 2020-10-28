@@ -40,7 +40,7 @@ void daq_v792_v1290_word(int nevt = 3000)
 
   TFile *file_out = new TFile("AnaResultRaw.root", "Recreate");
   TTree *tree_out = new TTree("tree_out", "tdc_tree");
-  tree_out->SetAutoFlush(10000);
+  //tree_out->SetAutoFlush(1000000);
   tree_out->Branch("nword_tdc", &nword_tdc);
   tree_out->Branch("tdc_word", tdc_word, "tdc_word[nword_tdc]/L");
   tree_out->Branch("nword_adc", &nword_adc);
@@ -67,19 +67,14 @@ void daq_v792_v1290_word(int nevt = 3000)
   long TriggerID_Offset = 0;
   for (int icycle = 0; icycle < nevt; icycle++) {
     std::cout << "Event Process Cycle : " << icycle << std::endl;
-    int TDC_BufferClear = 1;
-    if (BunchMode == 1) {
-      int TDCAlmostFull = tdc_module->TDC_IsAlmostFull(devnum, moduleID_tdc);
-      if (TDCAlmostFull == 0) TDC_BufferClear = 0;
-    }
 
-    if (BunchMode == 1 && TDC_BufferClear == 1) {
+    if (BunchMode == 1 && icycle > 1) {
       unsigned long TrID_adc = (unsigned long) adc_module->ADCRead_TriggerCounter(devnum, moduleID_adc);
       unsigned long TrID_tdc = (unsigned long) tdc_module->TDCRead_EventCounter(devnum, moduleID_tdc);
       TriggerID_Offset = TrID_adc - TrID_tdc;
     }
 
-    while (TDC_BufferClear == 1) {
+    while (icycle == 1) {
       tdc_buffer = 0;
       tdc_module->TDCClear_Buffer(devnum, moduleID_tdc);
       adc_module->ADCClear_Buffer(devnum, moduleID_adc);
@@ -89,8 +84,6 @@ void daq_v792_v1290_word(int nevt = 3000)
       if (evt_count_tdc == 0) break;
       cout << "TDC buffer is not empty, Retrying Clear.." << endl;
     }
-    
-    if (TDC_BufferClear == 0) adc_module->ADCClear_Buffer(devnum, moduleID_adc);
 
     int itry = 0;
     while (true) {
