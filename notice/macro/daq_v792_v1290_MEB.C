@@ -223,7 +223,7 @@ void daq_v792_v1290_MEB(int nevt = 15000)
       tree_out->Fill();
       EventNumber += 1;
 
-      if (icycle%100 == 0) tree_out->Write();
+      //if (icycle%100 == 0) tree_out->Write();
       
       //adc_data_arr[ievt].reset();
       //tdc_data_arr[ievt].reset();
