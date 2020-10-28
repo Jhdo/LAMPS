@@ -195,10 +195,10 @@ void daq_v792_v1290_MEB(int nevt = 15000)
       if ((long) adc_data_arr[ievt + adc_index_correction].TriggerID < -900 || (long) tdc_data_arr[ievt + tdc_index_correction].TriggerID < -900) continue;
 
       cout << "Ref TrOffset " << TriggerID_Offset << endl;
-      cout << "Each TrID ADC : " << adc_data_arr[ievt + adc_index_correction].TriggerID << ", TDC : " << tdc_data_arr[ievt + tdc_index_correction].TriggerID << endl;
+      cout << "Each TrID ADC : " << (long) adc_data_arr[ievt + adc_index_correction].TriggerID << ", TDC : " << (long) tdc_data_arr[ievt + tdc_index_correction].TriggerID << endl;
       cout << "Evt " << ievt << " trID offset : " << adc_data_arr[ievt + adc_index_correction].TriggerID - tdc_data_arr[ievt + tdc_index_correction].TriggerID << endl;
 
-      triggerID_tdc = tdc_data_arr[ievt + tdc_index_correction].TriggerID + TriggerID_Offset;
+      triggerID_tdc = (long) tdc_data_arr[ievt + tdc_index_correction].TriggerID + TriggerID_Offset;
 
       // Filling ADC Tree
       for (int ih = 0; ih < 32; ih++) {
@@ -215,7 +215,7 @@ void daq_v792_v1290_MEB(int nevt = 15000)
       }
 
       nadc = adc_data_arr[ievt + adc_index_correction].nadc;
-      triggerID_adc = (int)adc_data_arr[ievt + adc_index_correction].TriggerID;
+      triggerID_adc = (long)adc_data_arr[ievt + adc_index_correction].TriggerID;
 
       unix_time = std::time(0);
 
