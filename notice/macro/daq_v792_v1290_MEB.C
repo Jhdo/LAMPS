@@ -192,8 +192,10 @@ void daq_v792_v1290_MEB(int nevt = 15000)
         tdc_ch[ih] = (int)tdc_data_arr[ievt + tdc_index_correction].tdc_ch[ih];
       }
 
+      if ((long) adc_data_arr[ievt + adc_index_correction].TriggerID < -900 || (long) tdc_data_arr[ievt + tdc_index_correction].TriggerID < -900) continue;
+
       cout << "Ref TrOffset " << TriggerID_Offset << endl;
-      cout << "Each TrID ADC : " << adc_data_arr[ievt + tdc_index_correction].TriggerID << ", TDC : " << tdc_data_arr[ievt + tdc_index_correction].TriggerID << endl;
+      cout << "Each TrID ADC : " << adc_data_arr[ievt + adc_index_correction].TriggerID << ", TDC : " << tdc_data_arr[ievt + tdc_index_correction].TriggerID << endl;
       cout << "Evt " << ievt << " trID offset : " << adc_data_arr[ievt + tdc_index_correction].TriggerID - tdc_data_arr[ievt + tdc_index_correction].TriggerID << endl;
 
       triggerID_tdc = tdc_data_arr[ievt + tdc_index_correction].TriggerID + TriggerID_Offset;
@@ -218,10 +220,8 @@ void daq_v792_v1290_MEB(int nevt = 15000)
       unix_time = std::time(0);
 
       // Fill Tree only when both tdc and adc are available
-      if (triggerID_adc > 0 && triggerID_tdc > 0) {
-        tree_out->Fill();
-        EventNumber += 1;
-      }
+      tree_out->Fill();
+      EventNumber += 1;
 
       if (icycle%100 == 0) tree_out->Write();
       
