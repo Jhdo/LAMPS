@@ -169,6 +169,7 @@ void daq_v792_v1290_MEB(int nevt = 15000)
     for (int ievt = 0; ievt < niter; ievt++) {
       // Sync offset correction, positive correction means adc event is late relative to tdc event
       // Positive -> adc should match with later tdc event
+      if (adc_data_arr[ievt].TriggerID == 0 || tdc_data_arr[ievt].TriggerID == 0) continue;
       int Sync_Correction = (adc_data_arr[ievt].TriggerID - tdc_data_arr[ievt].TriggerID) - TriggerID_Offset;
       int tdc_index_correction = 0;
       int adc_index_correction = 0;
@@ -192,7 +193,7 @@ void daq_v792_v1290_MEB(int nevt = 15000)
         tdc_ch[ih] = (int)tdc_data_arr[ievt + tdc_index_correction].tdc_ch[ih];
       }
 
-      if ((long) adc_data_arr[ievt + adc_index_correction].TriggerID < -900 || (long) tdc_data_arr[ievt + tdc_index_correction].TriggerID < -900) continue;
+      if (adc_data_arr[ievt + adc_index_correction].TriggerID == 0 || tdc_data_arr[ievt + tdc_index_correction].TriggerID == 0) continue;
 
       cout << "Ref TrOffset " << TriggerID_Offset << endl;
       cout << "Each TrID ADC : " << (long) adc_data_arr[ievt + adc_index_correction].TriggerID << ", TDC : " << (long) tdc_data_arr[ievt + tdc_index_correction].TriggerID << endl;
@@ -234,6 +235,12 @@ void daq_v792_v1290_MEB(int nevt = 15000)
     if (bStop) {
       std::cout << "terminated!" << std::endl;
       break;
+    }
+
+
+    for (int i = 0; i < buffer_evt; i++) {
+      tdc_data_arr[i].reset();
+      adc_data_arr[i].reset();
     }
 
     elapsed = std::chrono::high_resolution_clock::now() - start;
