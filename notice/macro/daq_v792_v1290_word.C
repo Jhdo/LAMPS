@@ -28,7 +28,6 @@ void daq_v792_v1290_word(int nevt = 3000)
   int BunchMode = 0; // 0 : Continueous beam, 1 : Bunch-like beam
   int devnum = 0; // Dev. Mount number in linux
   long evt_taken = 0;
-  int tdc_buffer = 0;
 
   // Tree Branches
   int nword_tdc = 0;
@@ -36,7 +35,6 @@ void daq_v792_v1290_word(int nevt = 3000)
   int nword_adc = 0;
   long adc_word[512] = {-999,};
   long unix_time = -999;
-  //int tdc_nevt_clear = 600; // Maximum number of event in tdc buffer (32k words)
 
   TFile *file_out = new TFile("AnaResultRaw.root", "Recreate");
   TTree *tree_out = new TTree("tree_out", "tdc_tree");
@@ -75,7 +73,6 @@ void daq_v792_v1290_word(int nevt = 3000)
     }
 
     while (icycle == 1) {
-      tdc_buffer = 0;
       tdc_module->TDCClear_Buffer(devnum, moduleID_tdc);
       adc_module->ADCClear_Buffer(devnum, moduleID_adc);
       int evt_count_tdc = tdc_module->TDCRead_Event_Stored(devnum, moduleID_tdc);
