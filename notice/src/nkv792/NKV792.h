@@ -32,19 +32,19 @@
 
 class ADCEvent{
  public:
-  unsigned long EventNumber;
+  long EventNumber;
   unsigned long TriggerID;
   unsigned long adc[32];
   unsigned long adc_ch[32];
   unsigned long nadc; // Number of data words (Expect 2)
 
   void reset() {
-    TriggerID = -999;
+    TriggerID = 0;
     EventNumber = -999;
     nadc = 0;
     for (int i = 0; i < 32; i++){
-      adc[i] = -999;
-      adc_ch[i] = -999;
+      adc[i] = 0;
+      adc_ch[i] = 0;
     }
   }
 };
