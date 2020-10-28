@@ -43,8 +43,6 @@ void daq_v792_v1290_MEB(int nevt = 15000)
   long unix_time = -999;
   int nevt_buffer_adc = -999;
   int nevt_buffer_tdc = -999;
-  int tdc_buffer = 0;
-  //int tdc_nevt_clear = 600; // Maximum number of event in tdc buffer (32k words)
 
   TDCEvent tdc_data_arr[buffer_evt];
   ADCEvent adc_data_arr[buffer_evt];
@@ -93,15 +91,6 @@ void daq_v792_v1290_MEB(int nevt = 15000)
   long TriggerID_Offset = 0;
   for (int icycle = 0; icycle < nevt; icycle++) {
     std::cout << "Event Process Cycle : " << icycle << ", Event Taken : " << evt_taken << std::endl;
-    cout << "TDC buffer " << tdc_buffer << endl;
-    // Saving TriggerID offset before mem clear (only in bunch mode)
-    // Memory Buffer Clear
-//    int TDC_BufferClear = 1;
-//    if (BunchMode == 1) {
-//      int TDCAlmostFull = tdc_module->TDC_IsAlmostFull(devnum, moduleID_tdc);
-//      cout <<"AlmostFull " << TDCAlmostFull << endl;
-//      if (TDCAlmostFull == 0) TDC_BufferClear = 0;
-//    }
 
     if (BunchMode == 1) {
       unsigned long TrID_adc = (unsigned long) adc_module->ADCRead_TriggerCounter(devnum, moduleID_adc);
@@ -110,7 +99,6 @@ void daq_v792_v1290_MEB(int nevt = 15000)
     }
 
     while (icycle == 1) {
-      tdc_buffer = 0;
       tdc_module->TDCClear_Buffer(devnum, moduleID_tdc);
       adc_module->ADCClear_Buffer(devnum, moduleID_adc);
       int evt_count_tdc = tdc_module->TDCRead_Event_Stored(devnum, moduleID_tdc);
@@ -120,8 +108,6 @@ void daq_v792_v1290_MEB(int nevt = 15000)
       cout << "TDC buffer is not empty, Retrying Clear.." << endl;
     }
     
-//    if (TDC_BufferClear == 0) adc_module->ADCClear_Buffer(devnum, moduleID_adc);
-   
     int itry = 0;
     while (true) {
       unsigned long stat_tdc = tdc_module->TDCRead_Status(devnum, moduleID_tdc);
@@ -186,9 +172,11 @@ void daq_v792_v1290_MEB(int nevt = 15000)
       int Sync_Correction = (adc_data_arr[ievt].TriggerID - tdc_data_arr[ievt].TriggerID) - TriggerID_Offset;
       int tdc_index_correction = 0;
       int adc_index_correction = 0;
-      // ADC-Late casd
+      // ADC-Late case
       if (Sync_Correction > 0) tdc_index_correction = Sync_Correction;
+      // TDC-Late case
       if (Sync_Correction < 0) adc_index_correction = -1*Sync_Correction;
+      
       // Fill TDC Tree
       for (int i = 0; i < 32; i++) {
         tdc[i] = -999;
@@ -199,19 +187,15 @@ void daq_v792_v1290_MEB(int nevt = 15000)
       ntdc = -999;
 
       ntdc = tdc_data_arr[ievt + tdc_index_correction].ntdc;
-      //	        cout << "Test NTDC " << ntdc << endl;
       for (int ih = 0; ih < ntdc; ih++) {
         tdc[ih] = (double)tdc_data_arr[ievt + tdc_index_correction].tdc[ih] / 40.;
         tdc_ch[ih] = (int)tdc_data_arr[ievt + tdc_index_correction].tdc_ch[ih];
-        //	          cout <<"Test TDC : " << tdc[ih] << " " << tdc_ch[ih] << endl;
       }
 
       cout << "Ref TrOffset " << TriggerID_Offset << endl;
       cout << "Evt " << ievt << " trID offset : " << adc_data_arr[ievt + tdc_index_correction].TriggerID - tdc_data_arr[ievt + tdc_index_correction].TriggerID << endl;
 
       triggerID_tdc = tdc_data_arr[ievt + tdc_index_correction].TriggerID + TriggerID_Offset;
-
-      //triggerID_tdc = (long) tdc_module->TDCRead_EventCounter(devnum, moduleID_tdc);
 
       // Filling ADC Tree
       for (int ih = 0; ih < 32; ih++) {
@@ -222,11 +206,9 @@ void daq_v792_v1290_MEB(int nevt = 15000)
       nadc = -999;
 
       nadc = adc_data_arr[ievt + adc_index_correction].nadc;
-      //	        cout << "NADC : " << nadc << endl;
       for (int ih = 0; ih < nadc; ih++) {
         adc[ih] = (long)adc_data_arr[ievt + adc_index_correction].adc[ih];
         adc_ch[ih] = (int)adc_data_arr[ievt + adc_index_correction].adc_ch[ih];
-        //	          cout << "ADC " << adc[ih] << " Ch " << adc_ch[ih] << endl;
       }
 
       nadc = adc_data_arr[ievt + adc_index_correction].nadc;
@@ -247,8 +229,7 @@ void daq_v792_v1290_MEB(int nevt = 15000)
       //tdc_data_arr[ievt].reset();
     }
 
-    evt_taken += niter;
-    tdc_buffer += nevt_tdc;
+    evt_taken = EventNumber;
 
     if (bStop) {
       std::cout << "terminated!" << std::endl;
