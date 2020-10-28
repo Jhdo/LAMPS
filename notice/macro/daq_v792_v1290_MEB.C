@@ -28,7 +28,7 @@ void daq_v792_v1290_MEB(int nevt = 15000)
   int BunchMode = 0; // 0 : Continueous beam, 1 : Bunch-like beam
   int devnum = 0; // Dev. Mount number in linux
 
-  const int buffer_evt = v792_NEVENT_BUFFER + 10;
+  const int buffer_evt = v792_NEVENT_BUFFER + 20;
   long evt_taken = 0;
   // Tree Branches
   int ntdc = -999;
@@ -58,7 +58,7 @@ void daq_v792_v1290_MEB(int nevt = 15000)
 
   TFile *file_out = new TFile("AnaResult.root", "Recreate");
   TTree *tree_out = new TTree("tree_out", "tdc_tree");
-  tree_out->SetAutoFlush(1000000);
+  //tree_out->SetAutoFlush(1000000);
   tree_out->Branch("ntdc", &ntdc);
   tree_out->Branch("tdc", tdc, "tdc[ntdc]/D");
   tree_out->Branch("tdc_ch", tdc_ch, "tdc_ch[ntdc]/I");
