@@ -174,10 +174,21 @@ void daq_v792_v1290_MEB(int nevt = 15000)
     microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
     std::cout << "Elapsed time 2 : " << microseconds << " micro seconds" << std::endl;
 
+
+    if (BunchMode == 0 && icycle == 1) TriggerID_Offset = adc_data_arr[0].TriggerID - tdc_data_arr[0].TriggerID;
+
     int niter = nevt_adc;
     if (nevt_adc > nevt_tdc)
       niter = nevt_tdc;
     for (int ievt = 0; ievt < niter; ievt++) {
+      // Sync offset correction, positive correction means adc event is late relative to tdc event
+      // Positive -> adc should match with later tdc event
+      int Sync_Correction = (adc_data_arr[ievt].TriggerID - tdc_data_arr[ievt].TriggerID) - TriggerID_Offset;
+      int tdc_index_correction = 0;
+      int adc_index_correction = 0;
+      // ADC-Late casd
+      if (Sync_Correction > 0) tdc_index_correction = Sync_Correction;
+      if (Sync_Correction < 0) adc_index_correction = -1*Sync_Correction;
       // Fill TDC Tree
       for (int i = 0; i < 32; i++) {
         tdc[i] = -999;
@@ -187,20 +198,20 @@ void daq_v792_v1290_MEB(int nevt = 15000)
       triggerID_tdc = -999;
       ntdc = -999;
 
-      ntdc = tdc_data_arr[ievt].ntdc;
+      ntdc = tdc_data_arr[ievt + tdc_index_correction].ntdc;
       //	        cout << "Test NTDC " << ntdc << endl;
       for (int ih = 0; ih < ntdc; ih++) {
-        tdc[ih] = (double)tdc_data_arr[ievt].tdc[ih] / 40.;
-        tdc_ch[ih] = (int)tdc_data_arr[ievt].tdc_ch[ih];
+        tdc[ih] = (double)tdc_data_arr[ievt + tdc_index_correction].tdc[ih] / 40.;
+        tdc_ch[ih] = (int)tdc_data_arr[ievt + tdc_index_correction].tdc_ch[ih];
         //	          cout <<"Test TDC : " << tdc[ih] << " " << tdc_ch[ih] << endl;
       }
 
-      if (BunchMode == 0 && icycle == 1 && ievt == 0) TriggerID_Offset = adc_data_arr[ievt].TriggerID - tdc_data_arr[ievt].TriggerID;
+
 
       cout << "Ref TrOffset " << TriggerID_Offset << endl;
-      cout << "Evt " << ievt << " trID offset : " << adc_data_arr[ievt].TriggerID - tdc_data_arr[ievt].TriggerID << endl;
+      cout << "Evt " << ievt << " trID offset : " << adc_data_arr[ievt + tdc_index_correction].TriggerID - tdc_data_arr[ievt + tdc_index_correction].TriggerID << endl;
 
-      triggerID_tdc = tdc_data_arr[ievt].TriggerID + TriggerID_Offset;
+      triggerID_tdc = tdc_data_arr[ievt + tdc_index_correction].TriggerID + TriggerID_Offset;
 
       //triggerID_tdc = (long) tdc_module->TDCRead_EventCounter(devnum, moduleID_tdc);
 
@@ -212,26 +223,27 @@ void daq_v792_v1290_MEB(int nevt = 15000)
       triggerID_adc = -999;
       nadc = -999;
 
-      nadc = adc_data_arr[ievt].nadc;
+      nadc = adc_data_arr[ievt + adc_index_correction].nadc;
       //	        cout << "NADC : " << nadc << endl;
       for (int ih = 0; ih < nadc; ih++) {
-        adc[ih] = (long)adc_data_arr[ievt].adc[ih];
-        adc_ch[ih] = (int)adc_data_arr[ievt].adc_ch[ih];
+        adc[ih] = (long)adc_data_arr[ievt + adc_index_correction].adc[ih];
+        adc_ch[ih] = (int)adc_data_arr[ievt + adc_index_correction].adc_ch[ih];
         //	          cout << "ADC " << adc[ih] << " Ch " << adc_ch[ih] << endl;
       }
 
-      nadc = adc_data_arr[ievt].nadc;
-      triggerID_adc = (int)adc_data_arr[ievt].TriggerID;
+      nadc = adc_data_arr[ievt + adc_index_correction].nadc;
+      triggerID_adc = (int)adc_data_arr[ievt + adc_index_correction].TriggerID;
       //triggerID_adc = (long) adc_module->ADCRead_TriggerCounter(devnum, moduleID_adc);
 
       unix_time = std::time(0);
 
-      tree_out->Fill();
+      // Fill Tree only when both tdc and adc are available
+      if (triggerID_adc > 0 && triggerID_tdc > 0) {
+        tree_out->Fill();
+        EventNumber += 1;
+      }
 
       //if (icycle%100 == 0) tree_out->Write();
-
-      EventNumber += 1;
-
       //adc_data_arr[ievt].reset();
       //tdc_data_arr[ievt].reset();
     }
