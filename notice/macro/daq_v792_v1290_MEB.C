@@ -196,7 +196,7 @@ void daq_v792_v1290_MEB(int nevt = 15000)
 
       cout << "Ref TrOffset " << TriggerID_Offset << endl;
       cout << "Each TrID ADC : " << adc_data_arr[ievt + adc_index_correction].TriggerID << ", TDC : " << tdc_data_arr[ievt + tdc_index_correction].TriggerID << endl;
-      cout << "Evt " << ievt << " trID offset : " << adc_data_arr[ievt + tdc_index_correction].TriggerID - tdc_data_arr[ievt + tdc_index_correction].TriggerID << endl;
+      cout << "Evt " << ievt << " trID offset : " << adc_data_arr[ievt + adc_index_correction].TriggerID - tdc_data_arr[ievt + tdc_index_correction].TriggerID << endl;
 
       triggerID_tdc = tdc_data_arr[ievt + tdc_index_correction].TriggerID + TriggerID_Offset;
 
