@@ -206,8 +206,6 @@ void daq_v792_v1290_MEB(int nevt = 15000)
         //	          cout <<"Test TDC : " << tdc[ih] << " " << tdc_ch[ih] << endl;
       }
 
-
-
       cout << "Ref TrOffset " << TriggerID_Offset << endl;
       cout << "Evt " << ievt << " trID offset : " << adc_data_arr[ievt + tdc_index_correction].TriggerID - tdc_data_arr[ievt + tdc_index_correction].TriggerID << endl;
 
@@ -243,7 +241,8 @@ void daq_v792_v1290_MEB(int nevt = 15000)
         EventNumber += 1;
       }
 
-      //if (icycle%100 == 0) tree_out->Write();
+      if (icycle%100 == 0) tree_out->Write();
+      
       //adc_data_arr[ievt].reset();
       //tdc_data_arr[ievt].reset();
     }
