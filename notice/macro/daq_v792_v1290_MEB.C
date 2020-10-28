@@ -213,7 +213,6 @@ void daq_v792_v1290_MEB(int nevt = 15000)
 
       nadc = adc_data_arr[ievt + adc_index_correction].nadc;
       triggerID_adc = (int)adc_data_arr[ievt + adc_index_correction].TriggerID;
-      //triggerID_adc = (long) adc_module->ADCRead_TriggerCounter(devnum, moduleID_adc);
 
       unix_time = std::time(0);
 
