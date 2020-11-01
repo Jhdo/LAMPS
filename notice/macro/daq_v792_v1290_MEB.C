@@ -129,6 +129,8 @@ void daq_v792_v1290_MEB(int nevt = 15000)
     unsigned long nw_tdc = tdc_module->TDCRead_Buffer_MEB(devnum, moduleID_tdc, words_tdc);
     unsigned long nw_adc = adc_module->ADCRead_Buffer(devnum, moduleID_adc, words_adc);
 
+    if (icycle == 0) continue;
+
     auto elapsed = std::chrono::high_resolution_clock::now() - start;
     long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
     std::cout << "Elapsed time 1 : " << microseconds << " micro seconds" << std::endl;
@@ -137,7 +139,7 @@ void daq_v792_v1290_MEB(int nevt = 15000)
     int nevt_tdc = tdc_module->TDCEventBuild_MEB(words_tdc, nw_tdc, tdc_data_arr);
 
     // event overflow
-    if (nevt_adc >= 32 || nevt_tdc >= 40) {
+    if (nevt_adc > 32 || nevt_tdc >= 40) {
       cout << "Event Overflow, Discarding event" << endl;
       continue;
     }
