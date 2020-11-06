@@ -166,11 +166,11 @@ void daq_v792_v1290_MEB(int nevt = 15000)
     if (BunchMode == 0 && icycle == 1) TriggerID_Offset = adc_data_arr[0].TriggerID - tdc_data_arr[0].TriggerID;
 
     int niter = nevt_adc;
-    if (nevt_adc > nevt_tdc)
-      niter = nevt_tdc;
+    if (nevt_adc > nevt_tdc) niter = nevt_tdc;
     for (int ievt = 0; ievt < niter; ievt++) {
       // Sync offset correction, positive correction means adc event is late relative to tdc event
       // Positive -> adc should match with later tdc event
+      cout << "Trigger ID Check ADC " << adc_data_arr[ievt].TriggerID << " TDC " << tdc_data_arr[ievt].TriggerID << endl;
       if (adc_data_arr[ievt].TriggerID == 0 || tdc_data_arr[ievt].TriggerID == 0) continue;
       int Sync_Correction = (adc_data_arr[ievt].TriggerID - tdc_data_arr[ievt].TriggerID) - TriggerID_Offset;
       int tdc_index_correction = 0;
@@ -195,6 +195,7 @@ void daq_v792_v1290_MEB(int nevt = 15000)
         tdc_ch[ih] = (int)tdc_data_arr[ievt + tdc_index_correction].tdc_ch[ih];
       }
 
+      cout << "Trigger ID Check After Sync Correction ADC " << adc_data_arr[ievt + adc_index_correction].TriggerID << " TDC " << tdc_data_arr[ievt + tdc_index_correction].TriggerID << endl;
       if (adc_data_arr[ievt + adc_index_correction].TriggerID == 0 || tdc_data_arr[ievt + tdc_index_correction].TriggerID == 0) continue;
 
       cout << "Ref TrOffset " << TriggerID_Offset << endl;
