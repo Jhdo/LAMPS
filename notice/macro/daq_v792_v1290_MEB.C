@@ -54,7 +54,7 @@ void daq_v792_v1290_MEB(int nevt = 15000)
     adc_data_arr[i].reset();
   }
 
-  TFile *file_out = new TFile("AnaResult.root", "Recreate");
+  TFile *file_out = new TFile("AnaResult.root", "Update");
   TTree *tree_out = new TTree("tree_out", "tdc_tree");
   //tree_out->SetAutoFlush(1000000);
   tree_out->Branch("ntdc", &ntdc);
